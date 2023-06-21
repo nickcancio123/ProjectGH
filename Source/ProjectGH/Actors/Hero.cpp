@@ -2,8 +2,10 @@
 
 
 #include "ProjectGH/Actors/Hero.h"
+#include "DrawDebugHelpers.h"
 
-// Sets default values
+
+#pragma region === Default Actor ===
 AHero::AHero()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -18,6 +20,9 @@ void AHero::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	MoveInput.Normalize();
+	FVector WorldMoveInput = (MoveInput.X * GetControlForwardVector()) + (MoveInput.Y * GetControlRightVector());
+	AddMovementInput(WorldMoveInput);
 }
 
 void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -30,24 +35,19 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("LookRight", this, &AHero::LookRight);
 }
 
+#pragma endregion
 
 
+
+#pragma region === Locomotion ===
 void AHero::MoveForward(float InputValue)
 {
-	// Compute forward vector of control rotation by projecting control rotation vector onto horizontal plane
-	FVector ControlForward =
-		FVector::VectorPlaneProject(GetControlRotation().Vector(), FVector::UpVector);
-
-	AddMovementInput(ControlForward * InputValue);
+	MoveInput.X = InputValue;
 }
 
 void AHero::MoveRight(float InputValue)
 {
-	// Compute right vector of control rotation by taking cross product of control rotation vector and world up vector
-	FVector ControlRight =
-		FVector::CrossProduct(FVector::UpVector, GetControlRotation().Vector());
-
-	AddMovementInput(ControlRight * InputValue);
+	MoveInput.Y = InputValue;
 }
 
 void AHero::LookUp(float InputValue)
@@ -59,3 +59,31 @@ void AHero::LookRight(float InputValue)
 {
 	AddControllerYawInput(InputValue * CameraTurnSensitivity);
 }
+#pragma endregion
+
+
+
+#pragma region === Helper ===
+// Returns the horizontal/flat/XY forward vector of the control rotation
+FVector AHero::GetControlForwardVector()
+{
+	// Compute forward vector of control rotation by projecting control rotation vector onto horizontal plane
+	FVector Forward = FVector::VectorPlaneProject(GetControlRotation().Vector(), FVector::UpVector);
+	return Forward.GetSafeNormal();
+}
+
+// Returns the horizontal/flat/XY right vector of the control rotation
+FVector AHero::GetControlRightVector()
+{
+	// Compute right vector of control rotation by taking cross product of control rotation vector and world up vector
+	FVector Right = FVector::CrossProduct(FVector::UpVector, GetControlRotation().Vector());
+	return Right.GetSafeNormal();
+}
+
+// Returns current frame's XY movement input
+FVector AHero::GetMoveInput()
+{
+	return MoveInput.GetSafeNormal();
+}
+
+#pragma endregion

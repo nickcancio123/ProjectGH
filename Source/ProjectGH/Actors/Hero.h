@@ -15,6 +15,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
 		float CameraTurnSensitivity = 1;
+
+
 	
 	AHero();
 
@@ -22,14 +24,28 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	
+	
+	UFUNCTION(BlueprintCallable, Category = "Hero")
+		FVector GetControlForwardVector();
+
+	UFUNCTION(BlueprintCallable, Category = "Hero")
+		FVector GetControlRightVector();
+
+	UFUNCTION(BlueprintCallable, Category = "Hero")
+		FVector GetMoveInput();
+
 
 protected:
 	virtual void BeginPlay() override;
 
+
 private:
+	FVector MoveInput = FVector::ZeroVector;
+
+	
 	void MoveForward(float InputValue);
 	void MoveRight(float InputValue);
-
 	void LookUp(float InputValue);
 	void LookRight(float InputValue);
 };
