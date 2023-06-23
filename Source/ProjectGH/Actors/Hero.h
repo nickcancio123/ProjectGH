@@ -15,11 +15,14 @@ class PROJECTGH_API AHero : public ACharacter
 
 public:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		UGrapplingHook* GrapplingHook = nullptr;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		float CameraTurnSensitivity = 1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
+		float MaxSprintSpeed = 750;
 
 
 	
@@ -47,9 +50,14 @@ protected:
 
 private:
 	FVector MoveInput = FVector::ZeroVector;
+	bool bSprinting = false;
+	float MaxRunSpeed = 500;
 	
 	void MoveForward(float InputValue);
 	void MoveRight(float InputValue);
 	void LookUp(float InputValue);
 	void LookRight(float InputValue);
+
+	void StartSprint();
+	void StopSprint();
 };

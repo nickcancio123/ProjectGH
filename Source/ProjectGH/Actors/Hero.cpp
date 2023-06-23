@@ -4,6 +4,7 @@
 #include "ProjectGH/Actors/Hero.h"
 #include "ProjectGH/Components/GrapplingHook.h"
 #include "DrawDebugHelpers.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 #pragma region === Default Actor ===
@@ -17,6 +18,8 @@ AHero::AHero()
 void AHero::BeginPlay()
 {
 	Super::BeginPlay();
+
+	MaxRunSpeed = GetCharacterMovement()->MaxWalkSpeed;
 }
 
 void AHero::Tick(float DeltaTime)
@@ -38,6 +41,10 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("LookUp", this, &AHero::LookUp);
 	PlayerInputComponent->BindAxis("LookRight", this, &AHero::LookRight);
 
+	// Sprint
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AHero::StartSprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AHero::StopSprint);
+	
 	GrapplingHook->BindInput(PlayerInputComponent);
 }
 
@@ -64,6 +71,18 @@ void AHero::LookUp(float InputValue)
 void AHero::LookRight(float InputValue)
 {
 	AddControllerYawInput(InputValue * CameraTurnSensitivity);
+}
+
+void AHero::StartSprint()
+{
+	bSprinting = true;
+	GetCharacterMovement()->MaxWalkSpeed = MaxSprintSpeed;
+}
+
+void AHero::StopSprint()
+{
+	bSprinting = false;
+	GetCharacterMovement()->MaxWalkSpeed = MaxRunSpeed;
 }
 #pragma endregion
 
