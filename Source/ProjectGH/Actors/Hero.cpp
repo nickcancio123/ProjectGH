@@ -2,6 +2,7 @@
 
 
 #include "ProjectGH/Actors/Hero.h"
+#include "ProjectGH/Components/GrapplingHook.h"
 #include "DrawDebugHelpers.h"
 
 
@@ -9,6 +10,8 @@
 AHero::AHero()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	GrapplingHook = CreateDefaultSubobject<UGrapplingHook>(TEXT("Grappling Hook"));
 }
 
 void AHero::BeginPlay()

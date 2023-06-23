@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Hero.generated.h"
 
+class UGrapplingHook;
+
 UCLASS()
 class PROJECTGH_API AHero : public ACharacter
 {
@@ -13,6 +15,9 @@ class PROJECTGH_API AHero : public ACharacter
 
 public:
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
+		UGrapplingHook* GrapplingHook = nullptr;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
 		float CameraTurnSensitivity = 1;
 
@@ -42,7 +47,6 @@ protected:
 
 private:
 	FVector MoveInput = FVector::ZeroVector;
-
 	
 	void MoveForward(float InputValue);
 	void MoveRight(float InputValue);

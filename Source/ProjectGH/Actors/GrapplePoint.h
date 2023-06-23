@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "GrapplePoint.generated.h"
 
+
 UCLASS()
 class PROJECTGH_API AGrapplePoint : public AActor
 {
