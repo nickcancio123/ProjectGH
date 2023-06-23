@@ -32,10 +32,13 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	// Locomotion
 	PlayerInputComponent->BindAxis("MoveForward", this, &AHero::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AHero::MoveRight);
 	PlayerInputComponent->BindAxis("LookUp", this, &AHero::LookUp);
 	PlayerInputComponent->BindAxis("LookRight", this, &AHero::LookRight);
+
+	GrapplingHook->BindInput(PlayerInputComponent);
 }
 
 #pragma endregion
