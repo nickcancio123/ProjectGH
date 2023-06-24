@@ -10,6 +10,7 @@
 class USphereComponent;
 class AGrapplePoint;
 class UInputComponent;
+class UAnimMontage;
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
@@ -31,6 +32,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
 		float Max_GP_SightAngle = 20;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+		UAnimMontage* GrappleAnimMontage = nullptr;
+
 	// Set of GPs that are within GP detection
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grappling")
 		TArray<AGrapplePoint*> Available_GPs;
@@ -45,6 +49,8 @@ public:
 
 
 	void BindInput(UInputComponent* PlayerInputComponent);
+
+	AGrapplePoint* GetCurrentGrapplePoint();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -53,6 +59,7 @@ protected:
 private:
 
 	ACharacter* Character = nullptr;
+	AGrapplePoint* Current_GP = nullptr;
 	
 	UFUNCTION()
 	void OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -64,4 +71,6 @@ private:
 	void InitGrapplePointDetector();
 
 	void TryGrapple();
+
+	void BeginGrapple();
 };

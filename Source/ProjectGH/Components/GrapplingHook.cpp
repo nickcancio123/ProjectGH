@@ -17,7 +17,6 @@ UGrapplingHook::UGrapplingHook()
 	InitGrapplePointDetector();
 }
 
-
 void UGrapplingHook::BeginPlay()
 {
 	Super::BeginPlay();
@@ -25,7 +24,6 @@ void UGrapplingHook::BeginPlay()
 	if (GetOwner())
 		Character = Cast<ACharacter>(GetOwner());
 }
-
 
 void UGrapplingHook::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -40,10 +38,25 @@ void UGrapplingHook::OnRegister()
 }
 
 
+
 void UGrapplingHook::BindInput(UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrapplingHook::TryGrapple);
 }
+
+void UGrapplingHook::InitGrapplePointDetector()
+{
+	GP_Detector = CreateDefaultSubobject<USphereComponent>(TEXT("Grapple Point Detector"));
+	
+	GP_Detector->SetSphereRadius(GP_DetectionRadius);
+	GP_Detector->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
+	GP_Detector->SetCanEverAffectNavigation(false);
+
+	GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrapplingHook::OnOverlapStart);
+	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrapplingHook::OnOverlapEnd);
+}
+
+
 
 
 void UGrapplingHook::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -66,19 +79,6 @@ void UGrapplingHook::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* O
 		Available_GPs.Remove(GP);
 }
 
-
-
-void UGrapplingHook::InitGrapplePointDetector()
-{
-	GP_Detector = CreateDefaultSubobject<USphereComponent>(TEXT("Grapple Point Detector"));
-	
-	GP_Detector->SetSphereRadius(GP_DetectionRadius);
-	GP_Detector->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-	GP_Detector->SetCanEverAffectNavigation(false);
-
-	GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrapplingHook::OnOverlapStart);
-	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrapplingHook::OnOverlapEnd);
-}
 
 
 
@@ -121,12 +121,25 @@ void UGrapplingHook::TryGrapple()
 		DrawDebugSphere(
 			GetWorld(),
 			Available_GPs[BestGPIndex]->GetActorLocation(),
-			100,
+			51,
 			16,
-			FColor::Red,
+			FColor::Blue,
 			false,
 			2
 			);
+
+		Current_GP = Available_GPs[BestGPIndex];
+		BeginGrapple();
 	}
 }
 
+void UGrapplingHook::BeginGrapple()
+{
+	Character->PlayAnimMontage(GrappleAnimMontage);
+}
+
+// Returns the grapple point that is actively being grappled to
+AGrapplePoint* UGrapplingHook::GetCurrentGrapplePoint()
+{
+	return Current_GP;
+}
