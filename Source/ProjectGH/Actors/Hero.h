@@ -24,7 +24,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		float MaxSprintSpeed = 750;
 
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
+		bool bJumpTrigger = false;
 	
 	AHero();
 
@@ -43,21 +44,28 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Hero")
 		FVector GetMoveInput();
 
+	UFUNCTION(BlueprintCallable, Category = "Hero")
+		void ResetJumpTrigger();
+
 
 protected:
 	virtual void BeginPlay() override;
 
 
 private:
+	UCharacterMovementComponent* CharacterMovement = nullptr;
 	FVector MoveInput = FVector::ZeroVector;
 	bool bSprinting = false;
 	float MaxRunSpeed = 500;
 	
 	void MoveForward(float InputValue);
 	void MoveRight(float InputValue);
+	
 	void LookUp(float InputValue);
 	void LookRight(float InputValue);
 
 	void StartSprint();
 	void StopSprint();
+
+	void TryJump();
 };

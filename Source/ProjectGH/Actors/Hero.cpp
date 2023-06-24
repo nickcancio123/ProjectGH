@@ -19,7 +19,8 @@ void AHero::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MaxRunSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	CharacterMovement = GetCharacterMovement();
+	MaxRunSpeed = CharacterMovement->MaxWalkSpeed;
 }
 
 void AHero::Tick(float DeltaTime)
@@ -44,6 +45,10 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	// Sprint
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AHero::StartSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AHero::StopSprint);
+
+	// Jump
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AHero::TryJump);
+
 	
 	GrapplingHook->BindInput(PlayerInputComponent);
 }
@@ -82,7 +87,17 @@ void AHero::StartSprint()
 void AHero::StopSprint()
 {
 	bSprinting = false;
-	GetCharacterMovement()->MaxWalkSpeed = MaxRunSpeed;
+	CharacterMovement->MaxWalkSpeed = MaxRunSpeed;
+}
+
+void AHero::TryJump()
+{
+	if (GetCharacterMovement()->IsFalling())
+		return;
+
+	bJumpTrigger = true;
+	
+	Jump();
 }
 #pragma endregion
 
@@ -109,6 +124,11 @@ FVector AHero::GetControlRightVector()
 FVector AHero::GetMoveInput()
 {
 	return MoveInput.GetSafeNormal();
+}
+
+void AHero::ResetJumpTrigger()
+{
+	bJumpTrigger = false;
 }
 
 #pragma endregion
