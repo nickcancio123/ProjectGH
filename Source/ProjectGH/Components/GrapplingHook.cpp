@@ -23,6 +23,8 @@ void UGrapplingHook::BeginPlay()
 
 	if (GetOwner())
 		Character = Cast<ACharacter>(GetOwner());
+
+	GetOverlapped_GPs();
 }
 
 void UGrapplingHook::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -44,11 +46,16 @@ void UGrapplingHook::BindInput(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrapplingHook::TryGrapple);
 }
 
+void UGrapplingHook::SetCanGrapple(bool _bCanGrapple)
+{
+	bCanGrapple = _bCanGrapple;
+}
+
 void UGrapplingHook::InitGrapplePointDetector()
 {
 	GP_Detector = CreateDefaultSubobject<USphereComponent>(TEXT("Grapple Point Detector"));
 	
-	GP_Detector->SetSphereRadius(GP_DetectionRadius);
+	GP_Detector->SetSphereRadius(GrappleRange.GetUpperBoundValue());
 	GP_Detector->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 	GP_Detector->SetCanEverAffectNavigation(false);
 
@@ -56,6 +63,15 @@ void UGrapplingHook::InitGrapplePointDetector()
 	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrapplingHook::OnOverlapEnd);
 }
 
+// Called on BeginPlay to check for already overlapped GPs
+void UGrapplingHook::GetOverlapped_GPs()
+{
+	TArray<AActor*> OverlappingActors;
+	GP_Detector->GetOverlappingActors(OverlappingActors, AGrapplePoint::StaticClass());
+
+	for (int i = 0; i < OverlappingActors.Num(); i++)
+		Available_GPs.Add(Cast<AGrapplePoint>(OverlappingActors[i]));
+}
 
 
 
@@ -84,8 +100,9 @@ void UGrapplingHook::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* O
 
 void UGrapplingHook::TryGrapple()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Try grapple!"));
-
+	if (!bCanGrapple)
+		return;
+	
 	FVector ViewLocation;
 	FRotator ViewRotation;
 	Character->GetController()->GetPlayerViewPoint(ViewLocation, ViewRotation);
@@ -99,13 +116,14 @@ void UGrapplingHook::TryGrapple()
 	for (int i = 0; i < Available_GPs.Num(); i++)
 	{
 		// Get normalized vector from view location to GP
-		const FVector CamToGP =  (Available_GPs[i]->GetActorLocation() - ViewLocation).GetSafeNormal();
+		FVector CamToGP =  (Available_GPs[i]->GetActorLocation() - ViewLocation);
+		float DistToGP = CamToGP.Size();
+		CamToGP.Normalize();
 
 		float Angle = FMath::Acos(FVector::DotProduct(LineOfSight, CamToGP));
 		Angle = FMath::RadiansToDegrees(Angle);
-		UE_LOG(LogTemp, Warning, TEXT("     GP %d angle: %f"), i, Angle);
 
-		if (Angle < Max_GP_SightAngle)
+		if (Angle < Max_GP_SightAngle && DistToGP > GrappleRange.GetLowerBoundValue())
 		{
 			bFoundValidGP = true;
 			if (Angle < MinGPAngle)
@@ -118,16 +136,6 @@ void UGrapplingHook::TryGrapple()
 
 	if (bFoundValidGP)
 	{
-		DrawDebugSphere(
-			GetWorld(),
-			Available_GPs[BestGPIndex]->GetActorLocation(),
-			51,
-			16,
-			FColor::Blue,
-			false,
-			2
-			);
-
 		Current_GP = Available_GPs[BestGPIndex];
 		BeginGrapple();
 	}
@@ -135,6 +143,18 @@ void UGrapplingHook::TryGrapple()
 
 void UGrapplingHook::BeginGrapple()
 {
+	DrawDebugSphere(
+	GetWorld(),
+	Current_GP->GetActorLocation(),
+	43,
+	8,
+	FColor::Yellow,
+	false,
+	2
+	);
+
+	bCanGrapple = false;
+	
 	Character->PlayAnimMontage(GrappleAnimMontage);
 }
 
@@ -142,4 +162,13 @@ void UGrapplingHook::BeginGrapple()
 AGrapplePoint* UGrapplingHook::GetCurrentGrapplePoint()
 {
 	return Current_GP;
+}
+
+FVector UGrapplingHook::GetGrappleDirection()
+{
+	FVector ViewLocation;
+	FRotator ViewRotation;
+	Character->GetController()->GetPlayerViewPoint(ViewLocation, ViewRotation);
+	const FVector CamToGP =  (Current_GP->GetActorLocation() - ViewLocation).GetSafeNormal();
+	return CamToGP;
 }

@@ -5,30 +5,30 @@
 
 #include "DrawDebugHelpers.h"
 #include "ProjectGH/Components/GrapplingHook.h"
-#include "GameFramework/Character.h"
+#include "GameFramework/Pawn.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 void UGrappleFlight_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
                                              float TotalDuration)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
 	
-	Character = Cast<ACharacter>(MeshComp->GetOwner());
+	Pawn = Cast<APawn>(MeshComp->GetOwner());
 
-	if (!Character)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Missing character reference in grapple notify state"));
+	if (!Pawn)
 		return;
-	}
 	
-	GrapplingHook = Cast<UGrapplingHook>(Character->GetComponentByClass(UGrapplingHook::StaticClass()));
+	GrapplingHook = Cast<UGrapplingHook>(Pawn->GetComponentByClass(UGrapplingHook::StaticClass()));
 	GrapplePoint = GrapplingHook->GetCurrentGrapplePoint();
 
+	SpringArm = Cast<USpringArmComponent>(Pawn->GetComponentByClass(USpringArmComponent::StaticClass()));
+	OriginalSpringArmLength = SpringArm->TargetArmLength;
 
 	TotalNotifyDuration = TotalDuration;
 	RunningTime = 0;
 
-	PathStart = Character->GetActorLocation();
+	PathStart = Pawn->GetActorLocation();
 	PathEnd = GrapplePoint->GetActorLocation();
 
 	PathTotalDist = FVector::Dist(PathStart, PathEnd);
@@ -40,21 +40,31 @@ void UGrappleFlight_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UA
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime);
 
-	if (!Character)
+	if (!Pawn)
 		return;
 
 	RunningTime += FrameDeltaTime;
 
 	float Alpha = RunningTime / TotalNotifyDuration;
-	
+
+	// Compute and set new actor location
 	float DistAlongPath = Alpha * PathTotalDist;
 	FVector NewLocation = PathStart + DistAlongPath * PathDir;
-	NewLocation.Z += PathShape.GetRichCurve()->Eval(Alpha) * PathHeightScale;
-	
-	Character->SetActorLocation(NewLocation);
+	NewLocation.Z += PathShapeCurve.GetRichCurve()->Eval(Alpha) * PathHeightScale;
+	Pawn->SetActorLocation(NewLocation);
+
+	// Compute new spring arm distance
+	SpringArm->TargetArmLength = OriginalSpringArmLength + SpringArmLengthCurve.GetRichCurve()->Eval(Alpha) * 1000;
 }
 
 void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::NotifyEnd(MeshComp, Animation);
+
+	if (!Pawn)
+		return;
+
+	GrapplingHook->SetCanGrapple(true);
+	
+	Pawn->GetMovementComponent()->Velocity = PathDir * PostGrappleVelocity;
 }

@@ -25,8 +25,8 @@ public:
 		USphereComponent* GP_Detector = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
-		float GP_DetectionRadius = 2000;
-
+		FFloatRange GrappleRange = FFloatRange(600, 3000);
+	
 
 	// The max angle (degrees) between line-of-sight and vector to GP to consider for grappling
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
@@ -38,7 +38,6 @@ public:
 	// Set of GPs that are within GP detection
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Grappling")
 		TArray<AGrapplePoint*> Available_GPs;
-
 	
 
 	UGrapplingHook();
@@ -50,7 +49,9 @@ public:
 
 	void BindInput(UInputComponent* PlayerInputComponent);
 
+	void SetCanGrapple(bool _bCanGrapple);
 	AGrapplePoint* GetCurrentGrapplePoint();
+	FVector GetGrappleDirection();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -60,6 +61,9 @@ private:
 
 	ACharacter* Character = nullptr;
 	AGrapplePoint* Current_GP = nullptr;
+
+	bool bCanGrapple = true;
+	
 	
 	UFUNCTION()
 	void OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -69,6 +73,8 @@ private:
 
 
 	void InitGrapplePointDetector();
+
+	void GetOverlapped_GPs();
 
 	void TryGrapple();
 
