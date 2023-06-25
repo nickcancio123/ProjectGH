@@ -9,6 +9,7 @@
 
 class UGrappleComponent;
 class AGrapplePoint;
+class AHero;
 
 UCLASS()
 class PROJECTGH_API UGrappleFlight_NotifyState : public UAnimNotifyState
@@ -28,7 +29,10 @@ public:
 		float PathHeightScale = 1000;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grapple")
-		float PostGrappleVelocity = 400;
+		float PostGrappleDefaultSpeed = 500;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grapple")
+		float PostGrappleInputSpeed = 300;
 	
 	
 	virtual void NotifyBegin(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation, float TotalDuration) override;
@@ -36,7 +40,7 @@ public:
 	virtual void NotifyEnd(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation) override;
 
 private:
-	APawn* Pawn = nullptr;
+	AHero* Hero = nullptr;
 	UGrappleComponent* GrappleComp = nullptr;
 	AGrapplePoint* GrapplePoint = nullptr;
 	USpringArmComponent* SpringArm = nullptr;
