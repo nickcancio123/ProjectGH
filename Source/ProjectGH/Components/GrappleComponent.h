@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "GrapplingHook.generated.h"
+#include "GrappleComponent.generated.h"
 
 
 class USphereComponent;
@@ -14,7 +14,7 @@ class UAnimMontage;
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
-class PROJECTGH_API UGrapplingHook : public UActorComponent
+class PROJECTGH_API UGrappleComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -40,7 +40,7 @@ public:
 		TArray<AGrapplePoint*> Available_GPs;
 	
 
-	UGrapplingHook();
+	UGrappleComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

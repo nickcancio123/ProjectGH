@@ -2,7 +2,7 @@
 
 
 #include "ProjectGH/Actors/Hero.h"
-#include "ProjectGH/Components/GrapplingHook.h"
+#include "ProjectGH/Components/GrappleComponent.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -12,7 +12,7 @@ AHero::AHero()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	GrapplingHook = CreateDefaultSubobject<UGrapplingHook>(TEXT("Grappling Hook"));
+	GrappleComp = CreateDefaultSubobject<UGrappleComponent>(TEXT("Grapple Component"));
 }
 
 void AHero::BeginPlay()
@@ -50,7 +50,7 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AHero::TryJump);
 
 	
-	GrapplingHook->BindInput(PlayerInputComponent);
+	GrappleComp->BindInput(PlayerInputComponent);
 }
 
 #pragma endregion

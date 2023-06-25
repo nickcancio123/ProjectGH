@@ -4,7 +4,7 @@
 #include "ProjectGH/AnimNotifies/GrappleFlight_NotifyState.h"
 
 #include "DrawDebugHelpers.h"
-#include "ProjectGH/Components/GrapplingHook.h"
+#include "ProjectGH/Components/GrappleComponent.h"
 #include "GameFramework/Pawn.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
 #include "GameFramework/PawnMovementComponent.h"
@@ -19,8 +19,8 @@ void UGrappleFlight_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, U
 	if (!Pawn)
 		return;
 	
-	GrapplingHook = Cast<UGrapplingHook>(Pawn->GetComponentByClass(UGrapplingHook::StaticClass()));
-	GrapplePoint = GrapplingHook->GetCurrentGrapplePoint();
+	GrappleComp = Cast<UGrappleComponent>(Pawn->GetComponentByClass(UGrappleComponent::StaticClass()));
+	GrapplePoint = GrappleComp->GetCurrentGrapplePoint();
 
 	SpringArm = Cast<USpringArmComponent>(Pawn->GetComponentByClass(USpringArmComponent::StaticClass()));
 	OriginalSpringArmLength = SpringArm->TargetArmLength;
@@ -64,7 +64,7 @@ void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 	if (!Pawn)
 		return;
 
-	GrapplingHook->SetCanGrapple(true);
+	GrappleComp->SetCanGrapple(true);
 	
 	Pawn->GetMovementComponent()->Velocity = PathDir * PostGrappleVelocity;
 }

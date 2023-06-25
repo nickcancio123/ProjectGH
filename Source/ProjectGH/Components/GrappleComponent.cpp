@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ProjectGH/Components/GrapplingHook.h"
+#include "ProjectGH/Components/GrappleComponent.h"
 
 #include "DrawDebugHelpers.h"
 #include "Viewports.h"
@@ -10,14 +10,14 @@
 #include "GameFramework/Character.h"
 
 
-UGrapplingHook::UGrapplingHook()
+UGrappleComponent::UGrappleComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
 	InitGrapplePointDetector();
 }
 
-void UGrapplingHook::BeginPlay()
+void UGrappleComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -27,12 +27,12 @@ void UGrapplingHook::BeginPlay()
 	GetOverlapped_GPs();
 }
 
-void UGrapplingHook::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UGrapplingHook::OnRegister()
+void UGrappleComponent::OnRegister()
 {
 	Super::OnRegister();
 
@@ -41,17 +41,17 @@ void UGrapplingHook::OnRegister()
 
 
 
-void UGrapplingHook::BindInput(UInputComponent* PlayerInputComponent)
+void UGrappleComponent::BindInput(UInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrapplingHook::TryGrapple);
+	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrappleComponent::TryGrapple);
 }
 
-void UGrapplingHook::SetCanGrapple(bool _bCanGrapple)
+void UGrappleComponent::SetCanGrapple(bool _bCanGrapple)
 {
 	bCanGrapple = _bCanGrapple;
 }
 
-void UGrapplingHook::InitGrapplePointDetector()
+void UGrappleComponent::InitGrapplePointDetector()
 {
 	GP_Detector = CreateDefaultSubobject<USphereComponent>(TEXT("Grapple Point Detector"));
 	
@@ -59,12 +59,12 @@ void UGrapplingHook::InitGrapplePointDetector()
 	GP_Detector->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 	GP_Detector->SetCanEverAffectNavigation(false);
 
-	GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrapplingHook::OnOverlapStart);
-	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrapplingHook::OnOverlapEnd);
+	GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapStart);
+	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapEnd);
 }
 
 // Called on BeginPlay to check for already overlapped GPs
-void UGrapplingHook::GetOverlapped_GPs()
+void UGrappleComponent::GetOverlapped_GPs()
 {
 	TArray<AActor*> OverlappingActors;
 	GP_Detector->GetOverlappingActors(OverlappingActors, AGrapplePoint::StaticClass());
@@ -75,7 +75,7 @@ void UGrapplingHook::GetOverlapped_GPs()
 
 
 
-void UGrapplingHook::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void UGrappleComponent::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!OtherActor)
 		return;
@@ -85,7 +85,7 @@ void UGrapplingHook::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor*
 		Available_GPs.Add(GP);
 }
 
-void UGrapplingHook::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void UGrappleComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (!OtherActor)
 		return;
@@ -98,7 +98,7 @@ void UGrapplingHook::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* O
 
 
 
-void UGrapplingHook::TryGrapple()
+void UGrappleComponent::TryGrapple()
 {
 	if (!bCanGrapple)
 		return;
@@ -141,7 +141,7 @@ void UGrapplingHook::TryGrapple()
 	}
 }
 
-void UGrapplingHook::BeginGrapple()
+void UGrappleComponent::BeginGrapple()
 {
 	DrawDebugSphere(
 	GetWorld(),
@@ -159,12 +159,12 @@ void UGrapplingHook::BeginGrapple()
 }
 
 // Returns the grapple point that is actively being grappled to
-AGrapplePoint* UGrapplingHook::GetCurrentGrapplePoint()
+AGrapplePoint* UGrappleComponent::GetCurrentGrapplePoint()
 {
 	return Current_GP;
 }
 
-FVector UGrapplingHook::GetGrappleDirection()
+FVector UGrappleComponent::GetGrappleDirection()
 {
 	FVector ViewLocation;
 	FRotator ViewRotation;
