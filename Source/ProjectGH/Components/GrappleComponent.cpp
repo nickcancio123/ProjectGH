@@ -3,11 +3,14 @@
 
 #include "ProjectGH/Components/GrappleComponent.h"
 
-#include "DrawDebugHelpers.h"
-#include "Viewports.h"
 #include "ProjectGH/Actors/GrapplePoint.h" 
+#include "ProjectGH/Actors/GrapplingHook.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/Character.h"
+#include "DrawDebugHelpers.h"
+
+#include "CableComponent.h"
+
 
 
 UGrappleComponent::UGrappleComponent()
@@ -41,6 +44,7 @@ void UGrappleComponent::OnRegister()
 
 
 
+
 void UGrappleComponent::BindInput(UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrappleComponent::TryGrapple);
@@ -63,7 +67,6 @@ void UGrappleComponent::InitGrapplePointDetector()
 	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapEnd);
 }
 
-// Called on BeginPlay to check for already overlapped GPs
 void UGrappleComponent::GetOverlapped_GPs()
 {
 	TArray<AActor*> OverlappingActors;
@@ -72,6 +75,7 @@ void UGrappleComponent::GetOverlapped_GPs()
 	for (int i = 0; i < OverlappingActors.Num(); i++)
 		Available_GPs.Add(Cast<AGrapplePoint>(OverlappingActors[i]));
 }
+
 
 
 
@@ -156,9 +160,27 @@ void UGrappleComponent::BeginGrapple()
 	bCanGrapple = false;
 	
 	Character->PlayAnimMontage(GrappleAnimMontage);
+
+	// TEST
+	// FVector HookSpawnLocation = Character->GetMesh()->GetSocketLocation("RightHandSocket");
+	//
+	// AGrapplingHook* GrapplingHook =
+	// 	Cast<AGrapplingHook>(GetWorld()->SpawnActor(GrapplingHookClass, &HookSpawnLocation));
+	//
+	// GrapplingHook->CableComp->bAttachStart = true;
+	//
+	// GrapplingHook->CableComp->AttachToComponent(
+	// 	Character->GetMesh(),
+	// 	FAttachmentTransformRules::KeepRelativeTransform,
+	// 	"RightHandSocket"
+	// 	);
+	//
+	// GrapplingHook->CableComp->SetRelativeLocation(FVector::ZeroVector);
 }
 
-// Returns the grapple point that is actively being grappled to
+
+
+
 AGrapplePoint* UGrappleComponent::GetCurrentGrapplePoint()
 {
 	return Current_GP;

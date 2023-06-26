@@ -20,6 +20,9 @@ class PROJECTGH_API UGrappleComponent : public UActorComponent
 
 public:	
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+		UClass* GrapplingHookClass;
+	
 	// Sphere collider used to detect grapple points
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
 		USphereComponent* GP_Detector = nullptr;
