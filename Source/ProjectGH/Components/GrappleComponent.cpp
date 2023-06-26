@@ -12,7 +12,6 @@
 #include "CableComponent.h"
 
 
-
 UGrappleComponent::UGrappleComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -27,6 +26,7 @@ void UGrappleComponent::BeginPlay()
 	if (GetOwner())
 		Character = Cast<ACharacter>(GetOwner());
 
+	CreateGrappleHookActor();
 	GetOverlapped_GPs();
 }
 
@@ -50,9 +50,14 @@ void UGrappleComponent::BindInput(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrappleComponent::TryGrapple);
 }
 
-void UGrappleComponent::SetCanGrapple(bool _bCanGrapple)
+void UGrappleComponent::CreateGrappleHookActor()
 {
-	bCanGrapple = _bCanGrapple;
+	GrapplingHook = Cast<AGrapplingHook>(GetWorld()->SpawnActor(GrapplingHookClass));
+	if (!GrapplingHook)
+		return;
+	GrapplingHook->SetupCable(Character->GetMesh());
+
+	GrapplingHook->SetVisibility(false);
 }
 
 void UGrappleComponent::InitGrapplePointDetector()
@@ -160,22 +165,11 @@ void UGrappleComponent::BeginGrapple()
 	bCanGrapple = false;
 	
 	Character->PlayAnimMontage(GrappleAnimMontage);
+}
 
-	// TEST
-	// FVector HookSpawnLocation = Character->GetMesh()->GetSocketLocation("RightHandSocket");
-	//
-	// AGrapplingHook* GrapplingHook =
-	// 	Cast<AGrapplingHook>(GetWorld()->SpawnActor(GrapplingHookClass, &HookSpawnLocation));
-	//
-	// GrapplingHook->CableComp->bAttachStart = true;
-	//
-	// GrapplingHook->CableComp->AttachToComponent(
-	// 	Character->GetMesh(),
-	// 	FAttachmentTransformRules::KeepRelativeTransform,
-	// 	"RightHandSocket"
-	// 	);
-	//
-	// GrapplingHook->CableComp->SetRelativeLocation(FVector::ZeroVector);
+void UGrappleComponent::SetCanGrapple(bool _bCanGrapple)
+{
+	bCanGrapple = _bCanGrapple;
 }
 
 
@@ -184,6 +178,11 @@ void UGrappleComponent::BeginGrapple()
 AGrapplePoint* UGrappleComponent::GetCurrentGrapplePoint()
 {
 	return Current_GP;
+}
+
+AGrapplingHook* UGrappleComponent::GetGrapplingHook()
+{
+	return GrapplingHook;
 }
 
 FVector UGrappleComponent::GetGrappleDirection()

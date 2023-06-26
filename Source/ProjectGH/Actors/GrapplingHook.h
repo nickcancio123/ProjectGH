@@ -29,15 +29,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-	void SetHookWorldLocation(FVector Location);
-	
-	void SetupCable();
-	void InitHookMesh();
+	void SetupCable(USkeletalMeshComponent* CharacterMesh);
+	void SetVisibility(bool bVisible);
 	
 protected:
 	virtual void BeginPlay() override;
 
 
 private:
-	float Time = 0;
+	//float Time = 0;
+	void InitHookMesh();
 };

@@ -5,6 +5,8 @@
 #include "CableComponent.h"
 #include "NavigationSystemTypes.h"
 
+
+
 AGrapplingHook::AGrapplingHook()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -20,38 +22,49 @@ AGrapplingHook::AGrapplingHook()
 void AGrapplingHook::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SetupCable();
 }
 
 void AGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	// TEST
-	// Time += DeltaTime;
-	// FVector Pos = 400 * FMath::Sin(Time) * FVector::UpVector;
-	// Pos += 600 * FVector::UpVector;
-	// SetHookWorldLocation(Pos);
-}
-
-void AGrapplingHook::SetHookWorldLocation(FVector Location)
-{
-	HookMeshComp->SetWorldLocation(Location);
 }
 
 
-void AGrapplingHook::SetupCable()
+
+
+void AGrapplingHook::SetupCable(USkeletalMeshComponent* CharacterMesh)
 {
+	// Attach end to hook mesh
 	CableComp->bAttachEnd = true;
 	CableComp->EndLocation = FVector::ZeroVector;
 	CableComp->SetAttachEndToComponent(HookMeshComp);
-	
+
+	// Attach start to character right hand socket
+	CableComp->bAttachStart = true;
+	CableComp->AttachToComponent(CharacterMesh, FAttachmentTransformRules::KeepRelativeTransform,"RightHandSocket");
+	CableComp->SetRelativeLocation(FVector::ZeroVector);
+
+	// Misc
 	CableComp->CableWidth = CableWidth;
+	CableComp->bEnableStiffness = true;
+	CableComp->SolverIterations = 6;
 }
 
 void AGrapplingHook::InitHookMesh()
 {
-	HookMeshComp->SetRelativeScale3D(FVector::OneVector * 0.3);
+	HookMeshComp->SetRelativeScale3D(FVector::OneVector * 0.2);
 }
+
+
+
+
+void AGrapplingHook::SetVisibility(bool bVisible)
+{
+	CableComp->SetVisibility(bVisible);
+	CableComp->SetActive(bVisible);
+	
+	HookMeshComp->SetVisibility(bVisible);
+}
+
+
 

@@ -7,8 +7,9 @@
 #include "GrappleComponent.generated.h"
 
 
-class USphereComponent;
 class AGrapplePoint;
+class AGrapplingHook;
+class USphereComponent;
 class UInputComponent;
 class UAnimMontage;
 
@@ -21,7 +22,7 @@ class PROJECTGH_API UGrappleComponent : public UActorComponent
 public:	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
-		UClass* GrapplingHookClass;
+	 	UClass* GrapplingHookClass;
 	
 	// Sphere collider used to detect grapple points
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
@@ -52,17 +53,23 @@ public:
 
 	void BindInput(UInputComponent* PlayerInputComponent);
 
+	
 	void SetCanGrapple(bool _bCanGrapple);
+	
 	AGrapplePoint* GetCurrentGrapplePoint();
+	AGrapplingHook* GetGrapplingHook();
 	FVector GetGrappleDirection();
+
+
 	
 protected:
 	virtual void BeginPlay() override;
 
+	
 
 private:
-
 	ACharacter* Character = nullptr;
+	AGrapplingHook* GrapplingHook = nullptr;
 	AGrapplePoint* Current_GP = nullptr;
 
 	bool bCanGrapple = true;
@@ -75,11 +82,11 @@ private:
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 
+	void CreateGrappleHookActor();
 	void InitGrapplePointDetector();
-
 	void GetOverlapped_GPs();
 
+	
 	void TryGrapple();
-
 	void BeginGrapple();
 };
