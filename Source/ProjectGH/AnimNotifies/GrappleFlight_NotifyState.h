@@ -28,11 +28,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grapple")
 		float PathHeightScale = 1000;
 
+	// Percent of grapple speed that is retained after grapple animation
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grapple")
-		float PostGrappleDefaultSpeed = 500;
+		float PercentSpeedRetainedPostGrapple = 0.5;
 
+	// Percent of grapple speed that can be applied through input
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grapple")
-		float PostGrappleInputSpeed = 300;
+		float PercentSpeedInputSpeed = 0.4;
 	
 	
 	virtual void NotifyBegin(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation, float TotalDuration) override;

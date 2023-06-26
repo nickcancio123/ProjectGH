@@ -40,7 +40,7 @@ void UGrappleHook_Pull_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp,
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime);
 
-	if (!GrapplingHook)
+	if (!GrapplingHook || !GrapplingHook->HookMeshComp)
 		return;
 
 	

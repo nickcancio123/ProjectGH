@@ -60,6 +60,9 @@ void AGrapplingHook::InitHookMesh()
 
 void AGrapplingHook::SetVisibility(bool bVisible)
 {
+	if (!CableComp || !HookMeshComp)
+		return;
+	
 	CableComp->SetVisibility(bVisible);
 	CableComp->SetActive(bVisible);
 	

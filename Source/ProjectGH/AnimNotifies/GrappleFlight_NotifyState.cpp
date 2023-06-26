@@ -40,7 +40,7 @@ void UGrappleFlight_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UA
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime);
 
-	if (!Hero)
+	if (!Hero || !SpringArm)
 		return;
 
 	RunningTime += FrameDeltaTime;
@@ -64,19 +64,21 @@ void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 	if (!Hero)
 		return;
 
-	GrappleComp->SetCanGrapple(true);
+	
+	float GrappleSpeed = PathTotalDist / TotalNotifyDuration;
+	FVector PostGrappleVelocity = GrappleSpeed * PercentSpeedRetainedPostGrapple * PathDir;
 	
 	FVector MoveInput = Hero->GetMoveInput();
-	FVector PostGrappleVelocity = PathDir * PostGrappleDefaultSpeed;
-
-
 	FVector WorldMoveInput =
 			(MoveInput.X * Hero->GetControlForwardVector()) +
 				(MoveInput.Y * Hero->GetControlRightVector());
-	WorldMoveInput *= PostGrappleInputSpeed;
-
-
+	WorldMoveInput *= PercentSpeedInputSpeed;
+	
 	PostGrappleVelocity += WorldMoveInput;
 
 	Hero->GetMovementComponent()->Velocity = PostGrappleVelocity;
+
+
+	
+	GrappleComp->SetCanGrapple(true);
 }

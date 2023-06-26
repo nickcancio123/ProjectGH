@@ -153,13 +153,13 @@ void UGrappleComponent::TryGrapple()
 void UGrappleComponent::BeginGrapple()
 {
 	DrawDebugSphere(
-	GetWorld(),
-	Current_GP->GetActorLocation(),
-	43,
-	8,
-	FColor::Yellow,
-	false,
-	2
+		GetWorld(),
+		Current_GP->GetActorLocation(),
+		26,
+		10,
+		FColor::Yellow,
+		false,
+		1
 	);
 
 	bCanGrapple = false;
