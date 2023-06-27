@@ -33,6 +33,21 @@ void UGrappleComponent::BeginPlay()
 void UGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	FindBestValidGP();
+
+	if (BestValid_GP)
+	{
+		DrawDebugSphere(
+			GetWorld(),
+			BestValid_GP->GetActorLocation(),
+			16,
+			8,
+			FColor::Blue,
+			false,
+			DeltaTime
+		);
+	}
 }
 
 void UGrappleComponent::OnRegister()
@@ -112,6 +127,19 @@ void UGrappleComponent::TryGrapple()
 	if (!bCanGrapple)
 		return;
 	
+	if (BestValid_GP)
+	{
+		Current_GP = BestValid_GP;
+		BeginGrapple();
+	}
+	else
+	{
+		Current_GP = nullptr;
+	}
+}
+
+void UGrappleComponent::FindBestValidGP()
+{
 	FVector ViewLocation;
 	FRotator ViewRotation;
 	Character->GetController()->GetPlayerViewPoint(ViewLocation, ViewRotation);
@@ -156,7 +184,6 @@ void UGrappleComponent::TryGrapple()
 			"BlockAll",
 			CollisionParams
 		);
-
 		
 		if (!bTraceHit)
 		{
@@ -168,12 +195,8 @@ void UGrappleComponent::TryGrapple()
 			}
 		}
 	}
-
-	if (bFoundValidGP)
-	{
-		Current_GP = Available_GPs[BestGPIndex];
-		BeginGrapple();
-	}
+	
+	BestValid_GP = bFoundValidGP ? Available_GPs[BestGPIndex] : nullptr;
 }
 
 void UGrappleComponent::BeginGrapple()
@@ -181,7 +204,7 @@ void UGrappleComponent::BeginGrapple()
 	DrawDebugSphere(
 		GetWorld(),
 		Current_GP->GetActorLocation(),
-		26,
+		16,
 		10,
 		FColor::Yellow,
 		false,

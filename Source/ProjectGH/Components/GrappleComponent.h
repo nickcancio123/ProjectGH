@@ -70,6 +70,9 @@ protected:
 private:
 	ACharacter* Character = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
+
+	AGrapplePoint* BestValid_GP = nullptr;
+	// GP currently begin grappled to 
 	AGrapplePoint* Current_GP = nullptr;
 
 	bool bCanGrapple = true;
@@ -88,5 +91,6 @@ private:
 
 	
 	void TryGrapple();
+	void FindBestValidGP();
 	void BeginGrapple();
 };
