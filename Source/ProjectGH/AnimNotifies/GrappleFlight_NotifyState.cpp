@@ -72,9 +72,8 @@ void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 	FVector WorldMoveInput =
 			(MoveInput.X * Hero->GetControlForwardVector()) +
 				(MoveInput.Y * Hero->GetControlRightVector());
-	WorldMoveInput *= PercentSpeedInputSpeed;
 	
-	PostGrappleVelocity += WorldMoveInput;
+	PostGrappleVelocity += GrappleSpeed * PercentSpeedInputSpeed * WorldMoveInput;
 
 	Hero->GetMovementComponent()->Velocity = PostGrappleVelocity;
 
