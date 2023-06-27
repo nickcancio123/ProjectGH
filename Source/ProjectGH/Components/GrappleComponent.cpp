@@ -121,18 +121,44 @@ void UGrappleComponent::TryGrapple()
 	bool bFoundValidGP = false;
 	float MinGPAngle = 361;
 	int BestGPIndex = 0;
-	
+
+	// Check each available GP if valid to grapple to, if so keep track of best option
 	for (int i = 0; i < Available_GPs.Num(); i++)
 	{
 		// Get normalized vector from view location to GP
 		FVector CamToGP =  (Available_GPs[i]->GetActorLocation() - ViewLocation);
 		float DistToGP = CamToGP.Size();
 		CamToGP.Normalize();
+		
+		bool bValidDist = DistToGP > GrappleRange.GetLowerBoundValue();
+		if (!bValidDist)
+			continue;
 
+		// Check if angle is valid
 		float Angle = FMath::Acos(FVector::DotProduct(LineOfSight, CamToGP));
 		Angle = FMath::RadiansToDegrees(Angle);
+		
+		bool bValidAngle = Angle < Max_GP_SightAngle;
+		if (!bValidAngle)
+			continue;
 
-		if (Angle < Max_GP_SightAngle && DistToGP > GrappleRange.GetLowerBoundValue())
+		// Raycast to see if line of sight is obstructed to GP
+		FHitResult HitResult;
+		
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(Character);
+		CollisionParams.AddIgnoredActor(Available_GPs[i]);
+		
+		bool bTraceHit = GetWorld()->LineTraceSingleByProfile(
+			HitResult,
+			ViewLocation,
+			Available_GPs[i]->GetActorLocation(),
+			"BlockAll",
+			CollisionParams
+		);
+
+		
+		if (!bTraceHit)
 		{
 			bFoundValidGP = true;
 			if (Angle < MinGPAngle)

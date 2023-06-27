@@ -13,10 +13,19 @@ class PROJECTGH_API AGrapplePoint : public AActor
 	GENERATED_BODY()
 	
 public:	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Point")
+		UStaticMeshComponent* MeshComp = nullptr;
+
+	
 	AGrapplePoint();
 
 	virtual void Tick(float DeltaTime) override;
 
+	UStaticMesh* GetMesh();
+
 protected:
 	virtual void BeginPlay() override;
+
+private:
 };
+
