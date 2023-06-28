@@ -32,13 +32,13 @@ public:
 		UAnimMontage* GrappleAnimMontage = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
-		FFloatRange GrappleRange = FFloatRange(600, 3000);
+		FFloatRange GrappleRange = FFloatRange(700, 3000);
 	
 	// The max angle (degrees) between line-of-sight and vector to GP to consider for grappling
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
 		float Max_GP_SightAngle = 20;
 	
-
+	virtual void OnRegister() override;
 	
 	UGrappleComponent();
 
@@ -50,8 +50,13 @@ public:
 	void SetCanGrapple(bool _bCanGrapple);
 
 	// Getters
-	AGrapplePoint* GetCurrentGrapplePoint();
+	UFUNCTION(BlueprintCallable)
+	AGrapplePoint* GetBestValidGrapplePoint();
+	
 	AGrapplingHook* GetGrapplingHook();
+	
+	AGrapplePoint* GetCurrentGrapplePoint();
+	
 	FVector GetGrappleDirection();
 
 

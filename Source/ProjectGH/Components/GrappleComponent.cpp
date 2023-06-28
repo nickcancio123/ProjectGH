@@ -14,6 +14,17 @@
 
 
 #pragma region Default Actor Component Functions
+void UGrappleComponent::OnRegister()
+{
+	Super::OnRegister();
+
+	GP_Detector->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	GP_Detector->SetRelativeLocation(FVector::ZeroVector);
+
+	GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapStart);
+	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapEnd);
+}
+
 UGrappleComponent::UGrappleComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -27,7 +38,7 @@ void UGrappleComponent::BeginPlay()
 
 	if (GetOwner())
 		Character = Cast<ACharacter>(GetOwner());
-
+	
 	CreateGrappleHookActor();
 	GetOverlapped_GPs();
 }
@@ -37,19 +48,6 @@ void UGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	FindBestValidGP();
-
-	if (BestValid_GP)
-	{
-		DrawDebugSphere(
-			GetWorld(),
-			BestValid_GP->GetActorLocation(),
-			16,
-			8,
-			FColor::Blue,
-			false,
-			DeltaTime
-		);
-	}
 }
 #pragma endregion
 
@@ -73,14 +71,16 @@ void UGrappleComponent::CreateGrappleHookActor()
 
 void UGrappleComponent::InitGrapplePointDetector()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Inited"));
+
 	GP_Detector = CreateDefaultSubobject<USphereComponent>(TEXT("Grapple Point Detector"));
 	
 	GP_Detector->SetSphereRadius(GrappleRange.GetUpperBoundValue());
 	GP_Detector->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 	GP_Detector->SetCanEverAffectNavigation(false);
 
-	GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapStart);
-	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapEnd);
+	// GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapStart);
+	// GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapEnd);
 }
 
 void UGrappleComponent::GetOverlapped_GPs()
@@ -195,18 +195,7 @@ void UGrappleComponent::FindBestValidGP()
 
 void UGrappleComponent::BeginGrapple()
 {
-	DrawDebugSphere(
-		GetWorld(),
-		Current_GP->GetActorLocation(),
-		16,
-		10,
-		FColor::Yellow,
-		false,
-		1
-	);
-
 	bCanGrapple = false;
-	
 	Character->PlayAnimMontage(GrappleAnimMontage);
 }
 
@@ -219,6 +208,11 @@ void UGrappleComponent::SetCanGrapple(bool _bCanGrapple)
 
 
 #pragma region Accessors
+AGrapplePoint* UGrappleComponent::GetBestValidGrapplePoint()
+{
+	return BestValid_GP;
+}
+
 AGrapplePoint* UGrappleComponent::GetCurrentGrapplePoint()
 {
 	return Current_GP;
