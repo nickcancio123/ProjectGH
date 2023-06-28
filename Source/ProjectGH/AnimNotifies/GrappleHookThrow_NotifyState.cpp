@@ -22,16 +22,12 @@ void UGrappleHookThrow_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp
 		return;
 
 	GrappleComp = Cast<UGrappleComponent>(Hero->GetComponentByClass(UGrappleComponent::StaticClass()));
+	GP = GrappleComp->GetCurrentGrapplePoint();
 	GrapplingHook = GrappleComp->GetGrapplingHook();
 	GrapplingHook->SetVisibility(true);
 	
-	
 	HandPos = MeshComp->GetSocketLocation("RightHandSocket");
-	GP_Pos = GrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
-	
-	PathDir = GP_Pos - HandPos;
-	TotalPathDist = PathDir.Size();
-	PathDir.Normalize();
+	GP_Pos = GP->GetActorLocation();
 }
 
 void UGrappleHookThrow_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
@@ -39,16 +35,18 @@ void UGrappleHookThrow_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp,
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime);
 
-	if (!GrapplingHook || !GrapplingHook->HookMeshComp)
+	if (!GrapplingHook || !GrapplingHook->HookMeshComp || !GP)
 		return;
 
-	
 	RunningTime += FrameDeltaTime;
 	float Alpha = RunningTime / NotifyTotalDuration;
-
+	
+	// If GP moves, recompute path every frame
+	if (GP->bMoves)
+		GP_Pos = GP->GetActorLocation();
 	
 	// Set hook position
-	FVector NewHookPos = HandPos + (Alpha * TotalPathDist * PathDir);
+	FVector NewHookPos = FMath::Lerp(HandPos, GP_Pos, Alpha);
 	GrapplingHook->HookMeshComp->SetWorldLocation(NewHookPos);
 }
 

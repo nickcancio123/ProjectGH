@@ -71,16 +71,11 @@ void UGrappleComponent::CreateGrappleHookActor()
 
 void UGrappleComponent::InitGrapplePointDetector()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Inited"));
-
 	GP_Detector = CreateDefaultSubobject<USphereComponent>(TEXT("Grapple Point Detector"));
 	
 	GP_Detector->SetSphereRadius(GrappleRange.GetUpperBoundValue());
 	GP_Detector->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 	GP_Detector->SetCanEverAffectNavigation(false);
-
-	// GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapStart);
-	// GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapEnd);
 }
 
 void UGrappleComponent::GetOverlapped_GPs()

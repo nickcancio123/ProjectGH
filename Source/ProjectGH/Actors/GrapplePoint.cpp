@@ -17,7 +17,7 @@ AGrapplePoint::AGrapplePoint()
 	
 	MeshComp->SetupAttachment(GetRootComponent());
 	MeshComp->SetCollisionProfileName("OverlapAllDynamic");
-	MeshComp->SetRelativeScale3D(FVector::OneVector * 0.3);
+	//MeshComp->SetRelativeScale3D(FVector::OneVector * 0.3);
 }
 
 void AGrapplePoint::BeginPlay()

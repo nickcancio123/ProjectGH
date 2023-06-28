@@ -10,6 +10,7 @@
 class AHero;
 class UGrappleComponent;
 class AGrapplingHook;
+class AGrapplePoint;
 
 
 UCLASS()
@@ -27,12 +28,11 @@ private:
 	AHero* Hero = nullptr;
 	UGrappleComponent* GrappleComp = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
+	AGrapplePoint* GP = nullptr;
 	
 	float NotifyTotalDuration = 1;
 	float RunningTime = 0;
 
 	FVector HandPos = FVector::ZeroVector;
 	FVector GP_Pos = FVector::ZeroVector;
-	FVector PathDir = FVector::ZeroVector;
-	float TotalPathDist = 0;
 };

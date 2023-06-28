@@ -15,7 +15,10 @@ class PROJECTGH_API AGrapplePoint : public AActor
 public:	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Point")
 		UStaticMeshComponent* MeshComp = nullptr;
-
+	
+	// Whether or not this GP moves. 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Point")
+		bool bMoves = false;
 	
 	AGrapplePoint();
 
@@ -25,7 +28,5 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
-private:
 };
 
