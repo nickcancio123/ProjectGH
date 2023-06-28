@@ -11,14 +11,14 @@
 AHero::AHero()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	GrappleComp = CreateDefaultSubobject<UGrappleComponent>(TEXT("Grapple Component"));
 }
 
 void AHero::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//GrappleComp = Cast<UGrappleComponent>(GetComponentByClass(UGrappleComponent::StaticClass()));
+	
 	CharacterMovement = GetCharacterMovement();
 	MaxRunSpeed = CharacterMovement->MaxWalkSpeed;
 }
@@ -53,6 +53,10 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	GrappleComp->BindInput(PlayerInputComponent);
 }
 
+void AHero::SetComponentRefs()
+{
+	GrappleComp = Cast<UGrappleComponent>(GetComponentByClass(UGrappleComponent::StaticClass()));
+}
 #pragma endregion
 
 

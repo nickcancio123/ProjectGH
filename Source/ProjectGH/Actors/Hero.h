@@ -24,7 +24,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		float MaxSprintSpeed = 750;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
+	UPROPERTY(BlueprintReadOnly, Category = "Hero")
 		bool bJumpTrigger = false;
 	
 	AHero();
@@ -33,6 +33,9 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+
+	UFUNCTION(BlueprintCallable, Category = "Hero")
+		void SetComponentRefs();
 	
 	
 	UFUNCTION(BlueprintCallable, Category = "Hero")

@@ -12,6 +12,8 @@
 #include "CableComponent.h"
 
 
+
+#pragma region Default Actor Component Functions
 UGrappleComponent::UGrappleComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -49,17 +51,11 @@ void UGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		);
 	}
 }
-
-void UGrappleComponent::OnRegister()
-{
-	Super::OnRegister();
-
-	GP_Detector->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-}
+#pragma endregion
 
 
 
-
+#pragma region Initializer Functions
 void UGrappleComponent::BindInput(UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrappleComponent::TryGrapple);
@@ -95,10 +91,11 @@ void UGrappleComponent::GetOverlapped_GPs()
 	for (int i = 0; i < OverlappingActors.Num(); i++)
 		Available_GPs.Add(Cast<AGrapplePoint>(OverlappingActors[i]));
 }
+#pragma endregion
 
 
 
-
+#pragma region Grappling Driver Functions
 void UGrappleComponent::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!OtherActor)
@@ -118,9 +115,6 @@ void UGrappleComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor
 	if (GP)
 		Available_GPs.Remove(GP);
 }
-
-
-
 
 void UGrappleComponent::TryGrapple()
 {
@@ -220,10 +214,11 @@ void UGrappleComponent::SetCanGrapple(bool _bCanGrapple)
 {
 	bCanGrapple = _bCanGrapple;
 }
+#pragma endregion
 
 
 
-
+#pragma region Accessors
 AGrapplePoint* UGrappleComponent::GetCurrentGrapplePoint()
 {
 	return Current_GP;
@@ -242,3 +237,4 @@ FVector UGrappleComponent::GetGrappleDirection()
 	const FVector CamToGP =  (Current_GP->GetActorLocation() - ViewLocation).GetSafeNormal();
 	return CamToGP;
 }
+#pragma endregion
