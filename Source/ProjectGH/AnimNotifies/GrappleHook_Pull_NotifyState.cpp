@@ -24,8 +24,9 @@ void UGrappleHook_Pull_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp
 
 	GrappleComp = Cast<UGrappleComponent>(Hero->GetComponentByClass(UGrappleComponent::StaticClass()));
 	GP = GrappleComp->GetCurrentGrapplePoint();
+	
 	GrapplingHook = GrappleComp->GetGrapplingHook();
-	GrapplingHook->SetVisibility(true);
+	GrapplingHook->ReleaseHookFromActor();
 	
 	HandPos = MeshComp->GetSocketLocation("RightHandSocket");
 	GP_Pos = GP->GetActorLocation();

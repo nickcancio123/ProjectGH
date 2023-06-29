@@ -3,7 +3,7 @@
 
 #include "ProjectGH/Actors/GrapplingHook.h"
 #include "CableComponent.h"
-#include "NavigationSystemTypes.h"
+#include "PhysicsEngine/PhysicsConstraintComponent.h"
 
 
 
@@ -11,11 +11,11 @@ AGrapplingHook::AGrapplingHook()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-
 	CableComp = CreateDefaultSubobject<UCableComponent>(TEXT("Cable"));
 	SetRootComponent(CableComp);
+	
 	HookMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Hook Mesh"));
-
+	
 	InitHookMesh();
 }
 
@@ -27,6 +27,11 @@ void AGrapplingHook::BeginPlay()
 void AGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bStuckToActor && ActorStuckTo)
+	{
+		HookMeshComp->SetWorldLocation(ActorStuckTo->GetActorLocation());
+	}
 }
 
 
@@ -45,6 +50,7 @@ void AGrapplingHook::SetupCable(USkeletalMeshComponent* CharacterMesh)
 	CableComp->SetRelativeLocation(FVector::ZeroVector);
 
 	// Misc
+	CableComp->bSkipCableUpdateWhenNotVisible = true;
 	CableComp->CableWidth = CableWidth;
 	CableComp->bEnableStiffness = true;
 	CableComp->SolverIterations = 6;
@@ -67,6 +73,18 @@ void AGrapplingHook::SetVisibility(bool bVisible)
 	CableComp->SetActive(bVisible);
 	
 	HookMeshComp->SetVisibility(bVisible);
+}
+
+void AGrapplingHook::StickHookToActor(AActor* Actor)
+{
+	bStuckToActor = true;
+	ActorStuckTo = Actor;
+}
+
+void AGrapplingHook::ReleaseHookFromActor()
+{
+	bStuckToActor = false;
+	ActorStuckTo = nullptr;
 }
 
 

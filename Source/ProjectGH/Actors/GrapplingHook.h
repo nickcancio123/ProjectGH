@@ -20,7 +20,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling Hook")
 		UStaticMeshComponent* HookMeshComp = nullptr;
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling Hook")
 		float CableWidth = 5;
 	
@@ -31,12 +31,17 @@ public:
 
 	void SetupCable(USkeletalMeshComponent* CharacterMesh);
 	void SetVisibility(bool bVisible);
+
+	void StickHookToActor(AActor* Actor);
+	void ReleaseHookFromActor();
 	
 protected:
 	virtual void BeginPlay() override;
 
 
 private:
-	//float Time = 0;
+	bool bStuckToActor = false;
+	AActor* ActorStuckTo = nullptr;
+	
 	void InitHookMesh();
 };

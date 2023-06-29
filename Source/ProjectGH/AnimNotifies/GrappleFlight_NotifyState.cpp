@@ -9,6 +9,8 @@
 #include "ProjectGH/Actors/GrapplePoint.h"
 #include "GameFramework/PawnMovementComponent.h"
 
+#include "ProjectGH/Actors/GrapplingHook.h"
+
 void UGrappleFlight_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
                                              float TotalDuration)
 {

@@ -53,4 +53,9 @@ void UGrappleHookThrow_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp,
 void UGrappleHookThrow_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::NotifyEnd(MeshComp, Animation);
+
+	if (!GrapplingHook)
+		return;
+
+	GrapplingHook->StickHookToActor(GP);
 }
