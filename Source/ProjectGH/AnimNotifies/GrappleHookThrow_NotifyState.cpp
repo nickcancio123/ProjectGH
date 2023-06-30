@@ -23,6 +23,7 @@ void UGrappleHookThrow_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp
 
 	GrappleComp = Cast<UGrappleComponent>(Hero->GetComponentByClass(UGrappleComponent::StaticClass()));
 	GP = GrappleComp->GetCurrentGrapplePoint();
+	
 	GrapplingHook = GrappleComp->GetGrapplingHook();
 	GrapplingHook->SetVisibility(true);
 	
@@ -54,8 +55,8 @@ void UGrappleHookThrow_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, 
 {
 	Super::NotifyEnd(MeshComp, Animation);
 
-	if (!GrapplingHook)
+	if (!GrapplingHook || !GrappleComp)
 		return;
 
-	GrapplingHook->StickHookToActor(GP);
+	GrappleComp->SetGrappleState(EGrappleState::Flight);
 }

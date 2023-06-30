@@ -17,7 +17,6 @@ void UGrappleFlight_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, U
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
 	
 	Hero = Cast<AHero>(MeshComp->GetOwner());
-
 	if (!Hero)
 		return;
 	
@@ -32,10 +31,8 @@ void UGrappleFlight_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, U
 
 	PathStart = Hero->GetActorLocation();
 	PathEnd = GrapplePoint->GetActorLocation();
-
-	PathTotalDist = FVector::Dist(PathStart, PathEnd);
-	PathDir = (PathEnd - PathStart).GetSafeNormal();
 }
+
 
 void UGrappleFlight_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	float FrameDeltaTime)
@@ -46,26 +43,33 @@ void UGrappleFlight_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UA
 		return;
 
 	RunningTime += FrameDeltaTime;
-
 	float Alpha = RunningTime / TotalNotifyDuration;
 
+	
 	// Compute and set new actor location
-	float DistAlongPath = Alpha * PathTotalDist;
-	FVector NewLocation = PathStart + DistAlongPath * PathDir;
+	if (GrapplePoint->bMoves)
+		PathEnd = GrapplePoint->GetActorLocation();
+
+	FVector NewLocation = FMath::Lerp(PathStart, PathEnd, Alpha);
 	NewLocation.Z += PathShapeCurve.GetRichCurve()->Eval(Alpha) * PathHeightScale;
 	Hero->SetActorLocation(NewLocation);
 
+	
 	// Compute new spring arm distance
 	SpringArm->TargetArmLength = OriginalSpringArmLength + SpringArmLengthCurve.GetRichCurve()->Eval(Alpha) * 1000;
 }
+
 
 void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::NotifyEnd(MeshComp, Animation);
 
-	if (!Hero)
+	if (!Hero || !GrappleComp)
 		return;
 
+	// Set post grapple velocity
+	float PathTotalDist = FVector::Dist(PathStart, PathEnd);
+	FVector PathDir = (PathEnd - PathStart).GetSafeNormal();
 	
 	float GrappleSpeed = PathTotalDist / TotalNotifyDuration;
 	FVector PostGrappleVelocity = GrappleSpeed * PercentSpeedRetainedPostGrapple * PathDir;
@@ -76,10 +80,13 @@ void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 				(MoveInput.Y * Hero->GetControlRightVector());
 	
 	PostGrappleVelocity += GrappleSpeed * PercentSpeedInputSpeed * WorldMoveInput;
-
+	
 	Hero->GetMovementComponent()->Velocity = PostGrappleVelocity;
 
 
+	// Change state
+	GrappleComp->SetGrappleState(EGrappleState::Hang);
 	
-	GrappleComp->SetCanGrapple(true);
+	if (!GrappleComp->IsHoldingInput())
+		GrappleComp->ReleaseGrapple();
 }

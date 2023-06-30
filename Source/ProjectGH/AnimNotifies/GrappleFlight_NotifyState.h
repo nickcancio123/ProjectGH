@@ -50,8 +50,7 @@ private:
 	float TotalNotifyDuration = 1;
 	float RunningTime = 0;
 
-	FVector PathStart, PathEnd, PathDir;
-	float PathTotalDist = 0;
+	FVector PathStart, PathEnd;
 
 	float OriginalSpringArmLength = 400;
 };

@@ -8,6 +8,8 @@
 
 
 class UCableComponent;
+class UGrappleComponent;
+
 
 UCLASS()
 class PROJECTGH_API AGrapplingHook : public AActor
@@ -31,17 +33,15 @@ public:
 
 	void SetupCable(USkeletalMeshComponent* CharacterMesh);
 	void SetVisibility(bool bVisible);
+	void SetGrappleComp(UGrappleComponent* _GrappleComp);
 
-	void StickHookToActor(AActor* Actor);
-	void ReleaseHookFromActor();
 	
 protected:
 	virtual void BeginPlay() override;
 
 
 private:
-	bool bStuckToActor = false;
-	AActor* ActorStuckTo = nullptr;
+	UGrappleComponent* GrappleComp = nullptr;
 	
 	void InitHookMesh();
 };

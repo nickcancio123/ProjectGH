@@ -24,9 +24,12 @@ void UGrappleHook_Pull_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp
 
 	GrappleComp = Cast<UGrappleComponent>(Hero->GetComponentByClass(UGrappleComponent::StaticClass()));
 	GP = GrappleComp->GetCurrentGrapplePoint();
+
+	if (GrappleComp->IsHoldingInput())
+		return;
 	
 	GrapplingHook = GrappleComp->GetGrapplingHook();
-	GrapplingHook->ReleaseHookFromActor();
+	GrapplingHook->SetVisibility(true);
 	
 	HandPos = MeshComp->GetSocketLocation("RightHandSocket");
 	GP_Pos = GP->GetActorLocation();
@@ -42,6 +45,9 @@ void UGrappleHook_Pull_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp,
 	
 	RunningTime += FrameDeltaTime;
 	float Alpha = RunningTime / NotifyTotalDuration;
+
+	if (GrappleComp->IsHoldingInput())
+		return;
 	
 	if (Alpha > PullBackPercent)
 		GrapplingHook->SetVisibility(false);
@@ -59,7 +65,10 @@ void UGrappleHook_Pull_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, 
 {
 	Super::NotifyEnd(MeshComp, Animation);
 
-	if (!GrapplingHook)
+	if (!GrapplingHook || !GrappleComp)
+		return;
+
+	if (GrappleComp->IsHoldingInput())
 		return;
 	
 	GrapplingHook->SetVisibility(false);

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GrappleComponent.generated.h"
 
 
@@ -12,6 +13,17 @@ class AGrapplingHook;
 class USphereComponent;
 class UInputComponent;
 class UAnimMontage;
+
+
+
+UENUM()
+enum EGrappleState
+{
+	Idle,
+	Throw,
+	Flight,
+	Hang
+};
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
@@ -37,6 +49,9 @@ public:
 	// The max angle (degrees) between line-of-sight and vector to GP to consider for grappling
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
 		float Max_GP_SightAngle = 20;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+		float GrappleHangDist = 500;
 	
 	virtual void OnRegister() override;
 	
@@ -44,20 +59,28 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void ReleaseGrapple();
+
+	
 
 	// Setters
 	void BindInput(UInputComponent* PlayerInputComponent);
 	void SetCanGrapple(bool _bCanGrapple);
+	void SetGrappleState(EGrappleState _GrappleState);
 
 	// Getters
 	UFUNCTION(BlueprintCallable)
 	AGrapplePoint* GetBestValidGrapplePoint();
+
+	EGrappleState GetGrappleState();
 	
 	AGrapplingHook* GetGrapplingHook();
 	
 	AGrapplePoint* GetCurrentGrapplePoint();
 	
 	FVector GetGrappleDirection();
+
+	bool IsHoldingInput();
 
 
 	
@@ -69,6 +92,9 @@ protected:
 private:
 	ACharacter* Character = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
+	UCharacterMovementComponent* CharacterMovement = nullptr;
+
+	EGrappleState GrappleState = EGrappleState::Idle;
 
 	// Set of GPs that are within GP detection range
 	TArray<AGrapplePoint*> Available_GPs;
@@ -80,6 +106,8 @@ private:
 	AGrapplePoint* Current_GP = nullptr;
 
 	bool bCanGrapple = true;
+
+	bool bHoldingInput = false;
 	
 	
 	// Initializers
@@ -98,4 +126,5 @@ private:
 	void TryGrapple();
 	void FindBestValidGP();
 	void BeginGrapple();
+	void HangTick();
 };

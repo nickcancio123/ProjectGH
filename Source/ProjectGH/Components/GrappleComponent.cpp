@@ -38,6 +38,7 @@ void UGrappleComponent::BeginPlay()
 
 	if (GetOwner())
 		Character = Cast<ACharacter>(GetOwner());
+	CharacterMovement = Character->GetCharacterMovement();
 	
 	CreateGrappleHookActor();
 	GetOverlapped_GPs();
@@ -48,6 +49,10 @@ void UGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	FindBestValidGP();
+
+	// If hanging, clamp velocity and position
+	if (GrappleState == EGrappleState::Hang)
+		HangTick();
 }
 #pragma endregion
 
@@ -57,6 +62,7 @@ void UGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 void UGrappleComponent::BindInput(UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrappleComponent::TryGrapple);
+	PlayerInputComponent->BindAction("Grapple", IE_Released,this, &UGrappleComponent::ReleaseGrapple);
 }
 
 void UGrappleComponent::CreateGrappleHookActor()
@@ -64,8 +70,9 @@ void UGrappleComponent::CreateGrappleHookActor()
 	GrapplingHook = Cast<AGrapplingHook>(GetWorld()->SpawnActor(GrapplingHookClass));
 	if (!GrapplingHook)
 		return;
-	GrapplingHook->SetupCable(Character->GetMesh());
 
+	GrapplingHook->SetGrappleComp(this);
+	GrapplingHook->SetupCable(Character->GetMesh());
 	GrapplingHook->SetVisibility(false);
 }
 
@@ -113,6 +120,8 @@ void UGrappleComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor
 
 void UGrappleComponent::TryGrapple()
 {
+	bHoldingInput = true;
+	
 	if (!bCanGrapple)
 		return;
 	
@@ -191,12 +200,47 @@ void UGrappleComponent::FindBestValidGP()
 void UGrappleComponent::BeginGrapple()
 {
 	bCanGrapple = false;
+	GrappleState = EGrappleState::Throw;
 	Character->PlayAnimMontage(GrappleAnimMontage);
+}
+
+void UGrappleComponent::HangTick()
+{
+	FVector Vel = CharacterMovement->Velocity;
+	FVector HeroToGP = Character->GetActorLocation() - Current_GP->GetActorLocation();
+	float Dist = HeroToGP.Size();
+	HeroToGP.Normalize();
+		
+	if (Dist >= GrappleHangDist)
+	{
+		FVector NewPos = Current_GP->GetActorLocation() + (GrappleHangDist * HeroToGP);
+		Character->SetActorLocation(NewPos);
+
+		FVector NewVel = FVector::VectorPlaneProject(Vel, HeroToGP);
+		CharacterMovement->Velocity = NewVel;
+	}
+}
+
+void UGrappleComponent::ReleaseGrapple()
+{
+	bHoldingInput = false;
+
+	if (GrappleState == EGrappleState::Hang)
+	{
+		GrapplingHook->SetVisibility(false);
+		GrappleState = EGrappleState::Idle;
+		bCanGrapple = true;
+	}
 }
 
 void UGrappleComponent::SetCanGrapple(bool _bCanGrapple)
 {
 	bCanGrapple = _bCanGrapple;
+}
+
+void UGrappleComponent::SetGrappleState(EGrappleState _GrappleState)
+{
+	GrappleState = _GrappleState;
 }
 #pragma endregion
 
@@ -206,6 +250,11 @@ void UGrappleComponent::SetCanGrapple(bool _bCanGrapple)
 AGrapplePoint* UGrappleComponent::GetBestValidGrapplePoint()
 {
 	return BestValid_GP;
+}
+
+EGrappleState UGrappleComponent::GetGrappleState()
+{
+	return GrappleState;
 }
 
 AGrapplePoint* UGrappleComponent::GetCurrentGrapplePoint()
@@ -225,5 +274,10 @@ FVector UGrappleComponent::GetGrappleDirection()
 	Character->GetController()->GetPlayerViewPoint(ViewLocation, ViewRotation);
 	const FVector CamToGP =  (Current_GP->GetActorLocation() - ViewLocation).GetSafeNormal();
 	return CamToGP;
+}
+
+bool UGrappleComponent::IsHoldingInput()
+{
+	return bHoldingInput;
 }
 #pragma endregion
