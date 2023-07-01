@@ -53,10 +53,11 @@ void AGrapplingHook::SetupCable(USkeletalMeshComponent* CharacterMesh)
 	CableComp->SetRelativeLocation(FVector::ZeroVector);
 
 	// Misc
+	CableComp->SetTickGroup(ETickingGroup::TG_PostPhysics);
 	CableComp->bSkipCableUpdateWhenNotVisible = true;
 	CableComp->CableWidth = CableWidth;
 	CableComp->bEnableStiffness = true;
-	CableComp->SolverIterations = 6;
+	CableComp->SolverIterations = 5;
 }
 
 void AGrapplingHook::InitHookMesh()

@@ -16,13 +16,13 @@ class UAnimMontage;
 
 
 
-UENUM()
+UENUM(BlueprintType)
 enum EGrappleState
 {
-	Idle,
-	Throw,
-	Flight,
-	Hang
+	Idle = 0,
+	Throw = 1,
+	Flight = 2,
+	Hang = 3
 };
 
 
@@ -51,7 +51,11 @@ public:
 		float Max_GP_SightAngle = 20;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
-		float GrappleHangDist = 500;
+		float GrappleHangDist = 600;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+		float HangRotationRate = 8;
+
 	
 	virtual void OnRegister() override;
 	
@@ -72,6 +76,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	AGrapplePoint* GetBestValidGrapplePoint();
 
+	UFUNCTION(BlueprintCallable)
 	EGrappleState GetGrappleState();
 	
 	AGrapplingHook* GetGrapplingHook();
@@ -93,9 +98,7 @@ private:
 	ACharacter* Character = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
 	UCharacterMovementComponent* CharacterMovement = nullptr;
-
-	EGrappleState GrappleState = EGrappleState::Idle;
-
+	
 	// Set of GPs that are within GP detection range
 	TArray<AGrapplePoint*> Available_GPs;
 
@@ -105,9 +108,12 @@ private:
 	// GP currently begin grappled to 
 	AGrapplePoint* Current_GP = nullptr;
 
+	EGrappleState GrappleState = EGrappleState::Idle;
+	
 	bool bCanGrapple = true;
-
 	bool bHoldingInput = false;
+
+
 	
 	
 	// Initializers
@@ -126,5 +132,5 @@ private:
 	void TryGrapple();
 	void FindBestValidGP();
 	void BeginGrapple();
-	void HangTick();
+	void HangTick(float DeltaTime);
 };

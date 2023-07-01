@@ -7,7 +7,9 @@
 #include "ProjectGH/Actors/GrapplingHook.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/Character.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
+
 
 #include "CableComponent.h"
 
@@ -52,7 +54,7 @@ void UGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	// If hanging, clamp velocity and position
 	if (GrappleState == EGrappleState::Hang)
-		HangTick();
+		HangTick(DeltaTime);
 }
 #pragma endregion
 
@@ -204,21 +206,45 @@ void UGrappleComponent::BeginGrapple()
 	Character->PlayAnimMontage(GrappleAnimMontage);
 }
 
-void UGrappleComponent::HangTick()
+void UGrappleComponent::HangTick(float DeltaTime)
 {
+	FVector GP_Pos = Current_GP->GetActorLocation();
+	FVector HeroPos = Character->GetActorLocation();
+
+	
+	// Set new velocity
 	FVector Vel = CharacterMovement->Velocity;
-	FVector HeroToGP = Character->GetActorLocation() - Current_GP->GetActorLocation();
+	FVector HeroToGP = GP_Pos - HeroPos;
 	float Dist = HeroToGP.Size();
 	HeroToGP.Normalize();
-		
+
+	FVector NewVel = Vel;
 	if (Dist >= GrappleHangDist)
 	{
-		FVector NewPos = Current_GP->GetActorLocation() + (GrappleHangDist * HeroToGP);
+		FVector NewPos = Current_GP->GetActorLocation() + (-GrappleHangDist * HeroToGP);
 		Character->SetActorLocation(NewPos);
 
-		FVector NewVel = FVector::VectorPlaneProject(Vel, HeroToGP);
+		NewVel = FVector::VectorPlaneProject(Vel, HeroToGP);
 		CharacterMovement->Velocity = NewVel;
 	}
+
+	
+	// Set new rotation 
+	FRotator TargetRot = UKismetMathLibrary::MakeRotFromXZ(CharacterMovement->Velocity, HeroToGP);
+	
+	FRotator NewRot = UKismetMathLibrary::RInterpTo(
+		Character->GetActorRotation(),
+		TargetRot,
+		DeltaTime,
+		HangRotationRate
+		);
+
+	Character->SetActorRotation(NewRot);
+
+	
+	// Change states if grounded
+	if (!CharacterMovement->IsFalling())
+		ReleaseGrapple();
 }
 
 void UGrappleComponent::ReleaseGrapple()
@@ -230,9 +256,19 @@ void UGrappleComponent::ReleaseGrapple()
 		GrapplingHook->SetVisibility(false);
 		GrappleState = EGrappleState::Idle;
 		bCanGrapple = true;
+
+		// Set rotation settings
+		FVector HorizVel = CharacterMovement->Velocity;
+		HorizVel.Z = 0;
+		Character->SetActorRotation(HorizVel.Rotation());
+		CharacterMovement->bOrientRotationToMovement = true;
 	}
 }
+#pragma endregion
 
+
+
+#pragma region Setters
 void UGrappleComponent::SetCanGrapple(bool _bCanGrapple)
 {
 	bCanGrapple = _bCanGrapple;
