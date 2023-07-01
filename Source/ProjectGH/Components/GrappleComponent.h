@@ -42,6 +42,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
 		UAnimMontage* GrappleAnimMontage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+		UAnimMontage* HangDismountMontage = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
 		FFloatRange GrappleRange = FFloatRange(700, 3000);
@@ -63,6 +66,7 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void ReleaseGrappleInput();
 	void ReleaseGrapple();
 
 	

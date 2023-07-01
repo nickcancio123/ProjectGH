@@ -64,7 +64,7 @@ void UGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 void UGrappleComponent::BindInput(UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrappleComponent::TryGrapple);
-	PlayerInputComponent->BindAction("Grapple", IE_Released,this, &UGrappleComponent::ReleaseGrapple);
+	PlayerInputComponent->BindAction("Grapple", IE_Released,this, &UGrappleComponent::ReleaseGrappleInput);
 }
 
 void UGrappleComponent::CreateGrappleHookActor()
@@ -247,22 +247,25 @@ void UGrappleComponent::HangTick(float DeltaTime)
 		ReleaseGrapple();
 }
 
-void UGrappleComponent::ReleaseGrapple()
+void UGrappleComponent::ReleaseGrappleInput()
 {
 	bHoldingInput = false;
 
 	if (GrappleState == EGrappleState::Hang)
-	{
-		GrapplingHook->SetVisibility(false);
-		GrappleState = EGrappleState::Idle;
-		bCanGrapple = true;
+		Character->PlayAnimMontage(HangDismountMontage);		
+}
 
-		// Set rotation settings
-		FVector HorizVel = CharacterMovement->Velocity;
-		HorizVel.Z = 0;
-		Character->SetActorRotation(HorizVel.Rotation());
-		CharacterMovement->bOrientRotationToMovement = true;
-	}
+void UGrappleComponent::ReleaseGrapple()
+{
+	GrapplingHook->SetVisibility(false);
+	GrappleState = EGrappleState::Idle;
+	bCanGrapple = true;
+	  	
+	// Set rotation settings
+	FVector HorizVel = CharacterMovement->Velocity;
+	HorizVel.Z = 0;
+	Character->SetActorRotation(HorizVel.Rotation());
+	CharacterMovement->bOrientRotationToMovement = true;
 }
 #pragma endregion
 

@@ -3,13 +3,13 @@
 
 #include "ProjectGH/AnimNotifies/GrappleFlight_NotifyState.h"
 
-#include "DrawDebugHelpers.h"
 #include "ProjectGH/Components/GrappleComponent.h"
 #include "ProjectGH/Actors/Hero.h"
+#include "ProjectGH/Actors/GrapplingHook.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
 #include "GameFramework/PawnMovementComponent.h"
 
-#include "ProjectGH/Actors/GrapplingHook.h"
+#include "DrawDebugHelpers.h"
 
 void UGrappleFlight_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
                                              float TotalDuration)
@@ -85,9 +85,13 @@ void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 
 
 	// Change state
-	GrappleComp->SetGrappleState(EGrappleState::Hang);
-	Hero->GetCharacterMovement()->bOrientRotationToMovement = false;
-	
-	if (!GrappleComp->IsHoldingInput())
+	if (GrappleComp->IsHoldingInput())
+	{
+		GrappleComp->SetGrappleState(EGrappleState::Hang);
+		Hero->GetCharacterMovement()->bOrientRotationToMovement = false;
+	}	
+	else
+	{
 		GrappleComp->ReleaseGrapple();
+	}
 }
