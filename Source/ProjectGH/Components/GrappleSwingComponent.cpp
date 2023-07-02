@@ -5,7 +5,7 @@
 
 #include "ProjectGH/Actors/GrapplePoint.h"
 #include "ProjectGH/Actors/GrapplingHook.h"
-#include "ProjectGH/Components/GrapplePointDetectorComponent.h"
+#include "ProjectGH/Components/CommonGrappleComponent.h"
 
 #include "GameFramework/Character.h"
 
@@ -26,17 +26,12 @@ void UGrappleSwingComponent::BeginPlay()
 		Character = Cast<ACharacter>(GetOwner());
 	CharacterMovement = Character->GetCharacterMovement();
 
-	GrapplePointDetectorComp = Cast<UGrapplePointDetectorComponent>(Character->GetComponentByClass(UGrapplePointDetectorComponent::StaticClass()));
+	CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 }
 
 void UGrappleSwingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
-void UGrappleSwingComponent::OnRegister()
-{
-	Super::OnRegister();
 }
 #pragma endregion
 
@@ -55,8 +50,7 @@ void UGrappleSwingComponent::BindInput(UInputComponent* PlayerInputComponent)
 #pragma region Grappling Driver Functions
 void UGrappleSwingComponent::TryGrappleSwing()
 {
-	int32 Count = (*GrapplePointDetectorComp->GetAvailableGrapplePoints()).Num();
-	UE_LOG(LogTemp, Warning, TEXT("%d"), Count);
+
 }
 
 void UGrappleSwingComponent::ReleaseGrappleInput()

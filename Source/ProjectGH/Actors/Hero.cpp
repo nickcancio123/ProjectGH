@@ -5,7 +5,7 @@
 
 #include "ProjectGH/Components/GrappleThrustComponent.h"
 #include "ProjectGH/Components/GrappleSwingComponent.h"
-#include "ProjectGH/Components/GrapplePointDetectorComponent.h"
+#include "ProjectGH/Components/CommonGrappleComponent.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
@@ -60,7 +60,7 @@ void AHero::SetComponentRefs()
 {
 	GrappleThrustComp = Cast<UGrappleThrustComponent>(GetComponentByClass(UGrappleThrustComponent::StaticClass()));
 	GrappleSwingComp = Cast<UGrappleSwingComponent>(GetComponentByClass(UGrappleSwingComponent::StaticClass()));
-	GrapplePointDetectorComp = Cast<UGrapplePointDetectorComponent>(GetComponentByClass(UGrapplePointDetectorComponent::StaticClass()));
+	CommonGrappleComp = Cast<UCommonGrappleComponent>(GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 }
 #pragma endregion
 

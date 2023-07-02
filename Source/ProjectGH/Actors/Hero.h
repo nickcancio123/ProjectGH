@@ -8,7 +8,7 @@
 
 class UGrappleThrustComponent;
 class UGrappleSwingComponent;
-class UGrapplePointDetectorComponent;
+class UCommonGrappleComponent;
 
 UCLASS()
 class PROJECTGH_API AHero : public ACharacter
@@ -24,7 +24,7 @@ public:
 		UGrappleSwingComponent* GrappleSwingComp = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
-		UGrapplePointDetectorComponent* GrapplePointDetectorComp = nullptr;
+		UCommonGrappleComponent* CommonGrappleComp = nullptr;
 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")

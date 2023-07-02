@@ -14,7 +14,7 @@ class USphereComponent;
 class UInputComponent;
 class UAnimMontage;
 
-class UGrapplePointDetectorComponent;
+class UCommonGrappleComponent;
 
 
 
@@ -37,10 +37,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 	 	UClass* GrapplingHookClass;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-		USphereComponent* GrapplePointDetector = nullptr;
-
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		UAnimMontage* GrappleAnimMontage = nullptr;
@@ -66,7 +62,6 @@ public:
 	
 	UGrappleThrustComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	virtual void OnRegister() override;
 
 	
 	void ReleaseGrappleInput();
@@ -101,7 +96,7 @@ private:
 	ACharacter* Character = nullptr;
 	UCharacterMovementComponent* CharacterMovement = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
-	UGrapplePointDetectorComponent* GrapplePointDetectorComp = nullptr;
+	UCommonGrappleComponent* CommonGrappleComp = nullptr;
 	
 	// This frame's best valid GP option
 	AGrapplePoint* BestValid_GP = nullptr;

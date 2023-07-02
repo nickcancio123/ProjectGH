@@ -5,7 +5,7 @@
 
 #include "ProjectGH/Actors/GrapplePoint.h" 
 #include "ProjectGH/Actors/GrapplingHook.h"
-#include "ProjectGH/Components/GrapplePointDetectorComponent.h"
+#include "ProjectGH/Components/CommonGrappleComponent.h"
 
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -28,7 +28,7 @@ void UGrappleThrustComponent::BeginPlay()
 		Character = Cast<ACharacter>(GetOwner());
 	CharacterMovement = Character->GetCharacterMovement();
 
-	GrapplePointDetectorComp = Cast<UGrapplePointDetectorComponent>(Character->GetComponentByClass(UGrapplePointDetectorComponent::StaticClass()));
+	CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 	
 	CreateGrappleHookActor();
 }
@@ -42,13 +42,6 @@ void UGrappleThrustComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	// If hanging, clamp velocity and position
 	if (GrappleThrustState == EGrappleThrustState::GTS_Hang)
 		HangTick(DeltaTime);
-}
-
-void UGrappleThrustComponent::OnRegister()
-{
-	Super::OnRegister();
-
-	//InitGrapplePointDetector();
 }
 #pragma endregion
 
@@ -88,7 +81,7 @@ void UGrappleThrustComponent::FindBestValidGP()
 	AGrapplePoint* BestGrapplePointYet = nullptr;
 
 	// Check each available GP if valid to grapple to, if so keep track of best option
-	TArray<AGrapplePoint*>* AvailableGrapplePoints = GrapplePointDetectorComp->GetAvailableGrapplePoints();
+	TArray<AGrapplePoint*>* AvailableGrapplePoints = CommonGrappleComp->GetAvailableGrapplePoints();
 	
 	for (int i = 0; i < AvailableGrapplePoints->Num(); i++)
 	{

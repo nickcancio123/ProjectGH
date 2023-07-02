@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
-#include "GrapplePointDetectorComponent.generated.h"
+#include "CommonGrappleComponent.generated.h"
 
 
 class AGrapplePoint;
@@ -13,7 +13,7 @@ class USphereComponent;
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
-class PROJECTGH_API UGrapplePointDetectorComponent : public UActorComponent
+class PROJECTGH_API UCommonGrappleComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -21,7 +21,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Point Detector")
 		float DetectionRadius = 3000;
 	
-	UGrapplePointDetectorComponent();
+	UCommonGrappleComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void OnRegister() override;
 

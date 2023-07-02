@@ -10,7 +10,7 @@
 
 class AGrapplePoint;
 class AGrapplingHook;
-class UGrapplePointDetectorComponent;
+class UCommonGrappleComponent;
 
 class UInputComponent;
 class UAnimMontage;
@@ -41,7 +41,6 @@ public:
 	
 	UGrappleSwingComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	virtual void OnRegister() override;
 
 	void BindInput(UInputComponent* PlayerInputComponent);
 
@@ -56,7 +55,7 @@ private:
 	ACharacter* Character = nullptr;
 	UCharacterMovementComponent* CharacterMovement = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
-	UGrapplePointDetectorComponent* GrapplePointDetectorComp = nullptr;
+	UCommonGrappleComponent* CommonGrappleComp = nullptr;
 	
 
 	// This frame's best valid GP option

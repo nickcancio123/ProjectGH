@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ProjectGH/Components/GrapplePointDetectorComponent.h"
+#include "ProjectGH/Components/CommonGrappleComponent.h"
 
 #include "ProjectGH/Actors/GrapplePoint.h"
 #include "Components/SphereComponent.h"
@@ -9,26 +9,26 @@
 
 
 #pragma region Default Actor Component Methods
-UGrapplePointDetectorComponent::UGrapplePointDetectorComponent()
+UCommonGrappleComponent::UCommonGrappleComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
 	DetectionVolume = CreateDefaultSubobject<USphereComponent>("Detection Volume");
 }
 
-void UGrapplePointDetectorComponent::BeginPlay()
+void UCommonGrappleComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	GetOverlappedGrapplePoints();
 }
 
-void UGrapplePointDetectorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UCommonGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UGrapplePointDetectorComponent::OnRegister()
+void UCommonGrappleComponent::OnRegister()
 {
 	Super::OnRegister();
 	InitDetectionVolume();
@@ -36,7 +36,7 @@ void UGrapplePointDetectorComponent::OnRegister()
 #pragma endregion
 
 
-void UGrapplePointDetectorComponent::InitDetectionVolume()
+void UCommonGrappleComponent::InitDetectionVolume()
 {
 	DetectionVolume->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	DetectionVolume->SetRelativeLocation(FVector::ZeroVector);
@@ -45,11 +45,11 @@ void UGrapplePointDetectorComponent::InitDetectionVolume()
 	DetectionVolume->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 	DetectionVolume->SetCanEverAffectNavigation(false);
 	
-	DetectionVolume->OnComponentBeginOverlap.AddDynamic(this, &UGrapplePointDetectorComponent::OnOverlapStart);
-	DetectionVolume->OnComponentEndOverlap.AddDynamic(this, &UGrapplePointDetectorComponent::OnOverlapEnd);
+	DetectionVolume->OnComponentBeginOverlap.AddDynamic(this, &UCommonGrappleComponent::OnOverlapStart);
+	DetectionVolume->OnComponentEndOverlap.AddDynamic(this, &UCommonGrappleComponent::OnOverlapEnd);
 }
 
-void UGrapplePointDetectorComponent::GetOverlappedGrapplePoints()
+void UCommonGrappleComponent::GetOverlappedGrapplePoints()
 {
 	TArray<AActor*> OverlappingActors;
 	DetectionVolume->GetOverlappingActors(OverlappingActors, AGrapplePoint::StaticClass());
@@ -58,7 +58,7 @@ void UGrapplePointDetectorComponent::GetOverlappedGrapplePoints()
 		AvailableGrapplePoints.Add(Cast<AGrapplePoint>(OverlappingActors[i]));
 }
 
-void UGrapplePointDetectorComponent::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void UCommonGrappleComponent::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!OtherActor)
 		return;
@@ -68,7 +68,7 @@ void UGrapplePointDetectorComponent::OnOverlapStart(UPrimitiveComponent* Overlap
 		AvailableGrapplePoints.Add(GP);
 }
 
-void UGrapplePointDetectorComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void UCommonGrappleComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (!OtherActor)
 		return;
@@ -79,7 +79,7 @@ void UGrapplePointDetectorComponent::OnOverlapEnd(UPrimitiveComponent* Overlappe
 }
 
 
-TArray<AGrapplePoint*>* UGrapplePointDetectorComponent::GetAvailableGrapplePoints()
+TArray<AGrapplePoint*>* UCommonGrappleComponent::GetAvailableGrapplePoints()
 {
 	return &AvailableGrapplePoints;
 }
