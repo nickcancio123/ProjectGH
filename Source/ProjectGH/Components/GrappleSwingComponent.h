@@ -7,7 +7,17 @@
 #include "GrappleSwingComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+
+UENUM(BlueprintType)
+enum EGrappleSwingState
+{
+	GSS_Idle = 0,
+	GSS_Throw = 1,
+	GSS_Swing = 3
+};
+
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
 class PROJECTGH_API UGrappleSwingComponent : public UActorComponent
 {
 	GENERATED_BODY()

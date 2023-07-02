@@ -17,12 +17,12 @@ class UAnimMontage;
 
 
 UENUM(BlueprintType)
-enum EGrappleState
+enum EGrappleThrustState
 {
-	Idle = 0,
-	Throw = 1,
-	Flight = 2,
-	Hang = 3
+	GTS_Idle = 0,
+	GTS_Throw = 1,
+	GTS_Thrust = 2,
+	GTS_Hang = 3
 };
 
 
@@ -33,30 +33,30 @@ class PROJECTGH_API UGrappleThrustComponent : public UActorComponent
 
 public:	
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 	 	UClass* GrapplingHookClass;
 	
 	// Sphere collider used to detect grapple points
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		USphereComponent* GP_Detector = nullptr;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		UAnimMontage* GrappleAnimMontage = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		UAnimMontage* HangDismountMontage = nullptr;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		FFloatRange GrappleRange = FFloatRange(700, 3000);
 	
 	// The max angle (degrees) between line-of-sight and vector to GP to consider for grappling
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		float Max_GP_SightAngle = 20;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		float GrappleHangDist = 600;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		float HangRotationRate = 8;
 
 	
@@ -74,14 +74,14 @@ public:
 	// Setters
 	void BindInput(UInputComponent* PlayerInputComponent);
 	void SetCanGrapple(bool _bCanGrapple);
-	void SetGrappleState(EGrappleState _GrappleState);
+	void SetGrappleState(EGrappleThrustState _GrappleThrustState);
 
 	// Getters
 	UFUNCTION(BlueprintCallable)
 	AGrapplePoint* GetBestValidGrapplePoint();
 
 	UFUNCTION(BlueprintCallable)
-	EGrappleState GetGrappleState();
+	EGrappleThrustState GetGrappleThrustState();
 	
 	AGrapplingHook* GetGrapplingHook();
 	
@@ -112,7 +112,7 @@ private:
 	// GP currently begin grappled to 
 	AGrapplePoint* Current_GP = nullptr;
 
-	EGrappleState GrappleState = EGrappleState::Idle;
+	EGrappleThrustState GrappleThrustState = EGrappleThrustState::GTS_Idle;
 	
 	bool bCanGrapple = true;
 	bool bHoldingInput = false;

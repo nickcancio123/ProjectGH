@@ -33,8 +33,11 @@ void AGrapplingHook::Tick(float DeltaTime)
 		return;
 	
 	// If currently grappling, attach grapple to current grapple point
-	if (GrappleThrustComp->GetGrappleState() == EGrappleState::Flight || GrappleThrustComp->GetGrappleState() == EGrappleState::Hang)
+	if (GrappleThrustComp->GetGrappleThrustState() == EGrappleThrustState::GTS_Thrust ||
+		GrappleThrustComp->GetGrappleThrustState() == EGrappleThrustState::GTS_Hang)
+	{
 		HookMeshComp->SetWorldLocation(GrappleThrustComp->GetCurrentGrapplePoint()->GetActorLocation());
+	}
 }
 
 

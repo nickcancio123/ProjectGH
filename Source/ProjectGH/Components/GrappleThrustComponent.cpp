@@ -16,17 +16,6 @@
 
 
 #pragma region Default Actor Component Functions
-void UGrappleThrustComponent::OnRegister()
-{
-	Super::OnRegister();
-
-	GP_Detector->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	GP_Detector->SetRelativeLocation(FVector::ZeroVector);
-
-	GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrappleThrustComponent::OnOverlapStart);
-	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrappleThrustComponent::OnOverlapEnd);
-}
-
 UGrappleThrustComponent::UGrappleThrustComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -53,9 +42,20 @@ void UGrappleThrustComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	FindBestValidGP();
 
 	// If hanging, clamp velocity and position
-	if (GrappleState == EGrappleState::Hang)
+	if (GrappleThrustState == EGrappleThrustState::GTS_Hang)
 		HangTick(DeltaTime);
 	
+}
+
+void UGrappleThrustComponent::OnRegister()
+{
+	Super::OnRegister();
+
+	GP_Detector->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	GP_Detector->SetRelativeLocation(FVector::ZeroVector);
+
+	GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrappleThrustComponent::OnOverlapStart);
+	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrappleThrustComponent::OnOverlapEnd);
 }
 #pragma endregion
 
@@ -121,23 +121,6 @@ void UGrappleThrustComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, 
 		Available_GPs.Remove(GP);
 }
 
-void UGrappleThrustComponent::TryGrapple()
-{
-	bHoldingInput = true;
-	
-	if (!bCanGrapple)
-		return;
-	
-	if (BestValid_GP)
-	{
-		Current_GP = BestValid_GP;
-		BeginGrapple();
-	}
-	else
-	{
-		Current_GP = nullptr;
-	}
-}
 
 void UGrappleThrustComponent::FindBestValidGP()
 {
@@ -200,12 +183,53 @@ void UGrappleThrustComponent::FindBestValidGP()
 	BestValid_GP = bFoundValidGP ? Available_GPs[BestGPIndex] : nullptr;
 }
 
+void UGrappleThrustComponent::TryGrapple()
+{
+	bHoldingInput = true;
+	
+	if (!bCanGrapple)
+		return;
+	
+	if (BestValid_GP)
+	{
+		Current_GP = BestValid_GP;
+		BeginGrapple();
+	}
+	else
+	{
+		Current_GP = nullptr;
+	}
+}
+
 void UGrappleThrustComponent::BeginGrapple()
 {
 	bCanGrapple = false;
-	GrappleState = EGrappleState::Throw;
+	GrappleThrustState = EGrappleThrustState::GTS_Throw;
 	Character->PlayAnimMontage(GrappleAnimMontage);
 }
+
+
+void UGrappleThrustComponent::ReleaseGrappleInput()
+{
+	bHoldingInput = false;
+
+	if (GrappleThrustState == EGrappleThrustState::GTS_Hang)
+		Character->PlayAnimMontage(HangDismountMontage);		
+}
+
+void UGrappleThrustComponent::ReleaseGrapple()
+{
+	GrapplingHook->SetVisibility(false);
+	GrappleThrustState = EGrappleThrustState::GTS_Idle;
+	bCanGrapple = true;
+	  	
+	// Set rotation settings
+	FVector HorizVel = CharacterMovement->Velocity;
+	HorizVel.Z = 0;
+	Character->SetActorRotation(HorizVel.Rotation());
+	CharacterMovement->bOrientRotationToMovement = true;
+}
+
 
 void UGrappleThrustComponent::HangTick(float DeltaTime)
 {
@@ -247,27 +271,6 @@ void UGrappleThrustComponent::HangTick(float DeltaTime)
 	if (!CharacterMovement->IsFalling())
 		ReleaseGrapple();
 }
-
-void UGrappleThrustComponent::ReleaseGrappleInput()
-{
-	bHoldingInput = false;
-
-	if (GrappleState == EGrappleState::Hang)
-		Character->PlayAnimMontage(HangDismountMontage);		
-}
-
-void UGrappleThrustComponent::ReleaseGrapple()
-{
-	GrapplingHook->SetVisibility(false);
-	GrappleState = EGrappleState::Idle;
-	bCanGrapple = true;
-	  	
-	// Set rotation settings
-	FVector HorizVel = CharacterMovement->Velocity;
-	HorizVel.Z = 0;
-	Character->SetActorRotation(HorizVel.Rotation());
-	CharacterMovement->bOrientRotationToMovement = true;
-}
 #pragma endregion
 
 
@@ -278,9 +281,9 @@ void UGrappleThrustComponent::SetCanGrapple(bool _bCanGrapple)
 	bCanGrapple = _bCanGrapple;
 }
 
-void UGrappleThrustComponent::SetGrappleState(EGrappleState _GrappleState)
+void UGrappleThrustComponent::SetGrappleState(EGrappleThrustState _GrappleThrustState)
 {
-	GrappleState = _GrappleState;
+	GrappleThrustState = _GrappleThrustState;
 }
 #pragma endregion
 
@@ -292,9 +295,9 @@ AGrapplePoint* UGrappleThrustComponent::GetBestValidGrapplePoint()
 	return BestValid_GP;
 }
 
-EGrappleState UGrappleThrustComponent::GetGrappleState()
+EGrappleThrustState UGrappleThrustComponent::GetGrappleThrustState()
 {
-	return GrappleState;
+	return GrappleThrustState;
 }
 
 AGrapplePoint* UGrappleThrustComponent::GetCurrentGrapplePoint()

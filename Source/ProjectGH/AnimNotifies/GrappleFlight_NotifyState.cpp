@@ -87,7 +87,7 @@ void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 	// Change state
 	if (GrappleThrustComp->IsHoldingInput())
 	{
-		GrappleThrustComp->SetGrappleState(EGrappleState::Hang);
+		GrappleThrustComp->SetGrappleState(EGrappleThrustState::GTS_Hang);
 		Hero->GetCharacterMovement()->bOrientRotationToMovement = false;
 	}	
 	else

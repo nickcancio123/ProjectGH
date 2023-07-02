@@ -58,5 +58,5 @@ void UGrappleHookThrow_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, 
 	if (!GrapplingHook || !GrappleThrustComp)
 		return;
 
-	GrappleThrustComp->SetGrappleState(EGrappleState::Flight);
+	GrappleThrustComp->SetGrappleState(EGrappleThrustState::GTS_Thrust);
 }
