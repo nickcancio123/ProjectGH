@@ -8,7 +8,7 @@
 
 
 class AHero;
-class UGrappleComponent;
+class UGrappleThrustComponent;
 class AGrapplingHook;
 class AGrapplePoint;
 
@@ -26,7 +26,7 @@ public:
 
 private:
 	AHero* Hero = nullptr;
-	UGrappleComponent* GrappleComp = nullptr;
+	UGrappleThrustComponent* GrappleThrustComp = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
 	AGrapplePoint* GP = nullptr;
 	

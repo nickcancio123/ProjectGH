@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GrappleComponent.generated.h"
+#include "GrappleThrustComponent.generated.h"
 
 
 class AGrapplePoint;
@@ -27,7 +27,7 @@ enum EGrappleState
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
-class PROJECTGH_API UGrappleComponent : public UActorComponent
+class PROJECTGH_API UGrappleThrustComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -62,7 +62,7 @@ public:
 	
 	virtual void OnRegister() override;
 	
-	UGrappleComponent();
+	UGrappleThrustComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

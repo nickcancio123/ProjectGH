@@ -3,7 +3,7 @@
 
 #include "ProjectGH/AnimNotifies/GrappleFlight_NotifyState.h"
 
-#include "ProjectGH/Components/GrappleComponent.h"
+#include "ProjectGH/Components/GrappleThrustComponent.h"
 #include "ProjectGH/Actors/Hero.h"
 #include "ProjectGH/Actors/GrapplingHook.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
@@ -20,8 +20,8 @@ void UGrappleFlight_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, U
 	if (!Hero)
 		return;
 	
-	GrappleComp = Cast<UGrappleComponent>(Hero->GetComponentByClass(UGrappleComponent::StaticClass()));
-	GrapplePoint = GrappleComp->GetCurrentGrapplePoint();
+	GrappleThrustComp = Cast<UGrappleThrustComponent>(Hero->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
+	GrapplePoint = GrappleThrustComp->GetCurrentGrapplePoint();
 
 	SpringArm = Cast<USpringArmComponent>(Hero->GetComponentByClass(USpringArmComponent::StaticClass()));
 	OriginalSpringArmLength = SpringArm->TargetArmLength;
@@ -64,7 +64,7 @@ void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 {
 	Super::NotifyEnd(MeshComp, Animation);
 
-	if (!Hero || !GrappleComp)
+	if (!Hero || !GrappleThrustComp)
 		return;
 
 	// Set post grapple velocity
@@ -85,13 +85,13 @@ void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 
 
 	// Change state
-	if (GrappleComp->IsHoldingInput())
+	if (GrappleThrustComp->IsHoldingInput())
 	{
-		GrappleComp->SetGrappleState(EGrappleState::Hang);
+		GrappleThrustComp->SetGrappleState(EGrappleState::Hang);
 		Hero->GetCharacterMovement()->bOrientRotationToMovement = false;
 	}	
 	else
 	{
-		GrappleComp->ReleaseGrapple();
+		GrappleThrustComp->ReleaseGrapple();
 	}
 }

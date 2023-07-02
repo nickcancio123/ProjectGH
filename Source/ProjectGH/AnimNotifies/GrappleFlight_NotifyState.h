@@ -7,7 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GrappleFlight_NotifyState.generated.h"
 
-class UGrappleComponent;
+class UGrappleThrustComponent;
 class AGrapplePoint;
 class AHero;
 
@@ -43,7 +43,7 @@ public:
 
 private:
 	AHero* Hero = nullptr;
-	UGrappleComponent* GrappleComp = nullptr;
+	UGrappleThrustComponent* GrappleThrustComp = nullptr;
 	AGrapplePoint* GrapplePoint = nullptr;
 	USpringArmComponent* SpringArm = nullptr;
 

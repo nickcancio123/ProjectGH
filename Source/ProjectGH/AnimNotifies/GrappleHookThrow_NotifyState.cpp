@@ -5,7 +5,7 @@
 
 #include "ProjectGH/Actors/GrapplePoint.h"
 #include "ProjectGH/Actors/Hero.h"
-#include "ProjectGH/Components/GrappleComponent.h"
+#include "ProjectGH/Components/GrappleThrustComponent.h"
 #include "ProjectGH/Actors/GrapplingHook.h"
 
 
@@ -21,10 +21,10 @@ void UGrappleHookThrow_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp
 	if (!Hero)
 		return;
 
-	GrappleComp = Cast<UGrappleComponent>(Hero->GetComponentByClass(UGrappleComponent::StaticClass()));
-	GP = GrappleComp->GetCurrentGrapplePoint();
+	GrappleThrustComp = Cast<UGrappleThrustComponent>(Hero->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
+	GP = GrappleThrustComp->GetCurrentGrapplePoint();
 	
-	GrapplingHook = GrappleComp->GetGrapplingHook();
+	GrapplingHook = GrappleThrustComp->GetGrapplingHook();
 	GrapplingHook->SetVisibility(true);
 	
 	HandPos = MeshComp->GetSocketLocation("RightHandSocket");
@@ -55,8 +55,8 @@ void UGrappleHookThrow_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, 
 {
 	Super::NotifyEnd(MeshComp, Animation);
 
-	if (!GrapplingHook || !GrappleComp)
+	if (!GrapplingHook || !GrappleThrustComp)
 		return;
 
-	GrappleComp->SetGrappleState(EGrappleState::Flight);
+	GrappleThrustComp->SetGrappleState(EGrappleState::Flight);
 }

@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Hero.generated.h"
 
-class UGrappleComponent;
+class UGrappleThrustComponent;
 
 UCLASS()
 class PROJECTGH_API AHero : public ACharacter
@@ -16,7 +16,7 @@ class PROJECTGH_API AHero : public ACharacter
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
-		UGrappleComponent* GrappleComp = nullptr;
+		UGrappleThrustComponent* GrappleThrustComp = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		float CameraTurnSensitivity = 1;

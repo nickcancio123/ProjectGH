@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ProjectGH/Components/GrappleComponent.h"
+#include "ProjectGH/Components/GrappleThrustComponent.h"
 
 #include "ProjectGH/Actors/GrapplePoint.h" 
 #include "ProjectGH/Actors/GrapplingHook.h"
@@ -16,25 +16,25 @@
 
 
 #pragma region Default Actor Component Functions
-void UGrappleComponent::OnRegister()
+void UGrappleThrustComponent::OnRegister()
 {
 	Super::OnRegister();
 
 	GP_Detector->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	GP_Detector->SetRelativeLocation(FVector::ZeroVector);
 
-	GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapStart);
-	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrappleComponent::OnOverlapEnd);
+	GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrappleThrustComponent::OnOverlapStart);
+	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrappleThrustComponent::OnOverlapEnd);
 }
 
-UGrappleComponent::UGrappleComponent()
+UGrappleThrustComponent::UGrappleThrustComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
 	InitGrapplePointDetector();
 }
 
-void UGrappleComponent::BeginPlay()
+void UGrappleThrustComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -46,7 +46,7 @@ void UGrappleComponent::BeginPlay()
 	GetOverlapped_GPs();
 }
 
-void UGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UGrappleThrustComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -55,30 +55,31 @@ void UGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	// If hanging, clamp velocity and position
 	if (GrappleState == EGrappleState::Hang)
 		HangTick(DeltaTime);
+	
 }
 #pragma endregion
 
 
 
 #pragma region Initializer Functions
-void UGrappleComponent::BindInput(UInputComponent* PlayerInputComponent)
+void UGrappleThrustComponent::BindInput(UInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrappleComponent::TryGrapple);
-	PlayerInputComponent->BindAction("Grapple", IE_Released,this, &UGrappleComponent::ReleaseGrappleInput);
+	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrappleThrustComponent::TryGrapple);
+	PlayerInputComponent->BindAction("Grapple", IE_Released,this, &UGrappleThrustComponent::ReleaseGrappleInput);
 }
 
-void UGrappleComponent::CreateGrappleHookActor()
+void UGrappleThrustComponent::CreateGrappleHookActor()
 {
 	GrapplingHook = Cast<AGrapplingHook>(GetWorld()->SpawnActor(GrapplingHookClass));
 	if (!GrapplingHook)
 		return;
 
-	GrapplingHook->SetGrappleComp(this);
+	GrapplingHook->SetGrappleThrustComp(this);
 	GrapplingHook->SetupCable(Character->GetMesh());
 	GrapplingHook->SetVisibility(false);
 }
 
-void UGrappleComponent::InitGrapplePointDetector()
+void UGrappleThrustComponent::InitGrapplePointDetector()
 {
 	GP_Detector = CreateDefaultSubobject<USphereComponent>(TEXT("Grapple Point Detector"));
 	
@@ -87,7 +88,7 @@ void UGrappleComponent::InitGrapplePointDetector()
 	GP_Detector->SetCanEverAffectNavigation(false);
 }
 
-void UGrappleComponent::GetOverlapped_GPs()
+void UGrappleThrustComponent::GetOverlapped_GPs()
 {
 	TArray<AActor*> OverlappingActors;
 	GP_Detector->GetOverlappingActors(OverlappingActors, AGrapplePoint::StaticClass());
@@ -100,7 +101,7 @@ void UGrappleComponent::GetOverlapped_GPs()
 
 
 #pragma region Grappling Driver Functions
-void UGrappleComponent::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void UGrappleThrustComponent::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!OtherActor)
 		return;
@@ -110,7 +111,7 @@ void UGrappleComponent::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AAct
 		Available_GPs.Add(GP);
 }
 
-void UGrappleComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void UGrappleThrustComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (!OtherActor)
 		return;
@@ -120,7 +121,7 @@ void UGrappleComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor
 		Available_GPs.Remove(GP);
 }
 
-void UGrappleComponent::TryGrapple()
+void UGrappleThrustComponent::TryGrapple()
 {
 	bHoldingInput = true;
 	
@@ -138,7 +139,7 @@ void UGrappleComponent::TryGrapple()
 	}
 }
 
-void UGrappleComponent::FindBestValidGP()
+void UGrappleThrustComponent::FindBestValidGP()
 {
 	FVector ViewLocation;
 	FRotator ViewRotation;
@@ -199,14 +200,14 @@ void UGrappleComponent::FindBestValidGP()
 	BestValid_GP = bFoundValidGP ? Available_GPs[BestGPIndex] : nullptr;
 }
 
-void UGrappleComponent::BeginGrapple()
+void UGrappleThrustComponent::BeginGrapple()
 {
 	bCanGrapple = false;
 	GrappleState = EGrappleState::Throw;
 	Character->PlayAnimMontage(GrappleAnimMontage);
 }
 
-void UGrappleComponent::HangTick(float DeltaTime)
+void UGrappleThrustComponent::HangTick(float DeltaTime)
 {
 	FVector GP_Pos = Current_GP->GetActorLocation();
 	FVector HeroPos = Character->GetActorLocation();
@@ -247,7 +248,7 @@ void UGrappleComponent::HangTick(float DeltaTime)
 		ReleaseGrapple();
 }
 
-void UGrappleComponent::ReleaseGrappleInput()
+void UGrappleThrustComponent::ReleaseGrappleInput()
 {
 	bHoldingInput = false;
 
@@ -255,7 +256,7 @@ void UGrappleComponent::ReleaseGrappleInput()
 		Character->PlayAnimMontage(HangDismountMontage);		
 }
 
-void UGrappleComponent::ReleaseGrapple()
+void UGrappleThrustComponent::ReleaseGrapple()
 {
 	GrapplingHook->SetVisibility(false);
 	GrappleState = EGrappleState::Idle;
@@ -272,12 +273,12 @@ void UGrappleComponent::ReleaseGrapple()
 
 
 #pragma region Setters
-void UGrappleComponent::SetCanGrapple(bool _bCanGrapple)
+void UGrappleThrustComponent::SetCanGrapple(bool _bCanGrapple)
 {
 	bCanGrapple = _bCanGrapple;
 }
 
-void UGrappleComponent::SetGrappleState(EGrappleState _GrappleState)
+void UGrappleThrustComponent::SetGrappleState(EGrappleState _GrappleState)
 {
 	GrappleState = _GrappleState;
 }
@@ -286,27 +287,27 @@ void UGrappleComponent::SetGrappleState(EGrappleState _GrappleState)
 
 
 #pragma region Accessors
-AGrapplePoint* UGrappleComponent::GetBestValidGrapplePoint()
+AGrapplePoint* UGrappleThrustComponent::GetBestValidGrapplePoint()
 {
 	return BestValid_GP;
 }
 
-EGrappleState UGrappleComponent::GetGrappleState()
+EGrappleState UGrappleThrustComponent::GetGrappleState()
 {
 	return GrappleState;
 }
 
-AGrapplePoint* UGrappleComponent::GetCurrentGrapplePoint()
+AGrapplePoint* UGrappleThrustComponent::GetCurrentGrapplePoint()
 {
 	return Current_GP;
 }
 
-AGrapplingHook* UGrappleComponent::GetGrapplingHook()
+AGrapplingHook* UGrappleThrustComponent::GetGrapplingHook()
 {
 	return GrapplingHook;
 }
 
-FVector UGrappleComponent::GetGrappleDirection()
+FVector UGrappleThrustComponent::GetGrappleDirection()
 {
 	FVector ViewLocation;
 	FRotator ViewRotation;
@@ -315,7 +316,7 @@ FVector UGrappleComponent::GetGrappleDirection()
 	return CamToGP;
 }
 
-bool UGrappleComponent::IsHoldingInput()
+bool UGrappleThrustComponent::IsHoldingInput()
 {
 	return bHoldingInput;
 }

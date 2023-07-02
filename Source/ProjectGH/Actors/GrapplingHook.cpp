@@ -3,7 +3,7 @@
 
 #include "ProjectGH/Actors/GrapplingHook.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
-#include "ProjectGH/Components/GrappleComponent.h"
+#include "ProjectGH/Components/GrappleThrustComponent.h"
 #include "CableComponent.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 
@@ -29,12 +29,12 @@ void AGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	if (!GrappleComp || !GrappleComp->GetCurrentGrapplePoint())
+	if (!GrappleThrustComp || !GrappleThrustComp->GetCurrentGrapplePoint())
 		return;
 	
 	// If currently grappling, attach grapple to current grapple point
-	if (GrappleComp->GetGrappleState() == EGrappleState::Flight || GrappleComp->GetGrappleState() == EGrappleState::Hang)
-		HookMeshComp->SetWorldLocation(GrappleComp->GetCurrentGrapplePoint()->GetActorLocation());
+	if (GrappleThrustComp->GetGrappleState() == EGrappleState::Flight || GrappleThrustComp->GetGrappleState() == EGrappleState::Hang)
+		HookMeshComp->SetWorldLocation(GrappleThrustComp->GetCurrentGrapplePoint()->GetActorLocation());
 }
 
 
@@ -77,9 +77,9 @@ void AGrapplingHook::SetVisibility(bool bVisible)
 	HookMeshComp->SetVisibility(bVisible);
 }
 
-void AGrapplingHook::SetGrappleComp(UGrappleComponent* _GrappleComp)
+void AGrapplingHook::SetGrappleThrustComp(UGrappleThrustComponent* _GrappleThrustComp)
 {
-	GrappleComp = _GrappleComp;
+	GrappleThrustComp = _GrappleThrustComp;
 }
 
 
