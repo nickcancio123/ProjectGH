@@ -14,6 +14,8 @@ class USphereComponent;
 class UInputComponent;
 class UAnimMontage;
 
+class UGrapplePointDetectorComponent;
+
 
 
 UENUM(BlueprintType)
@@ -36,22 +38,23 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 	 	UClass* GrapplingHookClass;
 	
-	// Sphere collider used to detect grapple points
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-		USphereComponent* GP_Detector = nullptr;
+		USphereComponent* GrapplePointDetector = nullptr;
+
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		UAnimMontage* GrappleAnimMontage = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		UAnimMontage* HangDismountMontage = nullptr;
+
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-		FFloatRange GrappleRange = FFloatRange(700, 3000);
+		FFloatRange GrappleThrustRange = FFloatRange(700, 3000);
 	
 	// The max angle (degrees) between line-of-sight and vector to GP to consider for grappling
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-		float Max_GP_SightAngle = 20;
+		float MaxGrappleAimAngle = 20;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		float GrappleHangDist = 600;
@@ -60,15 +63,14 @@ public:
 		float HangRotationRate = 8;
 
 	
-	virtual void OnRegister() override;
 	
 	UGrappleThrustComponent();
-
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void OnRegister() override;
 
+	
 	void ReleaseGrappleInput();
 	void ReleaseGrapple();
-
 	
 
 	// Setters
@@ -84,11 +86,8 @@ public:
 	EGrappleThrustState GetGrappleThrustState();
 	
 	AGrapplingHook* GetGrapplingHook();
-	
 	AGrapplePoint* GetCurrentGrapplePoint();
-	
 	FVector GetGrappleDirection();
-
 	bool IsHoldingInput();
 
 
@@ -100,12 +99,10 @@ protected:
 
 private:
 	ACharacter* Character = nullptr;
-	AGrapplingHook* GrapplingHook = nullptr;
 	UCharacterMovementComponent* CharacterMovement = nullptr;
+	AGrapplingHook* GrapplingHook = nullptr;
+	UGrapplePointDetectorComponent* GrapplePointDetectorComp = nullptr;
 	
-	// Set of GPs that are within GP detection range
-	TArray<AGrapplePoint*> Available_GPs;
-
 	// This frame's best valid GP option
 	AGrapplePoint* BestValid_GP = nullptr;
 
@@ -113,28 +110,18 @@ private:
 	AGrapplePoint* Current_GP = nullptr;
 
 	EGrappleThrustState GrappleThrustState = EGrappleThrustState::GTS_Idle;
-	
 	bool bCanGrapple = true;
 	bool bHoldingInput = false;
 
 
 	
-	
 	// Initializers
 	void CreateGrappleHookActor();
-	void InitGrapplePointDetector();
-	void GetOverlapped_GPs();
 
 	
 	// Grapple driver functions
-	UFUNCTION()
-	void OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	
-	void TryGrapple();
+	void TryGrappleThrust();
 	void FindBestValidGP();
-	void BeginGrapple();
+	void BeginGrappleThrust();
 	void HangTick(float DeltaTime);
 };

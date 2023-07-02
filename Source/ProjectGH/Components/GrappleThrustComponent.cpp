@@ -5,13 +5,12 @@
 
 #include "ProjectGH/Actors/GrapplePoint.h" 
 #include "ProjectGH/Actors/GrapplingHook.h"
-#include "Components/SphereComponent.h"
+#include "ProjectGH/Components/GrapplePointDetectorComponent.h"
+
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
 
-
-#include "CableComponent.h"
 
 
 
@@ -19,8 +18,6 @@
 UGrappleThrustComponent::UGrappleThrustComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
-	InitGrapplePointDetector();
 }
 
 void UGrappleThrustComponent::BeginPlay()
@@ -30,9 +27,10 @@ void UGrappleThrustComponent::BeginPlay()
 	if (GetOwner())
 		Character = Cast<ACharacter>(GetOwner());
 	CharacterMovement = Character->GetCharacterMovement();
+
+	GrapplePointDetectorComp = Cast<UGrapplePointDetectorComponent>(Character->GetComponentByClass(UGrapplePointDetectorComponent::StaticClass()));
 	
 	CreateGrappleHookActor();
-	GetOverlapped_GPs();
 }
 
 void UGrappleThrustComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -44,18 +42,13 @@ void UGrappleThrustComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	// If hanging, clamp velocity and position
 	if (GrappleThrustState == EGrappleThrustState::GTS_Hang)
 		HangTick(DeltaTime);
-	
 }
 
 void UGrappleThrustComponent::OnRegister()
 {
 	Super::OnRegister();
 
-	GP_Detector->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	GP_Detector->SetRelativeLocation(FVector::ZeroVector);
-
-	GP_Detector->OnComponentBeginOverlap.AddDynamic(this, &UGrappleThrustComponent::OnOverlapStart);
-	GP_Detector->OnComponentEndOverlap.AddDynamic(this, &UGrappleThrustComponent::OnOverlapEnd);
+	//InitGrapplePointDetector();
 }
 #pragma endregion
 
@@ -64,8 +57,8 @@ void UGrappleThrustComponent::OnRegister()
 #pragma region Initializer Functions
 void UGrappleThrustComponent::BindInput(UInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction("Grapple", IE_Pressed,this, &UGrappleThrustComponent::TryGrapple);
-	PlayerInputComponent->BindAction("Grapple", IE_Released,this, &UGrappleThrustComponent::ReleaseGrappleInput);
+	PlayerInputComponent->BindAction("GrappleThrust", IE_Pressed,this, &UGrappleThrustComponent::TryGrappleThrust);
+	PlayerInputComponent->BindAction("GrappleThrust", IE_Released,this, &UGrappleThrustComponent::ReleaseGrappleInput);
 }
 
 void UGrappleThrustComponent::CreateGrappleHookActor()
@@ -78,50 +71,11 @@ void UGrappleThrustComponent::CreateGrappleHookActor()
 	GrapplingHook->SetupCable(Character->GetMesh());
 	GrapplingHook->SetVisibility(false);
 }
-
-void UGrappleThrustComponent::InitGrapplePointDetector()
-{
-	GP_Detector = CreateDefaultSubobject<USphereComponent>(TEXT("Grapple Point Detector"));
-	
-	GP_Detector->SetSphereRadius(GrappleRange.GetUpperBoundValue());
-	GP_Detector->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-	GP_Detector->SetCanEverAffectNavigation(false);
-}
-
-void UGrappleThrustComponent::GetOverlapped_GPs()
-{
-	TArray<AActor*> OverlappingActors;
-	GP_Detector->GetOverlappingActors(OverlappingActors, AGrapplePoint::StaticClass());
-
-	for (int i = 0; i < OverlappingActors.Num(); i++)
-		Available_GPs.Add(Cast<AGrapplePoint>(OverlappingActors[i]));
-}
 #pragma endregion
 
 
 
 #pragma region Grappling Driver Functions
-void UGrappleThrustComponent::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (!OtherActor)
-		return;
-	
-	AGrapplePoint* GP = Cast<AGrapplePoint>(OtherActor);
-	if (GP)
-		Available_GPs.Add(GP);
-}
-
-void UGrappleThrustComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (!OtherActor)
-		return;
-	
-	AGrapplePoint* GP = Cast<AGrapplePoint>(OtherActor);
-	if (GP)
-		Available_GPs.Remove(GP);
-}
-
-
 void UGrappleThrustComponent::FindBestValidGP()
 {
 	FVector ViewLocation;
@@ -130,19 +84,22 @@ void UGrappleThrustComponent::FindBestValidGP()
 
 	FVector LineOfSight = ViewRotation.Vector().GetSafeNormal();
 
-	bool bFoundValidGP = false;
 	float MinGPAngle = 361;
-	int BestGPIndex = 0;
+	AGrapplePoint* BestGrapplePointYet = nullptr;
 
 	// Check each available GP if valid to grapple to, if so keep track of best option
-	for (int i = 0; i < Available_GPs.Num(); i++)
+	TArray<AGrapplePoint*>* AvailableGrapplePoints = GrapplePointDetectorComp->GetAvailableGrapplePoints();
+	
+	for (int i = 0; i < AvailableGrapplePoints->Num(); i++)
 	{
+		AGrapplePoint* GrapplePoint = (*AvailableGrapplePoints)[i];
+		
 		// Get normalized vector from view location to GP
-		FVector CamToGP =  (Available_GPs[i]->GetActorLocation() - ViewLocation);
+		FVector CamToGP =  GrapplePoint->GetActorLocation() - ViewLocation;
 		float DistToGP = CamToGP.Size();
 		CamToGP.Normalize();
 		
-		bool bValidDist = DistToGP > GrappleRange.GetLowerBoundValue();
+		bool bValidDist = DistToGP > GrappleThrustRange.GetLowerBoundValue();
 		if (!bValidDist)
 			continue;
 
@@ -150,7 +107,7 @@ void UGrappleThrustComponent::FindBestValidGP()
 		float Angle = FMath::Acos(FVector::DotProduct(LineOfSight, CamToGP));
 		Angle = FMath::RadiansToDegrees(Angle);
 		
-		bool bValidAngle = Angle < Max_GP_SightAngle;
+		bool bValidAngle = Angle < MaxGrappleAimAngle;
 		if (!bValidAngle)
 			continue;
 
@@ -159,31 +116,30 @@ void UGrappleThrustComponent::FindBestValidGP()
 		
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(Character);
-		CollisionParams.AddIgnoredActor(Available_GPs[i]);
+		CollisionParams.AddIgnoredActor(GrapplePoint);
 		
 		bool bTraceHit = GetWorld()->LineTraceSingleByProfile(
 			HitResult,
 			ViewLocation,
-			Available_GPs[i]->GetActorLocation(),
+			GrapplePoint->GetActorLocation(),
 			"BlockAll",
 			CollisionParams
 		);
 		
 		if (!bTraceHit)
 		{
-			bFoundValidGP = true;
 			if (Angle < MinGPAngle)
 			{
 				MinGPAngle = Angle;
-				BestGPIndex = i;	
+				BestGrapplePointYet = GrapplePoint;	
 			}
 		}
 	}
 	
-	BestValid_GP = bFoundValidGP ? Available_GPs[BestGPIndex] : nullptr;
+	BestValid_GP = BestGrapplePointYet ? BestGrapplePointYet : nullptr;
 }
 
-void UGrappleThrustComponent::TryGrapple()
+void UGrappleThrustComponent::TryGrappleThrust()
 {
 	bHoldingInput = true;
 	
@@ -193,7 +149,7 @@ void UGrappleThrustComponent::TryGrapple()
 	if (BestValid_GP)
 	{
 		Current_GP = BestValid_GP;
-		BeginGrapple();
+		BeginGrappleThrust();
 	}
 	else
 	{
@@ -201,7 +157,7 @@ void UGrappleThrustComponent::TryGrapple()
 	}
 }
 
-void UGrappleThrustComponent::BeginGrapple()
+void UGrappleThrustComponent::BeginGrappleThrust()
 {
 	bCanGrapple = false;
 	GrappleThrustState = EGrappleThrustState::GTS_Throw;

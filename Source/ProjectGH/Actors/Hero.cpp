@@ -2,7 +2,11 @@
 
 
 #include "ProjectGH/Actors/Hero.h"
+
 #include "ProjectGH/Components/GrappleThrustComponent.h"
+#include "ProjectGH/Components/GrappleSwingComponent.h"
+#include "ProjectGH/Components/GrapplePointDetectorComponent.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
 
@@ -46,14 +50,17 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	// Jump
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AHero::TryJump);
-
 	
+	//Grappling
 	GrappleThrustComp->BindInput(PlayerInputComponent);
+	GrappleSwingComp->BindInput(PlayerInputComponent);
 }
 
 void AHero::SetComponentRefs()
 {
 	GrappleThrustComp = Cast<UGrappleThrustComponent>(GetComponentByClass(UGrappleThrustComponent::StaticClass()));
+	GrappleSwingComp = Cast<UGrappleSwingComponent>(GetComponentByClass(UGrappleSwingComponent::StaticClass()));
+	GrapplePointDetectorComp = Cast<UGrapplePointDetectorComponent>(GetComponentByClass(UGrapplePointDetectorComponent::StaticClass()));
 }
 #pragma endregion
 

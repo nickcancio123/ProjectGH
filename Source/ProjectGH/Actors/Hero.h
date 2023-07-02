@@ -7,6 +7,8 @@
 #include "Hero.generated.h"
 
 class UGrappleThrustComponent;
+class UGrappleSwingComponent;
+class UGrapplePointDetectorComponent;
 
 UCLASS()
 class PROJECTGH_API AHero : public ACharacter
@@ -17,6 +19,13 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		UGrappleThrustComponent* GrappleThrustComp = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
+		UGrappleSwingComponent* GrappleSwingComp = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
+		UGrapplePointDetectorComponent* GrapplePointDetectorComp = nullptr;
+
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		float CameraTurnSensitivity = 1;
@@ -26,6 +35,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Hero")
 		bool bJumpTrigger = false;
+
 	
 	AHero();
 
