@@ -8,6 +8,7 @@
 
 
 class AHero;
+class UCommonGrappleComponent;
 class UGrappleThrustComponent;
 class AGrapplingHook;
 class AGrapplePoint;
@@ -26,9 +27,10 @@ public:
 
 private:
 	AHero* Hero = nullptr;
+	UCommonGrappleComponent* CommonGrappleComp = nullptr;
 	UGrappleThrustComponent* GrappleThrustComp = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
-	AGrapplePoint* GP = nullptr;
+	AGrapplePoint* GrapplePoint = nullptr;
 	
 	float NotifyTotalDuration = 1;
 	float RunningTime = 0;

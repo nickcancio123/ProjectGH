@@ -2,11 +2,12 @@
 
 
 #include "ProjectGH/AnimNotifies/RotateTowardsTarget_NotifyState.h"
-#include "ProjectGH/Components/GrappleThrustComponent.h"
+#include "ProjectGH/Components/CommonGrappleComponent.h"
 #include "GameFramework/Pawn.h"
+#include "ProjectGH/Actors/GrapplePoint.h"
 
 void URotateTowardsTarget_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-											 float TotalDuration)
+                                                   float TotalDuration)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
 
@@ -32,11 +33,11 @@ void URotateTowardsTarget_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshC
 		}
 	case ETargetType::GrapplePoint:
 		{
-			UGrappleThrustComponent* GrappleThrustComp = 
-				Cast<UGrappleThrustComponent>(Pawn->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
-			if (GrappleThrustComp)
+			UCommonGrappleComponent* CommonGrappleComp = 
+				Cast<UCommonGrappleComponent>(Pawn->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
+			if (CommonGrappleComp)
 			{
-				FVector GrappleDir = GrappleThrustComp->GetGrappleDirection();
+				FVector GrappleDir = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation() - Pawn->GetActorLocation();
 				GrappleDir.Z = 0;
 				TargetRot = GrappleDir.Rotation();
 			}

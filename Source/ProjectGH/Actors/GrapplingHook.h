@@ -8,6 +8,8 @@
 
 
 class UCableComponent;
+class UCommonGrappleComponent;
+
 class UGrappleThrustComponent;
 
 
@@ -33,7 +35,8 @@ public:
 
 	void SetupCable(USkeletalMeshComponent* CharacterMesh);
 	void SetVisibility(bool bVisible);
-	void SetGrappleThrustComp(UGrappleThrustComponent* _GrappleThrustComp);
+	void SetHookActive(bool _bActive);
+	void SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp);
 
 	
 protected:
@@ -41,7 +44,10 @@ protected:
 
 
 private:
+	UCommonGrappleComponent* CommonGrappleComp = nullptr;
 	UGrappleThrustComponent* GrappleThrustComp = nullptr;
+
+	bool bHookActive = false;
 	
 	void InitHookMesh();
 };

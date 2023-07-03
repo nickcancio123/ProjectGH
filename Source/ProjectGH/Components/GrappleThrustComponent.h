@@ -35,8 +35,8 @@ class PROJECTGH_API UGrappleThrustComponent : public UActorComponent
 
 public:	
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-	 	UClass* GrapplingHookClass;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
+	//  	UClass* GrapplingHookClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		UAnimMontage* GrappleAnimMontage = nullptr;
@@ -45,12 +45,6 @@ public:
 		UAnimMontage* HangDismountMontage = nullptr;
 
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-		FFloatRange GrappleThrustRange = FFloatRange(700, 3000);
-	
-	// The max angle (degrees) between line-of-sight and vector to GP to consider for grappling
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-		float MaxGrappleAimAngle = 20;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		float GrappleHangDist = 600;
@@ -70,19 +64,13 @@ public:
 
 	// Setters
 	void BindInput(UInputComponent* PlayerInputComponent);
-	void SetCanGrapple(bool _bCanGrapple);
-	void SetGrappleState(EGrappleThrustState _GrappleThrustState);
+	void SetGrappleThrustState(EGrappleThrustState _GrappleThrustState);
 
 	// Getters
-	UFUNCTION(BlueprintCallable)
-	AGrapplePoint* GetBestValidGrapplePoint();
-
 	UFUNCTION(BlueprintCallable)
 	EGrappleThrustState GetGrappleThrustState();
 	
 	AGrapplingHook* GetGrapplingHook();
-	AGrapplePoint* GetCurrentGrapplePoint();
-	FVector GetGrappleDirection();
 	bool IsHoldingInput();
 
 
@@ -95,28 +83,20 @@ protected:
 private:
 	ACharacter* Character = nullptr;
 	UCharacterMovementComponent* CharacterMovement = nullptr;
-	AGrapplingHook* GrapplingHook = nullptr;
 	UCommonGrappleComponent* CommonGrappleComp = nullptr;
-	
-	// This frame's best valid GP option
-	AGrapplePoint* BestValid_GP = nullptr;
-
-	// GP currently begin grappled to 
-	AGrapplePoint* Current_GP = nullptr;
+	//AGrapplingHook* GrapplingHook = nullptr;
 
 	EGrappleThrustState GrappleThrustState = EGrappleThrustState::GTS_Idle;
-	bool bCanGrapple = true;
 	bool bHoldingInput = false;
 
 
 	
 	// Initializers
-	void CreateGrappleHookActor();
+	//void CreateGrappleHookActor();
 
 	
 	// Grapple driver functions
 	void TryGrappleThrust();
-	void FindBestValidGP();
 	void BeginGrappleThrust();
 	void HangTick(float DeltaTime);
 };

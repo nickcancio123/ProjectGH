@@ -3,6 +3,7 @@
 
 #include "ProjectGH/AnimNotifies/GrappleFlight_NotifyState.h"
 
+#include "ProjectGH/Components/CommonGrappleComponent.h"
 #include "ProjectGH/Components/GrappleThrustComponent.h"
 #include "ProjectGH/Actors/Hero.h"
 #include "ProjectGH/Actors/GrapplingHook.h"
@@ -19,9 +20,14 @@ void UGrappleFlight_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, U
 	Hero = Cast<AHero>(MeshComp->GetOwner());
 	if (!Hero)
 		return;
+
+	CommonGrappleComp = Cast<UCommonGrappleComponent>(Hero->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
+	
+	GrapplePoint = CommonGrappleComp->GetCurrentGrapplePoint();
+	CommonGrappleComp->GetGrapplingHook()->SetHookActive(true);
+
 	
 	GrappleThrustComp = Cast<UGrappleThrustComponent>(Hero->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
-	GrapplePoint = GrappleThrustComp->GetCurrentGrapplePoint();
 
 	SpringArm = Cast<USpringArmComponent>(Hero->GetComponentByClass(USpringArmComponent::StaticClass()));
 	OriginalSpringArmLength = SpringArm->TargetArmLength;
@@ -85,13 +91,17 @@ void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 
 
 	// Change state
-	if (GrappleThrustComp->IsHoldingInput())
-	{
-		GrappleThrustComp->SetGrappleState(EGrappleThrustState::GTS_Hang);
-		Hero->GetCharacterMovement()->bOrientRotationToMovement = false;
-	}	
-	else
-	{
-		GrappleThrustComp->ReleaseGrapple();
-	}
+	//if (GrappleThrustComp->IsHoldingInput())
+	//{
+	//	GrappleThrustComp->SetGrappleThrustState(EGrappleThrustState::GTS_Hang);
+	//	Hero->GetCharacterMovement()->bOrientRotationToMovement = false;
+	//}	
+	//else
+	//{
+	//	GrappleThrustComp->ReleaseGrapple();
+	//}
+	
+	CommonGrappleComp->GetGrapplingHook()->SetVisibility(false);
+	CommonGrappleComp->GetGrapplingHook()->SetHookActive(false);
+	GrappleThrustComp->ReleaseGrapple();
 }

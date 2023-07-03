@@ -16,6 +16,8 @@ class PROJECTGH_API AHero : public ACharacter
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
+		UCommonGrappleComponent* CommonGrappleComp = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		UGrappleThrustComponent* GrappleThrustComp = nullptr;
@@ -23,8 +25,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		UGrappleSwingComponent* GrappleSwingComp = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
-		UCommonGrappleComponent* CommonGrappleComp = nullptr;
 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")

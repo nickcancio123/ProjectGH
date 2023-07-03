@@ -35,9 +35,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
 	UClass* GrapplingHookClass;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-	FFloatRange GrappleSwingRange = FFloatRange(700, 3000);
-	
 	
 	UGrappleSwingComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -54,18 +51,8 @@ protected:
 private:
 	ACharacter* Character = nullptr;
 	UCharacterMovementComponent* CharacterMovement = nullptr;
-	AGrapplingHook* GrapplingHook = nullptr;
 	UCommonGrappleComponent* CommonGrappleComp = nullptr;
-	
-
-	// This frame's best valid GP option
-	AGrapplePoint* BestValid_GP = nullptr;
-
-	// GP currently begin grappled to 
-	AGrapplePoint* Current_GP = nullptr;
-
-	
-	
+	AGrapplingHook* GrapplingHook = nullptr;
 	
 	// Grapple driver methods
 	void TryGrappleSwing();
