@@ -39,7 +39,7 @@ public:
 	//  	UClass* GrapplingHookClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-		UAnimMontage* GrappleAnimMontage = nullptr;
+		UAnimMontage* GrappleThrustMontage = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		UAnimMontage* HangDismountMontage = nullptr;

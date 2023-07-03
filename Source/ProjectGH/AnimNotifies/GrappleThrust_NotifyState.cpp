@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ProjectGH/AnimNotifies/GrappleFlight_NotifyState.h"
+#include "ProjectGH/AnimNotifies/GrappleThrust_NotifyState.h"
 
 #include "ProjectGH/Components/CommonGrappleComponent.h"
 #include "ProjectGH/Components/GrappleThrustComponent.h"
@@ -12,7 +12,7 @@
 
 #include "DrawDebugHelpers.h"
 
-void UGrappleFlight_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
+void UGrappleThrust_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
                                              float TotalDuration)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
@@ -40,7 +40,7 @@ void UGrappleFlight_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, U
 }
 
 
-void UGrappleFlight_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
+void UGrappleThrust_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	float FrameDeltaTime)
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime);
@@ -66,7 +66,7 @@ void UGrappleFlight_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UA
 }
 
 
-void UGrappleFlight_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UGrappleThrust_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::NotifyEnd(MeshComp, Animation);
 

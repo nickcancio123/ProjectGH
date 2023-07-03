@@ -5,15 +5,17 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "GrappleFlight_NotifyState.generated.h"
+#include "GrappleThrust_NotifyState.generated.h"
+
 
 class UCommonGrappleComponent;
 class UGrappleThrustComponent;
 class AGrapplePoint;
 class AHero;
 
+
 UCLASS()
-class PROJECTGH_API UGrappleFlight_NotifyState : public UAnimNotifyState
+class PROJECTGH_API UGrappleThrust_NotifyState : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
@@ -31,11 +33,11 @@ public:
 
 	// Percent of grapple speed that is retained after grapple animation
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grapple")
-		float PercentSpeedRetainedPostGrapple = 0.5;
+		float PercentSpeedRetainedPostGrapple = 0.2;
 
 	// Percent of grapple speed that can be applied through input
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grapple")
-		float PercentSpeedInputSpeed = 0.4;
+		float PercentSpeedInputSpeed = 0.15;
 	
 	
 	virtual void NotifyBegin(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation, float TotalDuration) override;

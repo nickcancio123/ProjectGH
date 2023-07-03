@@ -29,8 +29,6 @@ void UGrappleThrustComponent::BeginPlay()
 	CharacterMovement = Character->GetCharacterMovement();
 
 	CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
-	
-	//CreateGrappleHookActor();
 }
 
 void UGrappleThrustComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -51,18 +49,6 @@ void UGrappleThrustComponent::BindInput(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("GrappleThrust", IE_Released,this, &UGrappleThrustComponent::ReleaseGrappleInput);
 }
 
-// void UGrappleThrustComponent::CreateGrappleHookActor()
-// {
-// 	GrapplingHook = Cast<AGrapplingHook>(GetWorld()->SpawnActor(GrapplingHookClass));
-// 	if (!GrapplingHook)
-// 		return;
-//
-// 	GrapplingHook->SetGrappleThrustComp(this);
-// 	
-//
-// 	GrapplingHook->SetupCable(Character->GetMesh());
-// 	GrapplingHook->SetVisibility(false);
-// }
 #pragma endregion
 
 
@@ -90,7 +76,8 @@ void UGrappleThrustComponent::BeginGrappleThrust()
 {
 	CommonGrappleComp->SetCanGrapple(false);
 	GrappleThrustState = EGrappleThrustState::GTS_Throw;
-	Character->PlayAnimMontage(GrappleAnimMontage);
+	
+	Character->PlayAnimMontage(GrappleThrustMontage);
 }
 
 
@@ -177,11 +164,6 @@ EGrappleThrustState UGrappleThrustComponent::GetGrappleThrustState()
 {
 	return GrappleThrustState;
 }
-
-// AGrapplingHook* UGrappleThrustComponent::GetGrapplingHook()
-// {
-// 	return GrapplingHook;
-// }
 
 bool UGrappleThrustComponent::IsHoldingInput()
 {
