@@ -14,6 +14,14 @@ class AGrapplingHook;
 class USphereComponent;
 
 
+UENUM()
+enum EGrappleType
+{
+	GT_None = 0,
+	GT_Swing = 1,
+	GT_Thrust = 2
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
 class PROJECTGH_API UCommonGrappleComponent : public UActorComponent
@@ -21,13 +29,13 @@ class PROJECTGH_API UCommonGrappleComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple")
 		UClass* GrapplingHookClass;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Point Detector")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple")
 		FVector2D GrappleRange = FVector2D(700, 3000);;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Point Detector")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple")
 		float MaxAimAngleToGrapple = 20;
 	
 	UCommonGrappleComponent();
@@ -37,6 +45,7 @@ public:
 	// Setters
 	void SetCanGrapple(bool _bCanGrapple);
 	void SetCurrentGrapplePoint(AGrapplePoint* _CurrentGrapplePoint);
+	void SetCurrentGrappleType(EGrappleType _GrappleType);
 
 	// Getters
 	UFUNCTION(BlueprintCallable)
@@ -47,6 +56,7 @@ public:
 	
 	TArray<AGrapplePoint*>* GetAvailableGrapplePoints();
 	AGrapplePoint* GetCurrentGrapplePoint();
+	EGrappleType GetCurrentGrappleType();
 	bool CanGrapple();
 
 	
@@ -60,6 +70,7 @@ private:
 	AGrapplingHook* GrapplingHook = nullptr;
 	TArray<AGrapplePoint*> AvailableGrapplePoints;
 
+	TEnumAsByte<EGrappleType> CurrentGrappleType = EGrappleType::GT_None;
 	AGrapplePoint* BestValidGrapplePoint = nullptr;
 	AGrapplePoint* CurrentGrapplePoint = nullptr;
 	

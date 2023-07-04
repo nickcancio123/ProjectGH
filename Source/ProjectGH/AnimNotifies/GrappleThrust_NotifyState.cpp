@@ -21,13 +21,16 @@ void UGrappleThrust_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, U
 	if (!Hero)
 		return;
 
+	
 	CommonGrappleComp = Cast<UCommonGrappleComponent>(Hero->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 	
-	GrapplePoint = CommonGrappleComp->GetCurrentGrapplePoint();
-	CommonGrappleComp->GetGrapplingHook()->SetHookActive(true);
+	GrapplingHook = CommonGrappleComp->GetGrapplingHook();
+	GrapplingHook->SetHookActive(true);
 
+	GrapplePoint = CommonGrappleComp->GetCurrentGrapplePoint();
 	
 	GrappleThrustComp = Cast<UGrappleThrustComponent>(Hero->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
+	GrappleThrustComp->SetGrappleThrustState(EGrappleThrustState::GTS_Thrust);
 
 	SpringArm = Cast<USpringArmComponent>(Hero->GetComponentByClass(USpringArmComponent::StaticClass()));
 	OriginalSpringArmLength = SpringArm->TargetArmLength;
@@ -78,30 +81,20 @@ void UGrappleThrust_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 	FVector PathDir = (PathEnd - PathStart).GetSafeNormal();
 	
 	float GrappleSpeed = PathTotalDist / TotalNotifyDuration;
-	FVector PostGrappleVelocity = GrappleSpeed * PercentSpeedRetainedPostGrapple * PathDir;
+	FVector PostGrappleVelocity = GrappleSpeed * PostThrustSpeedRetained * PathDir;
 	
 	FVector MoveInput = Hero->GetMoveInput();
 	FVector WorldMoveInput =
 			(MoveInput.X * Hero->GetControlForwardVector()) +
 				(MoveInput.Y * Hero->GetControlRightVector());
 	
-	PostGrappleVelocity += GrappleSpeed * PercentSpeedInputSpeed * WorldMoveInput;
+	PostGrappleVelocity += GrappleSpeed * PostThrustInputImpulseSpeed * WorldMoveInput;
 	
 	Hero->GetMovementComponent()->Velocity = PostGrappleVelocity;
 
 
-	// Change state
-	//if (GrappleThrustComp->IsHoldingInput())
-	//{
-	//	GrappleThrustComp->SetGrappleThrustState(EGrappleThrustState::GTS_Hang);
-	//	Hero->GetCharacterMovement()->bOrientRotationToMovement = false;
-	//}	
-	//else
-	//{
-	//	GrappleThrustComp->ReleaseGrapple();
-	//}
-	
-	CommonGrappleComp->GetGrapplingHook()->SetVisibility(false);
-	CommonGrappleComp->GetGrapplingHook()->SetHookActive(false);
+	// Finish grapple thrust
+	GrapplingHook->SetVisibility(false);
+	GrapplingHook->SetHookActive(false);
 	GrappleThrustComp->ReleaseGrapple();
 }

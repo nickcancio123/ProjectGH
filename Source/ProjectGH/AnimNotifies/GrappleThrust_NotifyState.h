@@ -11,6 +11,7 @@
 class UCommonGrappleComponent;
 class UGrappleThrustComponent;
 class AGrapplePoint;
+class AGrapplingHook;
 class AHero;
 
 
@@ -31,13 +32,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grapple")
 		float PathHeightScale = 1000;
 
-	// Percent of grapple speed that is retained after grapple animation
+	// Percent of grapple thrust speed that is retained after grapple animation
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grapple")
-		float PercentSpeedRetainedPostGrapple = 0.2;
+		float PostThrustSpeedRetained = 0.2;
 
 	// Percent of grapple speed that can be applied through input
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grapple")
-		float PercentSpeedInputSpeed = 0.15;
+		float PostThrustInputImpulseSpeed = 0.15;
 	
 	
 	virtual void NotifyBegin(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation, float TotalDuration) override;
@@ -48,6 +49,7 @@ private:
 	AHero* Hero = nullptr;
 	UCommonGrappleComponent* CommonGrappleComp = nullptr;
 	UGrappleThrustComponent* GrappleThrustComp = nullptr;
+	AGrapplingHook* GrapplingHook = nullptr;
 	AGrapplePoint* GrapplePoint = nullptr;
 	USpringArmComponent* SpringArm = nullptr;
 

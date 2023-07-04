@@ -176,6 +176,11 @@ void UCommonGrappleComponent::SetCurrentGrapplePoint(AGrapplePoint* _CurrentGrap
 {
 	CurrentGrapplePoint = _CurrentGrapplePoint;
 }
+
+void UCommonGrappleComponent::SetCurrentGrappleType(EGrappleType _GrappleType)
+{
+	CurrentGrappleType = _GrappleType;
+}
 #pragma endregion
 
 
@@ -204,5 +209,10 @@ TArray<AGrapplePoint*>* UCommonGrappleComponent::GetAvailableGrapplePoints()
 AGrapplePoint* UCommonGrappleComponent::GetCurrentGrapplePoint()
 {
 	return CurrentGrapplePoint;
+}
+
+EGrappleType UCommonGrappleComponent::GetCurrentGrappleType()
+{
+	return CurrentGrappleType;
 }
 #pragma endregion

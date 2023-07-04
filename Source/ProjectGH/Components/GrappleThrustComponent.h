@@ -24,7 +24,6 @@ enum EGrappleThrustState
 	GTS_Idle = 0,
 	GTS_Throw = 1,
 	GTS_Thrust = 2,
-	GTS_Hang = 3
 };
 
 
@@ -33,19 +32,10 @@ class PROJECTGH_API UGrappleThrustComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-
-	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-	//  	UClass* GrapplingHookClass;
-	
+public:		
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		UAnimMontage* GrappleThrustMontage = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-		UAnimMontage* HangDismountMontage = nullptr;
-
 	
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		float GrappleHangDist = 600;
 
@@ -70,32 +60,23 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EGrappleThrustState GetGrappleThrustState();
 	
-	AGrapplingHook* GetGrapplingHook();
 	bool IsHoldingInput();
 
 
-	
+
 protected:
 	virtual void BeginPlay() override;
 
-	
 
 private:
 	ACharacter* Character = nullptr;
 	UCharacterMovementComponent* CharacterMovement = nullptr;
 	UCommonGrappleComponent* CommonGrappleComp = nullptr;
-	//AGrapplingHook* GrapplingHook = nullptr;
 
 	EGrappleThrustState GrappleThrustState = EGrappleThrustState::GTS_Idle;
 	bool bHoldingInput = false;
-
-
 	
-	// Initializers
-	//void CreateGrappleHookActor();
-
 	
-	// Grapple driver functions
 	void TryGrappleThrust();
 	void BeginGrappleThrust();
 	void HangTick(float DeltaTime);

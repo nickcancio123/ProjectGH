@@ -4,8 +4,11 @@
 #include "ProjectGH/AnimNotifies/GrappleHookThrow_NotifyState.h"
 
 #include "ProjectGH/Actors/Hero.h"
+
 #include "ProjectGH/Components/CommonGrappleComponent.h"
 #include "ProjectGH/Components/GrappleThrustComponent.h"
+#include "ProjectGH/Components/GrappleSwingComponent.h"
+
 #include "ProjectGH/Actors/GrapplingHook.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
 
@@ -27,8 +30,9 @@ void UGrappleHookThrow_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp
 
 	GrapplingHook = CommonGrappleComp->GetGrapplingHook();
 	GrapplingHook->SetVisibility(true);
-
+	
 	GrappleThrustComp = Cast<UGrappleThrustComponent>(Hero->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
+	GrappleSwingComp = Cast<UGrappleSwingComponent>(Hero->GetComponentByClass(UGrappleSwingComponent::StaticClass()));
 	
 	HandPos = MeshComp->GetSocketLocation("RightHandSocket");
 	GP_Pos = GrapplePoint->GetActorLocation();
@@ -57,9 +61,13 @@ void UGrappleHookThrow_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp,
 void UGrappleHookThrow_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::NotifyEnd(MeshComp, Animation);
-
-	if (!GrapplingHook || !GrappleThrustComp)
+	
+	if (GrapplingHook)
+		GrapplingHook->SetHookActive(true);
+	
+	if (!CommonGrappleComp)
 		return;
 
-	GrappleThrustComp->SetGrappleThrustState(EGrappleThrustState::GTS_Thrust);
+	if (CommonGrappleComp->GetCurrentGrappleType() == EGrappleType::GT_Swing && GrappleSwingComp)
+		GrappleSwingComp->StartSwingState();
 }

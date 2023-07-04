@@ -2,7 +2,7 @@
 
 
 #include "ProjectGH/AnimNotifies/GrappleRelease_Notify.h"
-#include "ProjectGH/Components/GrappleThrustComponent.h"
+#include "ProjectGH/Components/GrappleSwingComponent.h"
 #include "ProjectGH/Actors/Hero.h"
 
 
@@ -15,6 +15,6 @@ void UGrappleRelease_Notify::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	if (!Hero)
 		return;
 	
-	GrappleThrustComp = Cast<UGrappleThrustComponent>(Hero->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
-	GrappleThrustComp->ReleaseGrapple();
+	GrappleSwingComp = Cast<UGrappleSwingComponent>(Hero->GetComponentByClass(UGrappleSwingComponent::StaticClass()));
+	GrappleSwingComp->ReleaseGrapple();
 }

@@ -8,7 +8,7 @@
 
 
 class AHero;
-class UGrappleThrustComponent;
+class UGrappleSwingComponent;
 
 UCLASS()
 class PROJECTGH_API UGrappleRelease_Notify : public UAnimNotify
@@ -20,5 +20,5 @@ public:
 
 private:
 	AHero* Hero = nullptr;
-	UGrappleThrustComponent* GrappleThrustComp = nullptr;
+	UGrappleSwingComponent* GrappleSwingComp = nullptr;
 };

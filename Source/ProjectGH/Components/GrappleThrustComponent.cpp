@@ -35,8 +35,8 @@ void UGrappleThrustComponent::TickComponent(float DeltaTime, ELevelTick TickType
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	if (GrappleThrustState == EGrappleThrustState::GTS_Hang)
-		HangTick(DeltaTime);
+	//if (GrappleThrustState == EGrappleThrustState::GTS_Hang)
+	//	HangTick(DeltaTime);
 }
 #pragma endregion
 
@@ -75,6 +75,8 @@ void UGrappleThrustComponent::TryGrappleThrust()
 void UGrappleThrustComponent::BeginGrappleThrust()
 {
 	CommonGrappleComp->SetCanGrapple(false);
+	CommonGrappleComp->SetCurrentGrappleType(EGrappleType::GT_Thrust);
+	
 	GrappleThrustState = EGrappleThrustState::GTS_Throw;
 	
 	Character->PlayAnimMontage(GrappleThrustMontage);
@@ -84,21 +86,18 @@ void UGrappleThrustComponent::BeginGrappleThrust()
 void UGrappleThrustComponent::ReleaseGrappleInput()
 {
 	bHoldingInput = false;
-
-	if (GrappleThrustState == EGrappleThrustState::GTS_Hang)
-		Character->PlayAnimMontage(HangDismountMontage);		
 }
 
 void UGrappleThrustComponent::ReleaseGrapple()
 {
 	CommonGrappleComp->SetCanGrapple(true);
-	
+	CommonGrappleComp->SetCurrentGrappleType(EGrappleType::GT_None);
 	CommonGrappleComp->GetGrapplingHook()->SetVisibility(false);
 	CommonGrappleComp->GetGrapplingHook()->SetHookActive(false);
 	
 	GrappleThrustState = EGrappleThrustState::GTS_Idle;
 	  	
-	// Set rotation settings
+	// Set rotation 
 	FVector HorizVel = CharacterMovement->Velocity;
 	HorizVel.Z = 0;
 	Character->SetActorRotation(HorizVel.Rotation());

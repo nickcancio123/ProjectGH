@@ -11,6 +11,7 @@
 class AGrapplePoint;
 class AGrapplingHook;
 class UCommonGrappleComponent;
+class UBoxComponent;
 
 class UInputComponent;
 class UAnimMontage;
@@ -33,15 +34,33 @@ class PROJECTGH_API UGrappleSwingComponent : public UActorComponent
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
-	UClass* GrapplingHookClass;
+		UAnimMontage* GrappleThrowMontage = nullptr;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
+		UAnimMontage* SwingDismountMontage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
+		UAnimMontage* KipUpMontage = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
+		float MinVerticalAngleToKipUp = 35;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
+		float SwingRotationRate = 8;
+
 	
 	UGrappleSwingComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	virtual void OnRegister() override;
+	
 	void BindInput(UInputComponent* PlayerInputComponent);
+	void SetGrappleSwingState(EGrappleSwingState _GrappleSwingState);
 
-	void ReleaseGrappleInput();
+	void StartSwingState();
+	void ReleaseGrapple();
+
+	UFUNCTION(BlueprintCallable)
+	EGrappleSwingState GetGrappleSwingState();
 	
 	
 protected:
@@ -53,7 +72,23 @@ private:
 	UCharacterMovementComponent* CharacterMovement = nullptr;
 	UCommonGrappleComponent* CommonGrappleComp = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
+	UBoxComponent* GroundDetectionVolume = nullptr;
+
+
+	EGrappleSwingState GrappleSwingState = EGrappleSwingState::GSS_Idle;
+
+	bool bHoldingInput = false;
+	float InitSwingDist = 0;
+	bool bCanSwingWhileOnGround = false;
 	
 	// Grapple driver methods
 	void TryGrappleSwing();
+	void BeginSwingSequence();
+	void SwingStateTick(float DeltaTime);
+	void ReleaseGrappleInput();
+
+	UFUNCTION()
+	void OnGroundOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void InitGroundDetectorVolume();
 };
