@@ -61,7 +61,7 @@ void UGrappleSwingComponent::InitGroundDetectorVolume()
 {
 	GroundDetectionVolume->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	GroundDetectionVolume->SetRelativeLocation(FVector(75, 0, 25));
-	GroundDetectionVolume->SetBoxExtent(FVector(30, 70, 100));
+	GroundDetectionVolume->SetBoxExtent(GroundDetectorVolumeExtent);
 	
 	GroundDetectionVolume->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 	GroundDetectionVolume->SetCanEverAffectNavigation(false);
@@ -109,7 +109,6 @@ void UGrappleSwingComponent::StartSwingState()
 	FVector GP_Pos = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
 	InitSwingDist = (GP_Pos - HeroPos).Size();
 	
-
 	bCanSwingWhileOnGround = !CharacterMovement->IsFalling();
 }
 
@@ -159,10 +158,10 @@ void UGrappleSwingComponent::SwingStateTick(float DeltaTime)
 	}
 	else
 	{
-		CharacterMovement->bOrientRotationToMovement = true;
-
-		if (!bCanSwingWhileOnGround)
+		if (bReleaseGrappleOnGrounded && !bCanSwingWhileOnGround)
 			ReleaseGrapple();
+		else
+			SetSwingLandActorRotation();
 	}
 }
 
@@ -172,27 +171,6 @@ void UGrappleSwingComponent::ReleaseGrappleInput()
 
 	if (GrappleSwingState == EGrappleSwingState::GSS_Swing && CharacterMovement->IsFalling())
 		Character->PlayAnimMontage(SwingDismountMontage);	
-}
-
-void UGrappleSwingComponent::OnGroundOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{	
-	if (!OtherActor)
-		return;
-	
-	float Dot = FVector::DotProduct(Character->GetActorUpVector(), FVector::UpVector);
-	float VertAngle = FMath::RadiansToDegrees(FMath::Acos(Dot));
-
-	FName Profile = OtherComp->GetCollisionProfileName();
-
-	// Conditions to end grapple based on collision
-	if (GrappleSwingState == EGrappleSwingState::GSS_Swing &&
-		VertAngle > MinVerticalAngleToKipUp &&
-		(Profile.Compare("BlockAll") == 0 || Profile.Compare("BlockAllDynamic") == 0)
-		)
-	{
-		Character->PlayAnimMontage(KipUpMontage);
-		ReleaseGrapple();
-	}
 }
 
 void UGrappleSwingComponent::ReleaseGrapple()
@@ -205,24 +183,55 @@ void UGrappleSwingComponent::ReleaseGrapple()
 	GrappleSwingState = EGrappleSwingState::GSS_Idle;
 	  	
 	// Set rotation 
-	FVector HorizVel = CharacterMovement->Velocity;
-	HorizVel.Z = 0;
-	FVector NewLookDir = HorizVel.Size() > 250 ? HorizVel : Character->GetActorForwardVector().GetSafeNormal2D();
+	SetSwingLandActorRotation();
+}
 
-	Character->SetActorRotation(NewLookDir.Rotation());
+void UGrappleSwingComponent::OnGroundOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{	
+	if (!OtherActor)
+		return;
 	
-	CharacterMovement->bOrientRotationToMovement = true;
+	float Dot = FVector::DotProduct(Character->GetActorUpVector(), FVector::UpVector);
+	float HorizAngle = 90 - FMath::RadiansToDegrees(FMath::Acos(Dot));
+
+	FName Profile = OtherComp->GetCollisionProfileName();
+
+	// Conditions to end grapple based on collision
+	if (GrappleSwingState == EGrappleSwingState::GSS_Swing &&
+		HorizAngle < MaxHorizAngleToKipUp &&
+		(Profile.Compare("BlockAll") == 0 || Profile.Compare("BlockAllDynamic") == 0)
+		)
+	{
+		Character->PlayAnimMontage(KipUpMontage);
+		ReleaseGrapple();
+	}
 }
 #pragma endregion 
 
 
 
+#pragma region Getters
 EGrappleSwingState UGrappleSwingComponent::GetGrappleSwingState()
 {
 	return GrappleSwingState;
 }
 
+#pragma endregion
+
+
+
+#pragma region Setters
 void UGrappleSwingComponent::SetGrappleSwingState(EGrappleSwingState _GrappleSwingState)
 {
 	GrappleSwingState = _GrappleSwingState;
 }
+
+void UGrappleSwingComponent::SetSwingLandActorRotation()
+{
+	FVector HorizVel = CharacterMovement->Velocity;
+	HorizVel.Z = 0;
+	FVector NewLookDir = HorizVel.Size() > 250 ? HorizVel : Character->GetActorForwardVector().GetSafeNormal2D();
+	Character->SetActorRotation(NewLookDir.Rotation());
+	CharacterMovement->bOrientRotationToMovement = true;
+}
+#pragma endregion

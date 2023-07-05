@@ -41,12 +41,19 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
 		UAnimMontage* KipUpMontage = nullptr;
+
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
-		float MinVerticalAngleToKipUp = 35;
+		FVector GroundDetectorVolumeExtent = FVector(25, 50, 100);
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
+		float MaxHorizAngleToKipUp = 55;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
 		float SwingRotationRate = 8;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
+		bool bReleaseGrappleOnGrounded = true;
 
 	
 	UGrappleSwingComponent();
@@ -73,13 +80,13 @@ private:
 	UCommonGrappleComponent* CommonGrappleComp = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
 	UBoxComponent* GroundDetectionVolume = nullptr;
-
-
+	
 	EGrappleSwingState GrappleSwingState = EGrappleSwingState::GSS_Idle;
 
 	bool bHoldingInput = false;
 	float InitSwingDist = 0;
 	bool bCanSwingWhileOnGround = false;
+
 	
 	// Grapple driver methods
 	void TryGrappleSwing();
@@ -90,5 +97,8 @@ private:
 	UFUNCTION()
 	void OnGroundOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+
+	// Misc
 	void InitGroundDetectorVolume();
+	void SetSwingLandActorRotation();
 };

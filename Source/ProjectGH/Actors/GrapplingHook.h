@@ -34,10 +34,11 @@ public:
 
 
 	void SetupCable(USkeletalMeshComponent* CharacterMesh);
+	void SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp);
+	
 	void SetVisibility(bool bVisible);
 	void SetHookActive(bool _bActive);
-	void SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp);
-
+	void SetHookRotationToCableDir();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -48,6 +49,4 @@ private:
 	UGrappleThrustComponent* GrappleThrustComp = nullptr;
 
 	bool bHookActive = false;
-	
-	void InitHookMesh();
 };

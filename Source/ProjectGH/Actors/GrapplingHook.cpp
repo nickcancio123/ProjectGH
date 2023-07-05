@@ -18,8 +18,6 @@ AGrapplingHook::AGrapplingHook()
 	SetRootComponent(CableComp);
 	
 	HookMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Hook Mesh"));
-	
-	InitHookMesh();
 }
 
 void AGrapplingHook::BeginPlay()
@@ -31,21 +29,18 @@ void AGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
-	
 	if (!CommonGrappleComp || !CommonGrappleComp->GetCurrentGrapplePoint())
 		return;
 	
-	// If currently grappling, attach grapple to current grapple point
-	//if (GrappleThrustComp->GetGrappleThrustState() == EGrappleThrustState::GTS_Thrust ||
-	//	GrappleThrustComp->GetGrappleThrustState() == EGrappleThrustState::GTS_Hang)
-	
 	if (bHookActive)
 	{
+		// Set hook location
 		HookMeshComp->SetWorldLocation(CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation());
+
+		// Set hook rotation
+		SetHookRotationToCableDir();	
 	}
 }
-
 
 
 
@@ -69,11 +64,10 @@ void AGrapplingHook::SetupCable(USkeletalMeshComponent* CharacterMesh)
 	CableComp->SolverIterations = 5;
 }
 
-void AGrapplingHook::InitHookMesh()
+void AGrapplingHook::SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp)
 {
-	HookMeshComp->SetRelativeScale3D(FVector::OneVector * 0.2);
+	CommonGrappleComp = _CommonGrappleComp;
 }
-
 
 
 
@@ -91,9 +85,10 @@ void AGrapplingHook::SetHookActive(bool _bActive)
 	bHookActive = _bActive;
 }
 
-void AGrapplingHook::SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp)
+void AGrapplingHook::SetHookRotationToCableDir()
 {
-	CommonGrappleComp = _CommonGrappleComp;
+	FVector CableDir = GetActorLocation() - HookMeshComp->GetComponentLocation();
+	HookMeshComp->SetWorldRotation(CableDir.Rotation());
 }
 
 

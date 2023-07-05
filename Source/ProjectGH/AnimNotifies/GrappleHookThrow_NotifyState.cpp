@@ -56,6 +56,7 @@ void UGrappleHookThrow_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp,
 	// Set hook position
 	FVector NewHookPos = FMath::Lerp(HandPos, GP_Pos, Alpha);
 	GrapplingHook->HookMeshComp->SetWorldLocation(NewHookPos);
+	GrapplingHook->SetHookRotationToCableDir();
 }
 
 void UGrappleHookThrow_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
