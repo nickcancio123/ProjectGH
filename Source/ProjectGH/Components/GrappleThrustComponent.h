@@ -46,7 +46,7 @@ public:
 	
 	UGrappleThrustComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	
 	
 	void ReleaseGrappleInput();
 	void ReleaseGrapple();

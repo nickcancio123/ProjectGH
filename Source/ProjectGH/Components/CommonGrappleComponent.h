@@ -41,7 +41,15 @@ public:
 	UCommonGrappleComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void OnRegister() override;
+	
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void SpinGrappleIcon(float DeltaTime);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ResetGrappleIconAngle();
+
+	
 	// Setters
 	void SetCanGrapple(bool _bCanGrapple);
 	void SetCurrentGrapplePoint(AGrapplePoint* _CurrentGrapplePoint);
@@ -53,9 +61,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	AGrapplingHook* GetGrapplingHook();
+
+	UFUNCTION(BlueprintCallable)
+	AGrapplePoint* GetCurrentGrapplePoint();
 	
 	TArray<AGrapplePoint*>* GetAvailableGrapplePoints();
-	AGrapplePoint* GetCurrentGrapplePoint();
 	EGrappleType GetCurrentGrappleType();
 	bool CanGrapple();
 

@@ -66,6 +66,10 @@ void UGrappleThrust_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UA
 	
 	// Compute new spring arm distance
 	SpringArm->TargetArmLength = OriginalSpringArmLength + SpringArmLengthCurve.GetRichCurve()->Eval(Alpha) * 1000;
+
+
+	// Animate grapple icon
+	CommonGrappleComp->SpinGrappleIcon(FrameDeltaTime);
 }
 
 
@@ -73,8 +77,12 @@ void UGrappleThrust_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 {
 	Super::NotifyEnd(MeshComp, Animation);
 
-	if (!Hero || !GrappleThrustComp)
+	if (!Hero || !GrappleThrustComp || !CommonGrappleComp)
 		return;
+
+
+	CommonGrappleComp->ResetGrappleIconAngle();
+	
 
 	// Set post grapple velocity
 	float PathTotalDist = FVector::Dist(PathStart, PathEnd);
