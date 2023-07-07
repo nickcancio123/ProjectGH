@@ -76,7 +76,7 @@ void UCommonGrappleComponent::CreateGrapplingHookActor()
 
 	GrapplingHook->SetCommonGrappleComp(this);
 	GrapplingHook->SetupCable(Character->GetMesh());
-	GrapplingHook->SetVisibility(false);
+	GrapplingHook->SetGrapplingHookState(EGrapplingHookState::GHS_In);
 }
 
 

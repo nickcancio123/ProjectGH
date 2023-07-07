@@ -92,8 +92,7 @@ void UGrappleThrustComponent::ReleaseGrapple()
 {
 	CommonGrappleComp->SetCanGrapple(true);
 	CommonGrappleComp->SetCurrentGrappleType(EGrappleType::GT_None);
-	CommonGrappleComp->GetGrapplingHook()->SetVisibility(false);
-	CommonGrappleComp->GetGrapplingHook()->SetHookActive(false);
+	CommonGrappleComp->GetGrapplingHook()->SetGrapplingHookState(EGrapplingHookState::GHS_Pull);
 	
 	GrappleThrustState = EGrappleThrustState::GTS_Idle;
 	  	

@@ -114,8 +114,20 @@ void UGrappleSwingComponent::StartSwingState()
 
 void UGrappleSwingComponent::SwingStateTick(float DeltaTime)
 {
+	// End swing state condition
 	if (!bHoldingInput)
-		ReleaseGrapple();
+	{
+		if (CharacterMovement->IsFalling())
+		{
+			GrappleSwingState = EGrappleSwingState::GSS_Idle;
+			Character->PlayAnimMontage(SwingDismountMontage);
+		}
+		else
+		{
+			ReleaseGrapple();
+		}
+		return;
+	}
 
 	
 	FVector GP_Pos = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
@@ -127,8 +139,7 @@ void UGrappleSwingComponent::SwingStateTick(float DeltaTime)
 	FVector HeroToGP = GP_Pos - HeroPos;
 	float Dist = HeroToGP.Size();
 	HeroToGP.Normalize();
-
-
+	
 	FVector NewVel = Vel;
 	if (Dist >= InitSwingDist)
 	{
@@ -161,29 +172,25 @@ void UGrappleSwingComponent::SwingStateTick(float DeltaTime)
 		if (bReleaseGrappleOnGrounded && !bCanSwingWhileOnGround)
 			ReleaseGrapple();
 		else
-			SetSwingLandActorRotation();
+			SetSwingEndActorRotation();
 	}
 }
 
 void UGrappleSwingComponent::ReleaseGrappleInput()
 {
 	bHoldingInput = false;
-
-	if (GrappleSwingState == EGrappleSwingState::GSS_Swing && CharacterMovement->IsFalling())
-		Character->PlayAnimMontage(SwingDismountMontage);	
 }
 
 void UGrappleSwingComponent::ReleaseGrapple()
 {
 	CommonGrappleComp->SetCanGrapple(true);
 	CommonGrappleComp->SetCurrentGrappleType(EGrappleType::GT_None);
-	CommonGrappleComp->GetGrapplingHook()->SetVisibility(false);
-	CommonGrappleComp->GetGrapplingHook()->SetHookActive(false);
+	CommonGrappleComp->GetGrapplingHook()->SetGrapplingHookState(EGrapplingHookState::GHS_Pull);
 	
 	GrappleSwingState = EGrappleSwingState::GSS_Idle;
 	  	
 	// Set rotation 
-	SetSwingLandActorRotation();
+	SetSwingEndActorRotation();
 }
 
 void UGrappleSwingComponent::OnGroundOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -226,11 +233,11 @@ void UGrappleSwingComponent::SetGrappleSwingState(EGrappleSwingState _GrappleSwi
 	GrappleSwingState = _GrappleSwingState;
 }
 
-void UGrappleSwingComponent::SetSwingLandActorRotation()
+void UGrappleSwingComponent::SetSwingEndActorRotation()
 {
-	FVector HorizVel = CharacterMovement->Velocity;
-	HorizVel.Z = 0;
+	FVector HorizVel = CharacterMovement->Velocity.GetSafeNormal2D();
 	FVector NewLookDir = HorizVel.Size() > 250 ? HorizVel : Character->GetActorForwardVector().GetSafeNormal2D();
+	
 	Character->SetActorRotation(NewLookDir.Rotation());
 	CharacterMovement->bOrientRotationToMovement = true;
 }

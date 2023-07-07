@@ -25,8 +25,8 @@ void UGrappleThrust_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, U
 	CommonGrappleComp = Cast<UCommonGrappleComponent>(Hero->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 	
 	GrapplingHook = CommonGrappleComp->GetGrapplingHook();
-	GrapplingHook->SetHookActive(true);
-
+	GrapplingHook->SetGrapplingHookState(EGrapplingHookState::GHS_Out);
+	
 	GrapplePoint = CommonGrappleComp->GetCurrentGrapplePoint();
 	
 	GrappleThrustComp = Cast<UGrappleThrustComponent>(Hero->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
@@ -101,8 +101,8 @@ void UGrappleThrust_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 	Hero->GetMovementComponent()->Velocity = PostGrappleVelocity;
 
 
+	
 	// Finish grapple thrust
-	GrapplingHook->SetVisibility(false);
-	GrapplingHook->SetHookActive(false);
+	GrapplingHook->SetGrapplingHookState(GHS_In);
 	GrappleThrustComp->ReleaseGrapple();
 }

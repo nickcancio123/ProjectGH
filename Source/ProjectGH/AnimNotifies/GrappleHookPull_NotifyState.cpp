@@ -68,9 +68,9 @@ void UGrappleHookPull_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 {
 	Super::NotifyEnd(MeshComp, Animation);
 	
-	if (GrapplingHook)
-	{
-		GrapplingHook->SetHookActive(false);
-		GrapplingHook->SetVisibility(false);
-	}
+	//if (GrapplingHook)
+	//{
+	//	GrapplingHook->SetHookActive(false);
+	//	GrapplingHook->SetVisibility(false);
+	//}
 }

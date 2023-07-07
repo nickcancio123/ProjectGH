@@ -100,5 +100,5 @@ private:
 
 	// Misc
 	void InitGroundDetectorVolume();
-	void SetSwingLandActorRotation();
+	void SetSwingEndActorRotation();
 };
