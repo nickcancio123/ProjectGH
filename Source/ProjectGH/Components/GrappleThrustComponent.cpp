@@ -8,7 +8,6 @@
 #include "ProjectGH/Components/CommonGrappleComponent.h"
 
 #include "GameFramework/Character.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
 
 
@@ -17,7 +16,7 @@
 #pragma region Default Actor Component Functions
 UGrappleThrustComponent::UGrappleThrustComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UGrappleThrustComponent::BeginPlay()
@@ -30,14 +29,6 @@ void UGrappleThrustComponent::BeginPlay()
 
 	CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 }
-
-void UGrappleThrustComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	//if (GrappleThrustState == EGrappleThrustState::GTS_Hang)
-	//	HangTick(DeltaTime);
-}
 #pragma endregion
 
 
@@ -46,7 +37,6 @@ void UGrappleThrustComponent::TickComponent(float DeltaTime, ELevelTick TickType
 void UGrappleThrustComponent::BindInput(UInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAction("GrappleThrust", IE_Pressed,this, &UGrappleThrustComponent::TryGrappleThrust);
-	PlayerInputComponent->BindAction("GrappleThrust", IE_Released,this, &UGrappleThrustComponent::ReleaseGrappleInput);
 }
 
 #pragma endregion
@@ -56,8 +46,6 @@ void UGrappleThrustComponent::BindInput(UInputComponent* PlayerInputComponent)
 #pragma region Grappling Driver Functions
 void UGrappleThrustComponent::TryGrappleThrust()
 {
-	bHoldingInput = true;
-	
 	if (!CommonGrappleComp->CanGrapple())
 		return;
 
@@ -82,12 +70,6 @@ void UGrappleThrustComponent::BeginGrappleThrust()
 	Character->PlayAnimMontage(GrappleThrustMontage);
 }
 
-
-void UGrappleThrustComponent::ReleaseGrappleInput()
-{
-	bHoldingInput = false;
-}
-
 void UGrappleThrustComponent::ReleaseGrapple()
 {
 	CommonGrappleComp->SetCanGrapple(true);
@@ -102,69 +84,19 @@ void UGrappleThrustComponent::ReleaseGrapple()
 	Character->SetActorRotation(HorizVel.Rotation());
 	CharacterMovement->bOrientRotationToMovement = true;
 }
-
-
-void UGrappleThrustComponent::HangTick(float DeltaTime)
-{
-	FVector GP_Pos = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
-	FVector HeroPos = Character->GetActorLocation();
-
-	
-	// Set new velocity
-	FVector Vel = CharacterMovement->Velocity;
-	FVector HeroToGP = GP_Pos - HeroPos;
-	float Dist = HeroToGP.Size();
-	HeroToGP.Normalize();
-
-	FVector NewVel = Vel;
-	if (Dist >= GrappleHangDist)
-	{
-		FVector NewPos = GP_Pos + (-GrappleHangDist * HeroToGP);
-		Character->SetActorLocation(NewPos);
-
-		NewVel = FVector::VectorPlaneProject(Vel, HeroToGP);
-		CharacterMovement->Velocity = NewVel;
-	}
-
-	
-	// Set new rotation 
-	FRotator TargetRot = UKismetMathLibrary::MakeRotFromXZ(CharacterMovement->Velocity, HeroToGP);
-	
-	FRotator NewRot = UKismetMathLibrary::RInterpTo(
-		Character->GetActorRotation(),
-		TargetRot,
-		DeltaTime,
-		HangRotationRate
-		);
-
-	Character->SetActorRotation(NewRot);
-
-	
-	// Change states if grounded
-	if (!CharacterMovement->IsFalling())
-		ReleaseGrapple();
-}
 #pragma endregion
 
 
 
-#pragma region Setters
+#pragma region Setters & Getters
 void UGrappleThrustComponent::SetGrappleThrustState(EGrappleThrustState _GrappleThrustState)
 {
 	GrappleThrustState = _GrappleThrustState;
 }
 #pragma endregion
 
-
-
-#pragma region Accessors
 EGrappleThrustState UGrappleThrustComponent::GetGrappleThrustState()
 {
 	return GrappleThrustState;
-}
-
-bool UGrappleThrustComponent::IsHoldingInput()
-{
-	return bHoldingInput;
 }
 #pragma endregion

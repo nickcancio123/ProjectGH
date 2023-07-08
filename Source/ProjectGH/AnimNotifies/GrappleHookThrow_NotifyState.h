@@ -8,7 +8,6 @@
 #include "GrappleHookThrow_NotifyState.generated.h"
 
 
-class AHero;
 
 class UCommonGrappleComponent;
 class UGrappleThrustComponent;
@@ -30,7 +29,7 @@ public:
 
 
 private:
-	AHero* Hero = nullptr;
+	ACharacter* Character = nullptr;
 	
 	UCommonGrappleComponent* CommonGrappleComp = nullptr;
 	UGrappleThrustComponent* GrappleThrustComp = nullptr;

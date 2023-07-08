@@ -88,7 +88,7 @@ private:
 	bool bCanSwingWhileOnGround = false;
 
 	
-	// Grapple driver methods
+	// Swing driver methods
 	void TryGrappleSwing();
 	void BeginSwingSequence();
 	void SwingStateTick(float DeltaTime);

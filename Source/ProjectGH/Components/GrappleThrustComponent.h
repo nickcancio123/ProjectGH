@@ -43,12 +43,8 @@ public:
 		float HangRotationRate = 8;
 
 	
-	
 	UGrappleThrustComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	
-	void ReleaseGrappleInput();
 	void ReleaseGrapple();
 	
 
@@ -59,9 +55,6 @@ public:
 	// Getters
 	UFUNCTION(BlueprintCallable)
 	EGrappleThrustState GetGrappleThrustState();
-	
-	bool IsHoldingInput();
-
 
 
 protected:
@@ -74,10 +67,8 @@ private:
 	UCommonGrappleComponent* CommonGrappleComp = nullptr;
 
 	EGrappleThrustState GrappleThrustState = EGrappleThrustState::GTS_Idle;
-	bool bHoldingInput = false;
-	
-	
+
+	// Thrust driver methods
 	void TryGrappleThrust();
 	void BeginGrappleThrust();
-	void HangTick(float DeltaTime);
 };

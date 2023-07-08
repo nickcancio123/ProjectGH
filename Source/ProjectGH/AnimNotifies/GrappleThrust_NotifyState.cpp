@@ -5,40 +5,41 @@
 
 #include "ProjectGH/Components/CommonGrappleComponent.h"
 #include "ProjectGH/Components/GrappleThrustComponent.h"
-#include "ProjectGH/Actors/Hero.h"
 #include "ProjectGH/Actors/GrapplingHook.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
-#include "GameFramework/PawnMovementComponent.h"
 
-#include "DrawDebugHelpers.h"
+#include "GameFramework/PawnMovementComponent.h"
+#include "GameFramework/Character.h"
+
+
 
 void UGrappleThrust_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
                                              float TotalDuration)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
 	
-	Hero = Cast<AHero>(MeshComp->GetOwner());
-	if (!Hero)
+	Character = Cast<ACharacter>(MeshComp->GetOwner());
+	if (!Character)
 		return;
 
 	
-	CommonGrappleComp = Cast<UCommonGrappleComponent>(Hero->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
+	CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 	
 	GrapplingHook = CommonGrappleComp->GetGrapplingHook();
 	GrapplingHook->SetGrapplingHookState(EGrapplingHookState::GHS_Out);
 	
 	GrapplePoint = CommonGrappleComp->GetCurrentGrapplePoint();
 	
-	GrappleThrustComp = Cast<UGrappleThrustComponent>(Hero->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
+	GrappleThrustComp = Cast<UGrappleThrustComponent>(Character->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
 	GrappleThrustComp->SetGrappleThrustState(EGrappleThrustState::GTS_Thrust);
 
-	SpringArm = Cast<USpringArmComponent>(Hero->GetComponentByClass(USpringArmComponent::StaticClass()));
+	SpringArm = Cast<USpringArmComponent>(Character->GetComponentByClass(USpringArmComponent::StaticClass()));
 	OriginalSpringArmLength = SpringArm->TargetArmLength;
 
 	TotalNotifyDuration = TotalDuration;
 	RunningTime = 0;
 
-	PathStart = Hero->GetActorLocation();
+	PathStart = Character->GetActorLocation();
 	PathEnd = GrapplePoint->GetActorLocation();
 }
 
@@ -48,7 +49,7 @@ void UGrappleThrust_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UA
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime);
 
-	if (!Hero || !SpringArm)
+	if (!Character || !SpringArm)
 		return;
 
 	RunningTime += FrameDeltaTime;
@@ -61,7 +62,7 @@ void UGrappleThrust_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UA
 
 	FVector NewLocation = FMath::Lerp(PathStart, PathEnd, Alpha);
 	NewLocation.Z += PathShapeCurve.GetRichCurve()->Eval(Alpha) * PathHeightScale;
-	Hero->SetActorLocation(NewLocation);
+	Character->SetActorLocation(NewLocation);
 
 	
 	// Compute new spring arm distance
@@ -77,7 +78,7 @@ void UGrappleThrust_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 {
 	Super::NotifyEnd(MeshComp, Animation);
 
-	if (!Hero || !GrappleThrustComp || !CommonGrappleComp)
+	if (!Character || !GrappleThrustComp || !CommonGrappleComp)
 		return;
 
 
@@ -91,15 +92,26 @@ void UGrappleThrust_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 	float GrappleSpeed = PathTotalDist / TotalNotifyDuration;
 	FVector PostGrappleVelocity = GrappleSpeed * PostThrustSpeedRetained * PathDir;
 	
-	FVector MoveInput = Hero->GetMoveInput();
-	FVector WorldMoveInput =
-			(MoveInput.X * Hero->GetControlForwardVector()) +
-				(MoveInput.Y * Hero->GetControlRightVector());
-	
-	PostGrappleVelocity += GrappleSpeed * PostThrustInputImpulseSpeed * WorldMoveInput;
-	
-	Hero->GetMovementComponent()->Velocity = PostGrappleVelocity;
+	UInputComponent* InputComp = Character->InputComponent;
+	if (!InputComp)
+		return;
 
+		// Get move input
+	float ForwardInput = InputComp->GetAxisValue("MoveForward");
+	float RightInput = InputComp->GetAxisValue("MoveRight");
+	FVector MoveInput = (ForwardInput * FVector::ForwardVector) + (RightInput * FVector::RightVector);
+	MoveInput.Normalize();
+
+		// Get control rotation vectors
+	FVector ControlForward = FVector::VectorPlaneProject(Character->GetControlRotation().Vector(), FVector::UpVector);
+	FVector ControlRight = FVector::CrossProduct(FVector::UpVector, Character->GetControlRotation().Vector());
+	ControlForward.Normalize();
+	ControlRight.Normalize();
+
+		// Compute and set character world velocity
+	FVector WorldMoveInput = (MoveInput.X * ControlForward) + (MoveInput.Y * ControlRight);
+	PostGrappleVelocity += GrappleSpeed * PostThrustInputImpulseSpeed * WorldMoveInput;
+	Character->GetMovementComponent()->Velocity = PostGrappleVelocity;
 
 	
 	// Finish grapple thrust

@@ -3,14 +3,12 @@
 
 #include "ProjectGH/AnimNotifies/GrappleHookThrow_NotifyState.h"
 
-#include "ProjectGH/Actors/Hero.h"
-
 #include "ProjectGH/Components/CommonGrappleComponent.h"
 #include "ProjectGH/Components/GrappleThrustComponent.h"
 #include "ProjectGH/Components/GrappleSwingComponent.h"
-
 #include "ProjectGH/Actors/GrapplingHook.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
+#include "GameFramework/Character.h"
 
 
 void UGrappleHookThrow_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
@@ -21,18 +19,18 @@ void UGrappleHookThrow_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp
 	NotifyTotalDuration = TotalDuration;
 	RunningTime = 0;
 
-	Hero = Cast<AHero>(MeshComp->GetOwner());
-	if (!Hero)
+	Character = Cast<ACharacter>(MeshComp->GetOwner());
+	if (!Character)
 		return;
 
-	CommonGrappleComp = Cast<UCommonGrappleComponent>(Hero->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
+	CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 	GrapplePoint = CommonGrappleComp->GetCurrentGrapplePoint();
 
 	GrapplingHook = CommonGrappleComp->GetGrapplingHook();
 	GrapplingHook->SetGrapplingHookState(GHS_Throw);
 	
-	GrappleThrustComp = Cast<UGrappleThrustComponent>(Hero->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
-	GrappleSwingComp = Cast<UGrappleSwingComponent>(Hero->GetComponentByClass(UGrappleSwingComponent::StaticClass()));
+	GrappleThrustComp = Cast<UGrappleThrustComponent>(Character->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
+	GrappleSwingComp = Cast<UGrappleSwingComponent>(Character->GetComponentByClass(UGrappleSwingComponent::StaticClass()));
 	
 	HandPos = MeshComp->GetSocketLocation("RightHandSocket");
 	GP_Pos = GrapplePoint->GetActorLocation();

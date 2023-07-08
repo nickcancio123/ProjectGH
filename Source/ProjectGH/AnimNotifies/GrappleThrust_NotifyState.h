@@ -12,7 +12,6 @@ class UCommonGrappleComponent;
 class UGrappleThrustComponent;
 class AGrapplePoint;
 class AGrapplingHook;
-class AHero;
 
 
 UCLASS()
@@ -46,7 +45,7 @@ public:
 	virtual void NotifyEnd(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation) override;
 
 private:
-	AHero* Hero = nullptr;
+	ACharacter* Character = nullptr;
 	UCommonGrappleComponent* CommonGrappleComp = nullptr;
 	UGrappleThrustComponent* GrappleThrustComp = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;

@@ -7,7 +7,6 @@
 #include "GrappleRelease_Notify.generated.h"
 
 
-class AHero;
 class UGrappleSwingComponent;
 
 UCLASS()
@@ -19,6 +18,6 @@ public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;;
 
 private:
-	AHero* Hero = nullptr;
+	ACharacter* Character = nullptr;
 	UGrappleSwingComponent* GrappleSwingComp = nullptr;
 };

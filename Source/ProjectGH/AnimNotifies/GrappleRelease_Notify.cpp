@@ -3,7 +3,7 @@
 
 #include "ProjectGH/AnimNotifies/GrappleRelease_Notify.h"
 #include "ProjectGH/Components/GrappleSwingComponent.h"
-#include "ProjectGH/Actors/Hero.h"
+#include "GameFramework/Character.h"
 
 
 
@@ -11,10 +11,10 @@ void UGrappleRelease_Notify::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 {
 	Super::Notify(MeshComp, Animation);
 
-	Hero = Cast<AHero>(MeshComp->GetOwner());
-	if (!Hero)
+	Character = Cast<ACharacter>(MeshComp->GetOwner());
+	if (!Character)
 		return;
 	
-	GrappleSwingComp = Cast<UGrappleSwingComponent>(Hero->GetComponentByClass(UGrappleSwingComponent::StaticClass()));
+	GrappleSwingComp = Cast<UGrappleSwingComponent>(Character->GetComponentByClass(UGrappleSwingComponent::StaticClass()));
 	GrappleSwingComp->ReleaseGrapple();
 }

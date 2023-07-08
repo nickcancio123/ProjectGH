@@ -105,9 +105,9 @@ void UGrappleSwingComponent::StartSwingState()
 	SetGrappleSwingState(EGrappleSwingState::GSS_Swing);
 
 	// Set init swing dist
-	FVector HeroPos = Character->GetActorLocation();
+	FVector CharacterPos = Character->GetActorLocation();
 	FVector GP_Pos = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
-	InitSwingDist = (GP_Pos - HeroPos).Size();
+	InitSwingDist = (GP_Pos - CharacterPos).Size();
 	
 	bCanSwingWhileOnGround = !CharacterMovement->IsFalling();
 }
@@ -131,22 +131,22 @@ void UGrappleSwingComponent::SwingStateTick(float DeltaTime)
 
 	
 	FVector GP_Pos = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
-	FVector HeroPos = Character->GetActorLocation();
+	FVector CharacterPos = Character->GetActorLocation();
 
 	
 	// Set new velocity
 	FVector Vel = CharacterMovement->Velocity;
-	FVector HeroToGP = GP_Pos - HeroPos;
-	float Dist = HeroToGP.Size();
-	HeroToGP.Normalize();
+	FVector CharToGP = GP_Pos - CharacterPos;
+	float Dist = CharToGP.Size();
+	CharToGP.Normalize();
 	
 	FVector NewVel = Vel;
 	if (Dist >= InitSwingDist)
 	{
-		FVector NewPos = GP_Pos + (-InitSwingDist * HeroToGP);
+		FVector NewPos = GP_Pos + (-InitSwingDist * CharToGP);
 		Character->SetActorLocation(NewPos);
 
-		NewVel = FVector::VectorPlaneProject(Vel, HeroToGP);
+		NewVel = FVector::VectorPlaneProject(Vel, CharToGP);
 		CharacterMovement->Velocity = NewVel;
 	}
 
@@ -156,7 +156,7 @@ void UGrappleSwingComponent::SwingStateTick(float DeltaTime)
 	{
 		bCanSwingWhileOnGround = false;
 		
-		FRotator TargetRot = UKismetMathLibrary::MakeRotFromXZ(CharacterMovement->Velocity, HeroToGP);
+		FRotator TargetRot = UKismetMathLibrary::MakeRotFromXZ(CharacterMovement->Velocity, CharToGP);
 	
 		FRotator NewRot = UKismetMathLibrary::RInterpTo(
 			Character->GetActorRotation(),
