@@ -32,7 +32,7 @@ void AGrapplingHook::Tick(float DeltaTime)
 
 	switch (GrapplingHookState)
 	{
-	case EGrapplingHookState::GHS_In: break;
+	case EGrapplingHookState::GHS_In: HookMeshComp->SetWorldLocation(CableComp->GetComponentLocation()); break;
 	case EGrapplingHookState::GHS_Throw: break;
 	case EGrapplingHookState::GHS_Out: OutStateTick(); break;
 	case EGrapplingHookState::GHS_Pull: PullStateTick(DeltaTime); break;
@@ -55,10 +55,10 @@ void AGrapplingHook::SetupCable(USkeletalMeshComponent* CharacterMesh)
 
 	// Misc
 	CableComp->SetTickGroup(ETickingGroup::TG_PostPhysics);
-	CableComp->bSkipCableUpdateWhenNotVisible = true;
+	CableComp->bSkipCableUpdateWhenNotVisible = false;
 	CableComp->CableWidth = CableWidth;
-	CableComp->bEnableStiffness = true;
-	CableComp->SolverIterations = 5;
+	CableComp->bEnableStiffness = false;
+	CableComp->SolverIterations = 4;
 }
 
 void AGrapplingHook::SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp)
