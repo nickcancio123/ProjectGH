@@ -96,8 +96,10 @@ void UGrappleSwingComponent::BeginSwingSequence()
 	CommonGrappleComp->SetCanGrapple(false);
 	CommonGrappleComp->SetCurrentGrappleType(EGrappleType::GT_Swing);
 	
-	GrappleSwingState = EGrappleSwingState::GSS_Throw;	
-	Character->PlayAnimMontage(GrappleThrowMontage);
+	GrappleSwingState = EGrappleSwingState::GSS_Throw;
+
+	UAnimMontage* ThrowMontage = CharacterMovement->IsFalling() ? GrappleThrowAirMontage : GrappleThrowMontage;
+	Character->PlayAnimMontage(ThrowMontage);
 }
 
 void UGrappleSwingComponent::StartSwingState()

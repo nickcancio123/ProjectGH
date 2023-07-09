@@ -32,7 +32,13 @@ class PROJECTGH_API UGrappleThrustComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:		
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
+		UAnimMontage* GrappleThrowMontage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
+		UAnimMontage* GrappleThrowAirMontage = nullptr;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		UAnimMontage* GrappleThrustMontage = nullptr;
 	
@@ -45,8 +51,8 @@ public:
 	
 	UGrappleThrustComponent();
 	
+	void StartGrappleThrust();
 	void ReleaseGrapple();
-	
 
 	// Setters
 	void BindInput(UInputComponent* PlayerInputComponent);
@@ -70,5 +76,5 @@ private:
 
 	// Thrust driver methods
 	void TryGrappleThrust();
-	void BeginGrappleThrust();
+	void StartGrappleSequence();
 };

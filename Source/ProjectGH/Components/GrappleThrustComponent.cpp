@@ -53,20 +53,26 @@ void UGrappleThrustComponent::TryGrappleThrust()
 	if (BestValidGrapplePoint)
 	{
 		CommonGrappleComp->SetCurrentGrapplePoint(BestValidGrapplePoint);
-		BeginGrappleThrust();
+		StartGrappleSequence();
 		return;
 	}
 
 	CommonGrappleComp->SetCurrentGrapplePoint(nullptr);
 }
 
-void UGrappleThrustComponent::BeginGrappleThrust()
+void UGrappleThrustComponent::StartGrappleSequence()
 {
 	CommonGrappleComp->SetCanGrapple(false);
 	CommonGrappleComp->SetCurrentGrappleType(EGrappleType::GT_Thrust);
 	
 	GrappleThrustState = EGrappleThrustState::GTS_Throw;
 	
+	UAnimMontage* ThrowMontage = CharacterMovement->IsFalling() ? GrappleThrowAirMontage : GrappleThrowMontage;
+	Character->PlayAnimMontage(ThrowMontage);
+}
+
+void UGrappleThrustComponent::StartGrappleThrust()
+{	
 	Character->PlayAnimMontage(GrappleThrustMontage);
 }
 

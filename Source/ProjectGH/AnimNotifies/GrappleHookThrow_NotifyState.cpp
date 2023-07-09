@@ -67,6 +67,25 @@ void UGrappleHookThrow_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, 
 	if (!CommonGrappleComp)
 		return;
 
-	if (CommonGrappleComp->GetCurrentGrappleType() == EGrappleType::GT_Swing && GrappleSwingComp)
-		GrappleSwingComp->StartSwingState();
+	
+	EGrappleType CurrentGrappleType = CommonGrappleComp->GetCurrentGrappleType();
+	switch (CurrentGrappleType)
+	{
+	case EGrappleType::GT_None:
+		break;
+		
+	case EGrappleType::GT_Swing:
+		{
+			if (GrappleSwingComp)
+				GrappleSwingComp->StartSwingState();
+			break;
+		}
+		
+	case EGrappleType::GT_Thrust:
+		{
+			if (GrappleThrustComp)
+				GrappleThrustComp->StartGrappleThrust();
+			break;
+		}
+	}
 }

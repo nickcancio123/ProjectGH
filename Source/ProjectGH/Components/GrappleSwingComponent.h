@@ -35,6 +35,9 @@ class PROJECTGH_API UGrappleSwingComponent : public UActorComponent
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
 		UAnimMontage* GrappleThrowMontage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
+		UAnimMontage* GrappleThrowAirMontage = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
 		UAnimMontage* SwingDismountMontage = nullptr;
