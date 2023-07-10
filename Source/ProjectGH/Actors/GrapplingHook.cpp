@@ -159,21 +159,18 @@ void AGrapplingHook::SetGrapplingHookState(EGrapplingHookState State)
 	switch (GrapplingHookState)
 	{
 	case EGrapplingHookState::GHS_In:
-		//SetVisibility(false);
 		CableComp->SetVisibility(false);
 		HookMeshComp->SetVisibility(false);
 		SplineMeshComp->SetVisibility(false);
 		break;
 		
 	case EGrapplingHookState::GHS_Throw:
-		//SetVisibility(true);
 		CableComp->SetVisibility(true);
 		HookMeshComp->SetVisibility(true);
 		SplineMeshComp->SetVisibility(false);
 		break;
 		
 	case EGrapplingHookState::GHS_Out:
-		//SetVisibility(true);
 		CableComp->SetVisibility(false);
 		HookMeshComp->SetVisibility(true);
 		SplineMeshComp->SetVisibility(true);
