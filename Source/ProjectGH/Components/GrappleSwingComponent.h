@@ -58,6 +58,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
 		bool bReleaseGrappleOnGrounded = true;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
+		float MinPercentDistanceNeededToDismount = 0.5f;
+
 	
 	UGrappleSwingComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -104,4 +107,5 @@ private:
 	// Misc
 	void InitGroundDetectorVolume();
 	void SetSwingEndActorRotation();
+	bool CanDoAnimatedDismount();
 };

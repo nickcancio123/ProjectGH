@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "DrawDebugHelpers.h"
 
 
 
@@ -112,6 +113,9 @@ void UGrappleSwingComponent::StartSwingState()
 	InitSwingDist = (GP_Pos - CharacterPos).Size();
 	
 	bCanSwingWhileOnGround = !CharacterMovement->IsFalling();
+
+	// Reset swing dismount montage length
+	SwingDismountMontage->RateScale = 1;
 }
 
 void UGrappleSwingComponent::SwingStateTick(float DeltaTime)
@@ -119,7 +123,7 @@ void UGrappleSwingComponent::SwingStateTick(float DeltaTime)
 	// End swing state condition
 	if (!bHoldingInput)
 	{
-		if (CharacterMovement->IsFalling())
+		if (CharacterMovement->IsFalling() && CanDoAnimatedDismount())
 		{
 			GrappleSwingState = EGrappleSwingState::GSS_Idle;
 			Character->PlayAnimMontage(SwingDismountMontage);
@@ -214,6 +218,37 @@ void UGrappleSwingComponent::OnGroundOverlap(UPrimitiveComponent* OverlappedComp
 		Character->PlayAnimMontage(KipUpMontage);
 		ReleaseGrapple();
 	}
+}
+
+bool UGrappleSwingComponent::CanDoAnimatedDismount()
+{
+	FVector Pos = Character->GetActorLocation();
+	FVector Vel = CharacterMovement->Velocity;
+	
+	float AnimLen = SwingDismountMontage->SequenceLength;
+	float Grav = CharacterMovement->GravityScale * 9.81f;
+	float AccelAmount = 0.5f * FMath::Pow(Grav, 2);
+
+	if (Vel.Z > AccelAmount)
+		return true;
+
+	FVector TargetPos = Pos + (AnimLen * Vel) + (AccelAmount * FVector::DownVector);
+	float TargetDist = FVector::Dist(Pos, TargetPos);
+	
+	FHitResult HitInfo;
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitInfo, Pos, TargetPos, ECC_Visibility);
+
+	if (bHit)
+	{
+		float PercentDist = HitInfo.Distance / TargetDist;
+		if (PercentDist < MinPercentDistanceNeededToDismount)
+			return false;
+		
+		SwingDismountMontage->RateScale = 1 / PercentDist;
+		return true;
+	}
+	
+	return true;
 }
 #pragma endregion 
 
