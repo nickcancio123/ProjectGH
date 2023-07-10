@@ -4,11 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
+#include "ProjectGH/Components/CommonGrappleComponent.h"
 #include "GrappleHookThrow_NotifyState.generated.h"
 
 
-class AHero;
-class UGrappleComponent;
+
+class UCommonGrappleComponent;
+class UGrappleThrustComponent;
+class UGrappleSwingComponent;
+
 class AGrapplingHook;
 class AGrapplePoint;
 
@@ -18,17 +22,21 @@ class PROJECTGH_API UGrappleHookThrow_NotifyState : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	virtual void NotifyBegin(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation, float TotalDuration) override;
 	virtual void NotifyTick(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation, float FrameDeltaTime) override;
 	virtual void NotifyEnd(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation) override;
 
 
 private:
-	AHero* Hero = nullptr;
-	UGrappleComponent* GrappleComp = nullptr;
+	ACharacter* Character = nullptr;
+	
+	UCommonGrappleComponent* CommonGrappleComp = nullptr;
+	UGrappleThrustComponent* GrappleThrustComp = nullptr;
+	UGrappleSwingComponent* GrappleSwingComp = nullptr;
+	
 	AGrapplingHook* GrapplingHook = nullptr;
-	AGrapplePoint* GP = nullptr;
+	AGrapplePoint* GrapplePoint = nullptr;
 	
 	float NotifyTotalDuration = 1;
 	float RunningTime = 0;

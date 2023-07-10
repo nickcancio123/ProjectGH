@@ -3,11 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SplineMeshComponent.h"
 #include "GameFramework/Actor.h"
 #include "GrapplingHook.generated.h"
 
 
 class UCableComponent;
+class UCommonGrappleComponent;
+
+class UGrappleThrustComponent;
+
+
+UENUM()
+enum EGrapplingHookState
+{
+	GHS_In = 0,		// not in use, not visible
+	GHS_Throw = 1,	// going out, handled by notify state
+	GHS_Out = 2,	// in use, attached to something, visible
+	GHS_Pull = 3	// reeling back in
+};
 
 UCLASS()
 class PROJECTGH_API AGrapplingHook : public AActor
@@ -22,21 +36,40 @@ public:
 		UStaticMeshComponent* HookMeshComp = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling Hook")
+		USplineMeshComponent* SplineMeshComp = nullptr;
+	
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling Hook")
 		float CableWidth = 5;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling Hook")
+		float PullInDuration = 0.2f;
 	
 	AGrapplingHook();
 
 	virtual void Tick(float DeltaTime) override;
 
 
-	void SetupCable(USkeletalMeshComponent* CharacterMesh);
-	void SetVisibility(bool bVisible);
+	void SetupGrapplingHook(USkeletalMeshComponent* _CharacterMesh);
+	void SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp);
+	
+	void SetHookRotationToCableDir();
+	void SetGrapplingHookState(EGrapplingHookState State);
 	
 protected:
 	virtual void BeginPlay() override;
 
 
 private:
-	//float Time = 0;
-	void InitHookMesh();
+	UCommonGrappleComponent* CommonGrappleComp = nullptr;
+	UGrappleThrustComponent* GrappleThrustComp = nullptr;
+	USkeletalMeshComponent* CharacterMesh = nullptr;
+
+	EGrapplingHookState GrapplingHookState = EGrapplingHookState::GHS_In;
+	float StateTimer = 0;
+
+	void OutStateTick();
+	void PullStateTick(float DeltaTime);
+	
+	void UpdateSplineMesh();
 };

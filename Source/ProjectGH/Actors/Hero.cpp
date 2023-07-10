@@ -2,9 +2,13 @@
 
 
 #include "ProjectGH/Actors/Hero.h"
-#include "ProjectGH/Components/GrappleComponent.h"
-#include "DrawDebugHelpers.h"
+
+#include "ProjectGH/Components/GrappleThrustComponent.h"
+#include "ProjectGH/Components/GrappleSwingComponent.h"
+#include "ProjectGH/Components/CommonGrappleComponent.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
+#include "DrawDebugHelpers.h"
 
 
 #pragma region === Default Actor ===
@@ -17,8 +21,6 @@ void AHero::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//GrappleComp = Cast<UGrappleComponent>(GetComponentByClass(UGrappleComponent::StaticClass()));
-	
 	CharacterMovement = GetCharacterMovement();
 	MaxRunSpeed = CharacterMovement->MaxWalkSpeed;
 }
@@ -48,14 +50,17 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	// Jump
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AHero::TryJump);
-
 	
-	GrappleComp->BindInput(PlayerInputComponent);
+	//Grappling
+	GrappleThrustComp->BindInput(PlayerInputComponent);
+	GrappleSwingComp->BindInput(PlayerInputComponent);
 }
 
 void AHero::SetComponentRefs()
 {
-	GrappleComp = Cast<UGrappleComponent>(GetComponentByClass(UGrappleComponent::StaticClass()));
+	CommonGrappleComp = Cast<UCommonGrappleComponent>(GetComponentByClass(UCommonGrappleComponent::StaticClass()));
+	GrappleThrustComp = Cast<UGrappleThrustComponent>(GetComponentByClass(UGrappleThrustComponent::StaticClass()));
+	GrappleSwingComp = Cast<UGrappleSwingComponent>(GetComponentByClass(UGrappleSwingComponent::StaticClass()));
 }
 #pragma endregion
 
