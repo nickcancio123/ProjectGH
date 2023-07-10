@@ -6,12 +6,14 @@
 #include "Components/ActorComponent.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
 #include "ProjectGH/Actors/GrapplingHook.h"
+#include "ProjectGH/Widgets/GrappleIconWidget.h"
 #include "CommonGrappleComponent.generated.h"
 
 
 class AGrapplePoint;
 class AGrapplingHook;
 class USphereComponent;
+class UGrappleIconWidget;
 
 
 UENUM()
@@ -37,18 +39,29 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple")
 		float MaxAimAngleToGrapple = 20;
-	
+
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Icon")
+		TSubclassOf<UGrappleIconWidget> GrappleIconWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Icon")
+		FRuntimeFloatCurve GrappleIconDistanceScaleCurve;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Icon")
+		FVector2D GrappleIconScaleRange = FVector2D(1, 3.5f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Icon")
+		float GrappleIconSpinRate = 1080;
+
+
+	// Default component methods
 	UCommonGrappleComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void OnRegister() override;
 	
-
-	UFUNCTION(BlueprintImplementableEvent)
+	// Grapple icon
 	void SpinGrappleIcon(float DeltaTime);
-
-	UFUNCTION(BlueprintImplementableEvent)
 	void ResetGrappleIconAngle();
-
 	
 	// Setters
 	void SetCanGrapple(bool _bCanGrapple);
@@ -78,15 +91,18 @@ private:
 	ACharacter* Character = nullptr;
 	USphereComponent* DetectionVolume = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
+	UGrappleIconWidget* GrappleIconWidget = nullptr;
 	TArray<AGrapplePoint*> AvailableGrapplePoints;
 
 	TEnumAsByte<EGrappleType> CurrentGrappleType = EGrappleType::GT_None;
 	AGrapplePoint* BestValidGrapplePoint = nullptr;
 	AGrapplePoint* CurrentGrapplePoint = nullptr;
+	AGrapplePoint* GrappleIconGPRef = nullptr;
 	
 	bool bCanGrapple = true;
 	
-	
+
+	// Initializer methods
 	void InitDetectionVolume();
 	void GetOverlappedGrapplePoints();
 	void CreateGrapplingHookActor();
@@ -99,4 +115,9 @@ private:
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	void FindBestValidGrapplePoint();
+
+	// Grapple icon methods
+	void UpdateGrappleIconWidget();
+	void SetGrappleIconPosition();
+	void SetGrappleIconScale();
 };
