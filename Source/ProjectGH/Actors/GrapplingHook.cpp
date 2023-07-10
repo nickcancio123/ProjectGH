@@ -19,6 +19,8 @@ AGrapplingHook::AGrapplingHook()
 	SetRootComponent(CableComp);
 	
 	HookMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Hook Mesh"));
+
+	SplineMeshComp = CreateDefaultSubobject<USplineMeshComponent>(TEXT("Spline Mesh"));
 }
 
 void AGrapplingHook::BeginPlay()
@@ -32,17 +34,33 @@ void AGrapplingHook::Tick(float DeltaTime)
 
 	switch (GrapplingHookState)
 	{
-	case EGrapplingHookState::GHS_In: HookMeshComp->SetWorldLocation(CableComp->GetComponentLocation()); break;
-	case EGrapplingHookState::GHS_Throw: break;
-	case EGrapplingHookState::GHS_Out: OutStateTick(); break;
-	case EGrapplingHookState::GHS_Pull: PullStateTick(DeltaTime); break;
+	case EGrapplingHookState::GHS_In:
+		HookMeshComp->SetWorldLocation(CableComp->GetComponentLocation());
+		break;
+		
+	case EGrapplingHookState::GHS_Throw:
+		{
+			UpdateSplineMesh();
+			break;
+		}
+		
+	case EGrapplingHookState::GHS_Out:
+		OutStateTick();
+		break;
+		
+	case EGrapplingHookState::GHS_Pull:
+		PullStateTick(DeltaTime);
+		break;
 	}
 }
 
 
 
-void AGrapplingHook::SetupCable(USkeletalMeshComponent* CharacterMesh)
+void AGrapplingHook::SetupGrapplingHook(USkeletalMeshComponent* _CharacterMesh)
 {
+	CharacterMesh = _CharacterMesh;
+	
+	// ===== Cable stuff =====
 	// Attach end to hook mesh
 	CableComp->bAttachEnd = true;
 	CableComp->EndLocation = FVector::ZeroVector;
@@ -59,6 +77,11 @@ void AGrapplingHook::SetupCable(USkeletalMeshComponent* CharacterMesh)
 	CableComp->CableWidth = CableWidth;
 	CableComp->bEnableStiffness = false;
 	CableComp->SolverIterations = 4;
+
+
+	// ===== Spline stuff =====
+	SplineMeshComp->SetMobility(EComponentMobility::Movable);
+	SplineMeshComp->SetForwardAxis(ESplineMeshAxis::X);
 }
 
 void AGrapplingHook::SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp)
@@ -70,11 +93,16 @@ void AGrapplingHook::SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappl
 
 void AGrapplingHook::OutStateTick()
 {
+	FVector GrapplePointPos = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
+	
 	// Set hook location
-	HookMeshComp->SetWorldLocation(CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation());
+	HookMeshComp->SetWorldLocation(GrapplePointPos);
 
 	// Set hook rotation
-	SetHookRotationToCableDir();	
+	SetHookRotationToCableDir();
+	
+
+	UpdateSplineMesh();
 }
 
 void AGrapplingHook::PullStateTick(float DeltaTime)
@@ -108,19 +136,19 @@ void AGrapplingHook::PullStateTick(float DeltaTime)
 
 
 
-void AGrapplingHook::SetVisibility(bool bVisible)
-{
-	if (!CableComp || !HookMeshComp)
-		return;
-	
-	CableComp->SetVisibility(bVisible);
-	HookMeshComp->SetVisibility(bVisible);
-}
-
 void AGrapplingHook::SetHookRotationToCableDir()
 {
 	FVector CableDir = GetActorLocation() - HookMeshComp->GetComponentLocation();
 	HookMeshComp->SetWorldRotation(CableDir.Rotation());
+}
+
+void AGrapplingHook::UpdateSplineMesh()
+{
+	SplineMeshComp->SetWorldLocation(CharacterMesh->GetSocketLocation("RightHandSocket"));
+	
+	FVector TargetDir = HookMeshComp->GetComponentLocation() - GetActorLocation();
+	SplineMeshComp->SetWorldRotation(TargetDir.Rotation());
+	SplineMeshComp->SetEndPosition(FVector::ForwardVector * TargetDir.Size());
 }
 
 void AGrapplingHook::SetGrapplingHookState(EGrapplingHookState State)
@@ -130,10 +158,32 @@ void AGrapplingHook::SetGrapplingHookState(EGrapplingHookState State)
 
 	switch (GrapplingHookState)
 	{
-	case EGrapplingHookState::GHS_In: SetVisibility(false); break;
-	case EGrapplingHookState::GHS_Throw: SetVisibility(true); break;
-	case EGrapplingHookState::GHS_Out: SetVisibility(true); break;
-	case EGrapplingHookState::GHS_Pull: break;
+	case EGrapplingHookState::GHS_In:
+		//SetVisibility(false);
+		CableComp->SetVisibility(false);
+		HookMeshComp->SetVisibility(false);
+		SplineMeshComp->SetVisibility(false);
+		break;
+		
+	case EGrapplingHookState::GHS_Throw:
+		//SetVisibility(true);
+		CableComp->SetVisibility(true);
+		HookMeshComp->SetVisibility(true);
+		SplineMeshComp->SetVisibility(false);
+		break;
+		
+	case EGrapplingHookState::GHS_Out:
+		//SetVisibility(true);
+		CableComp->SetVisibility(false);
+		HookMeshComp->SetVisibility(true);
+		SplineMeshComp->SetVisibility(true);
+		break;
+		
+	case EGrapplingHookState::GHS_Pull:
+		CableComp->SetVisibility(true);
+		HookMeshComp->SetVisibility(true);
+		SplineMeshComp->SetVisibility(false);
+		break;
 	}
 }
 

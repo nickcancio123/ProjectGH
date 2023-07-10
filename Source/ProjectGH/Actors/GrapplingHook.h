@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SplineMeshComponent.h"
 #include "GameFramework/Actor.h"
 #include "GrapplingHook.generated.h"
 
@@ -33,6 +34,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling Hook")
 		UStaticMeshComponent* HookMeshComp = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling Hook")
+		USplineMeshComponent* SplineMeshComp = nullptr;
+	
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling Hook")
 		float CableWidth = 5;
@@ -45,12 +50,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-	void SetupCable(USkeletalMeshComponent* CharacterMesh);
+	void SetupGrapplingHook(USkeletalMeshComponent* _CharacterMesh);
 	void SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp);
 	
-	void SetVisibility(bool bVisible);
 	void SetHookRotationToCableDir();
-
 	void SetGrapplingHookState(EGrapplingHookState State);
 	
 protected:
@@ -60,10 +63,13 @@ protected:
 private:
 	UCommonGrappleComponent* CommonGrappleComp = nullptr;
 	UGrappleThrustComponent* GrappleThrustComp = nullptr;
+	USkeletalMeshComponent* CharacterMesh = nullptr;
 
 	EGrapplingHookState GrapplingHookState = EGrapplingHookState::GHS_In;
 	float StateTimer = 0;
 
 	void OutStateTick();
 	void PullStateTick(float DeltaTime);
+	
+	void UpdateSplineMesh();
 };
