@@ -3,8 +3,8 @@
 
 #include "ProjectGH/Components/CommonGrappleComponent.h"
 
+#include "Blueprint/UserWidget.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
-#include "ProjectGH/Widgets/GrappleIconWidget.h"
 
 #include "Components/SphereComponent.h"
 #include "GameFramework/Character.h"
@@ -28,9 +28,6 @@ void UCommonGrappleComponent::BeginPlay()
 	
 	GetOverlappedGrapplePoints();
 	CreateGrapplingHookActor();
-
-	GrappleIconWidget =
-		CreateWidget<UGrappleIconWidget>(GetWorld()->GetFirstPlayerController(), GrappleIconWidgetClass);
 }
 
 void UCommonGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -38,7 +35,6 @@ void UCommonGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	FindBestValidGrapplePoint();
-	UpdateGrappleIconWidget();
 }
 
 void UCommonGrappleComponent::OnRegister()
@@ -169,72 +165,6 @@ void UCommonGrappleComponent::FindBestValidGrapplePoint()
 	BestValidGrapplePoint = BestGrapplePointYet ? BestGrapplePointYet : nullptr;
 }
 #pragma endregion
-
-
-
-#pragma region Grapple Icon Widget Methods
-void UCommonGrappleComponent::UpdateGrappleIconWidget()
-{
-	SetGrappleIconPosition();
-	SetGrappleIconScale();
-}
-
-void UCommonGrappleComponent::SetGrappleIconPosition()
-{
-	bool bIconSpinning = GrappleIconWidget->GetRenderTransformAngle() != 0;
-	GrappleIconGPRef = bIconSpinning ? GetCurrentGrapplePoint() : GetBestValidGrapplePoint();
-
-	if (!GrappleIconGPRef)
-	{
-		if (GrappleIconWidget->IsInViewport())
-			GrappleIconWidget->RemoveFromParent();
-		return;
-	}
-
-	if (!GrappleIconWidget->IsInViewport())
-		GrappleIconWidget->AddToViewport();
-
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	FVector2D ScreenPos;
-	PlayerController->ProjectWorldLocationToScreen(GrappleIconGPRef->GetActorLocation(), ScreenPos, true);
-
-	ScreenPos += GrappleIconWidget->IconPositionOffset;
-	GrappleIconWidget->SetPositionInViewport(ScreenPos);
-}
-
-void UCommonGrappleComponent::SetGrappleIconScale()
-{
-	if (!GrappleIconGPRef || !GrappleIconWidget->IsInViewport())
-		return;
-
-	FVector ViewPos;
-	FRotator ViewRot;
-	Character->GetActorEyesViewPoint(ViewPos, ViewRot);
-
-	float GPViewDist = FVector::Dist(ViewPos, GrappleIconGPRef->GetActorLocation());
-
-	float AlphaDist =
-		FMath::GetMappedRangeValueClamped(GrappleRange, FVector2D(0, 1), GPViewDist);
-
-	float ScaleAlpha = GrappleIconDistanceScaleCurve.GetRichCurve()->Eval(AlphaDist);
-	float Scale = FMath::GetMappedRangeValueClamped(FVector2D(0, 1), GrappleIconScaleRange, ScaleAlpha);
-
-	GrappleIconWidget->SetRenderScale(Scale * FVector2D(1, 1));
-}
-
-void UCommonGrappleComponent::SpinGrappleIcon(float DeltaTime)
-{
-	float Angle = GrappleIconWidget->GetRenderTransformAngle();
-	Angle += DeltaTime * GrappleIconSpinRate;
-
-	GrappleIconWidget->SetRenderTransformAngle(Angle);
-}
-
-void UCommonGrappleComponent::ResetGrappleIconAngle()
-{
-	GrappleIconWidget->SetRenderTransformAngle(0);
-}
-#pragma endregion 
 
 
 
