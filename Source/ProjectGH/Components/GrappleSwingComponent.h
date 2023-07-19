@@ -74,7 +74,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	EGrappleSwingState GetGrappleSwingState();
-	
+
+	UFUNCTION(BlueprintCallable)
+	void SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp);
 	
 protected:
 	virtual void BeginPlay() override;

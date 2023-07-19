@@ -30,7 +30,7 @@ void UGrappleSwingComponent::BeginPlay()
 		Character = Cast<ACharacter>(GetOwner());
 	CharacterMovement = Character->GetCharacterMovement();
 
-	CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
+	//CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 }
 
 void UGrappleSwingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -120,6 +120,9 @@ void UGrappleSwingComponent::StartSwingState()
 
 void UGrappleSwingComponent::SwingStateTick(float DeltaTime)
 {
+	if (!CommonGrappleComp)
+		return;
+	
 	// End swing state condition
 	if (!bHoldingInput)
 	{
@@ -222,33 +225,8 @@ void UGrappleSwingComponent::OnGroundOverlap(UPrimitiveComponent* OverlappedComp
 
 bool UGrappleSwingComponent::CanDoAnimatedDismount()
 {
-	FVector Pos = Character->GetActorLocation();
 	FVector Vel = CharacterMovement->Velocity;
-	
-	float AnimLen = SwingDismountMontage->SequenceLength;
-	float Grav = CharacterMovement->GravityScale * 9.81f;
-	float AccelAmount = 0.5f * FMath::Pow(Grav, 2);
-
-	if (Vel.Z > AccelAmount)
-		return true;
-
-	FVector TargetPos = Pos + (AnimLen * Vel) + (AccelAmount * FVector::DownVector);
-	float TargetDist = FVector::Dist(Pos, TargetPos);
-	
-	FHitResult HitInfo;
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitInfo, Pos, TargetPos, ECC_Visibility);
-
-	if (bHit)
-	{
-		float PercentDist = HitInfo.Distance / TargetDist;
-		if (PercentDist < MinPercentDistanceNeededToDismount)
-			return false;
-		
-		SwingDismountMontage->RateScale = 1 / PercentDist;
-		return true;
-	}
-	
-	return true;
+	return Vel.Z > 0;
 }
 #pragma endregion 
 
@@ -258,6 +236,11 @@ bool UGrappleSwingComponent::CanDoAnimatedDismount()
 EGrappleSwingState UGrappleSwingComponent::GetGrappleSwingState()
 {
 	return GrappleSwingState;
+}
+
+void UGrappleSwingComponent::SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp)
+{
+	CommonGrappleComp = _CommonGrappleComp;
 }
 
 #pragma endregion

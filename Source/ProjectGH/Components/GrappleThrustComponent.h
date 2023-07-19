@@ -55,6 +55,9 @@ public:
 	void ReleaseGrapple();
 
 	// Setters
+	UFUNCTION(BlueprintCallable)
+	void SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp);
+	
 	void BindInput(UInputComponent* PlayerInputComponent);
 	void SetGrappleThrustState(EGrappleThrustState _GrappleThrustState);
 

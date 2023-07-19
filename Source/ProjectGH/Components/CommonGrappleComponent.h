@@ -33,10 +33,10 @@ public:
 		UClass* GrapplingHookClass;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple")
-		FVector2D GrappleRange = FVector2D(700, 3000);;
+		FVector2D GrappleRange = FVector2D(700, 3500);;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple")
-		float MaxAimAngleToGrapple = 20;
+		float MaxAimAngleToGrapple = 16;
 	
 	UCommonGrappleComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

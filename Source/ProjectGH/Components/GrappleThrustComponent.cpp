@@ -27,7 +27,7 @@ void UGrappleThrustComponent::BeginPlay()
 		Character = Cast<ACharacter>(GetOwner());
 	CharacterMovement = Character->GetCharacterMovement();
 
-	CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
+	//CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 }
 #pragma endregion
 
@@ -94,6 +94,11 @@ void UGrappleThrustComponent::ReleaseGrapple()
 
 
 #pragma region Setters & Getters
+void UGrappleThrustComponent::SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp)
+{
+	CommonGrappleComp = _CommonGrappleComp;
+}
+
 void UGrappleThrustComponent::SetGrappleThrustState(EGrappleThrustState _GrappleThrustState)
 {
 	GrappleThrustState = _GrappleThrustState;
