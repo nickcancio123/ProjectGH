@@ -29,8 +29,6 @@ void UGrappleSwingComponent::BeginPlay()
 	if (GetOwner())
 		Character = Cast<ACharacter>(GetOwner());
 	CharacterMovement = Character->GetCharacterMovement();
-
-	//CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 }
 
 void UGrappleSwingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -156,9 +154,14 @@ void UGrappleSwingComponent::SwingStateTick(float DeltaTime)
 		Character->SetActorLocation(NewPos);
 
 		NewVel = FVector::VectorPlaneProject(Vel, CharToGP);
+		
+		// Add velocity to prevent velocity from zeroing at weird angles
+		if (NewVel.Size() < 10)
+			NewVel += 10 * NewVel.GetSafeNormal();
+		
 		CharacterMovement->Velocity = NewVel;
 	}
-
+	
 	
 	// Change rotation settings
 	if (CharacterMovement->IsFalling())

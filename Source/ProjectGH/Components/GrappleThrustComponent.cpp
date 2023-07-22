@@ -26,8 +26,6 @@ void UGrappleThrustComponent::BeginPlay()
 	if (GetOwner())
 		Character = Cast<ACharacter>(GetOwner());
 	CharacterMovement = Character->GetCharacterMovement();
-
-	//CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 }
 #pragma endregion
 

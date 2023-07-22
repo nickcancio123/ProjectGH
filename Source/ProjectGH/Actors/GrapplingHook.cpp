@@ -8,6 +8,7 @@
 #include "ProjectGH/Actors/GrapplePoint.h"
 #include "CableComponent.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
+#include "DrawDebugHelpers.h"
 
 
 
@@ -31,7 +32,7 @@ void AGrapplingHook::BeginPlay()
 void AGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	switch (GrapplingHookState)
 	{
 	case EGrapplingHookState::GHS_In:
