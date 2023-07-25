@@ -10,8 +10,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
-
-
+#include "Chaos/KinematicTargets.h"
 
 
 #pragma region Default Actor Component Methods
@@ -112,6 +111,8 @@ void UGrappleSwingComponent::StartSwingState()
 	
 	bCanSwingWhileOnGround = !CharacterMovement->IsFalling();
 
+	LastFrameVelocity = CharacterMovement->Velocity;
+	
 	// Reset swing dismount montage length
 	SwingDismountMontage->RateScale = 1;
 }
@@ -167,17 +168,27 @@ void UGrappleSwingComponent::SwingStateTick(float DeltaTime)
 	if (CharacterMovement->IsFalling())
 	{
 		bCanSwingWhileOnGround = false;
+		CharacterMovement->bOrientRotationToMovement = false;
 		
-		FRotator TargetRot = UKismetMathLibrary::MakeRotFromXZ(CharacterMovement->Velocity, CharToGP);
-	
-		FRotator NewRot = UKismetMathLibrary::RInterpTo(
-			Character->GetActorRotation(),
-			TargetRot,
-			DeltaTime,
-			SwingRotationRate
-			);
+		FVector Velocity = CharacterMovement->Velocity;
+		FVector Accel = (Velocity - LastFrameVelocity) / DeltaTime;
+		
+		float VelAccelDot = FVector::DotProduct(Velocity.GetSafeNormal(), Accel.GetSafeNormal());
+		float VelAccelAngle = FMath::RadiansToDegrees(FMath::Acos(VelAccelDot));
+		
+		if (VelAccelAngle > 175 && Velocity.Size() < 800)
+		{
+			FVector CrossDir = FVector::CrossProduct(FVector::UpVector, CharToGP);
+			CharacterMovement->AddImpulse(1000 * CrossDir);
+		}
 
+		FRotator CurrentRot = Character->GetActorRotation();
+		FRotator TargetRot = UKismetMathLibrary::MakeRotFromXZ(CharacterMovement->Velocity, CharToGP);
+		FRotator NewRot = UKismetMathLibrary::RInterpTo(CurrentRot, TargetRot, DeltaTime, SwingRotationRate);
+		
 		Character->SetActorRotation(NewRot);
+
+		LastFrameVelocity = Velocity;
 	}
 	else
 	{

@@ -54,6 +54,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
 		float SwingRotationRate = 8;
+		
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
+		float MaxSwingRotationRate = 1;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
 		bool bReleaseGrappleOnGrounded = true;
@@ -94,7 +97,7 @@ private:
 	bool bHoldingInput = false;
 	float InitSwingDist = 0;
 	bool bCanSwingWhileOnGround = false;
-
+	FVector LastFrameVelocity = FVector::ZeroVector;
 	
 	// Swing driver methods
 	void TryGrappleSwing();
