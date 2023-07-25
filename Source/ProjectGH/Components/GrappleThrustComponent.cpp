@@ -71,7 +71,11 @@ void UGrappleThrustComponent::StartGrappleSequence()
 
 void UGrappleThrustComponent::StartGrappleThrust()
 {	
-	Character->PlayAnimMontage(GrappleThrustMontage);
+	float GrapplePointZ = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation().Z;
+
+	UAnimMontage* MontageToPlay = GrapplePointZ >= Character->GetActorLocation().Z ? GrappleThrustUpMontage : GrappleThrustDownMontage;
+
+	Character->PlayAnimMontage(MontageToPlay);
 }
 
 void UGrappleThrustComponent::ReleaseGrapple()

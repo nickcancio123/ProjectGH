@@ -40,7 +40,10 @@ public:
 		UAnimMontage* GrappleThrowAirMontage = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
-		UAnimMontage* GrappleThrustMontage = nullptr;
+		UAnimMontage* GrappleThrustUpMontage = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
+		UAnimMontage* GrappleThrustDownMontage = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Thrust")
 		float GrappleHangDist = 600;
