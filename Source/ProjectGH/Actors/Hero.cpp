@@ -7,6 +7,8 @@
 #include "ProjectGH/Components/GrappleSwingComponent.h"
 #include "ProjectGH/Components/CommonGrappleComponent.h"
 
+#include "ObstacleTraversalComponent.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
 
@@ -51,9 +53,12 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	// Jump
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AHero::TryJump);
 	
-	//Grappling
+	// Grappling
 	GrappleThrustComp->BindInput(PlayerInputComponent);
 	GrappleSwingComp->BindInput(PlayerInputComponent);
+
+	// Obstacle traversal
+	ObstacleTraversalComp->BindInput(PlayerInputComponent);
 }
 
 void AHero::SetComponentRefs()
@@ -61,6 +66,8 @@ void AHero::SetComponentRefs()
 	CommonGrappleComp = Cast<UCommonGrappleComponent>(GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 	GrappleThrustComp = Cast<UGrappleThrustComponent>(GetComponentByClass(UGrappleThrustComponent::StaticClass()));
 	GrappleSwingComp = Cast<UGrappleSwingComponent>(GetComponentByClass(UGrappleSwingComponent::StaticClass()));
+
+	ObstacleTraversalComp = Cast<UObstacleTraversalComponent>(GetComponentByClass(UObstacleTraversalComponent::StaticClass()));
 }
 #pragma endregion
 

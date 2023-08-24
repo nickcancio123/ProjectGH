@@ -10,6 +10,8 @@ class UGrappleThrustComponent;
 class UGrappleSwingComponent;
 class UCommonGrappleComponent;
 
+class UObstacleTraversalComponent;
+
 UCLASS()
 class PROJECTGH_API AHero : public ACharacter
 {
@@ -25,7 +27,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		UGrappleSwingComponent* GrappleSwingComp = nullptr;
 
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
+		UObstacleTraversalComponent* ObstacleTraversalComp = nullptr;
+	
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		float CameraTurnSensitivity = 1;
