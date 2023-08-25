@@ -107,13 +107,62 @@ public:
 	
 	UGrapplingComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	void OnRegister() override;;
+	void OnRegister() override;
 
+
+	// === Public Common Grappling Methods ===
+	UFUNCTION(BlueprintImplementableEvent)
+	void SpinGrappleIcon(float DeltaTime);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ResetGrappleIconAngle();
+
+	
+	// Setters
+	void SetCanGrapple(bool _bCanGrapple);
+	void SetCurrentGrapplePoint(AGrapplePoint* _CurrentGrapplePoint);
+	void SetCurrentGrappleType(EGrappleState _GrappleType);
+
+	// Getters
+	UFUNCTION(BlueprintCallable)
+	AGrapplePoint* GetBestValidGrapplePoint();
+
+	UFUNCTION(BlueprintCallable)
+	AGrapplingHook* GetGrapplingHook();
+
+	UFUNCTION(BlueprintCallable)
+	AGrapplePoint* GetCurrentGrapplePoint();
+	
+	TArray<AGrapplePoint*>* GetAvailableGrapplePoints();
+	EGrappleState GetCurrentGrappleType();
+	bool CanGrapple();
+
+	
+	// === Public Swinging Methods ===
+	void SetGrappleSwingState(EGrappleSwingPhase _GrappleSwingPhase);
+	void StartSwingPhase();
+	void ReleaseGrappleFromSwing();
+	
+	UFUNCTION(BlueprintCallable)
+	EGrappleSwingPhase GetGrappleSwingState();
+
+
+	// === Public Thrusting Methods ===
+	void StartGrappleThrust();
+	void ReleaseGrappleFromThrust();
+	
+	void SetGrappleThrustState(EGrappleThrustPhase _GrappleThrustPhase);
+
+	UFUNCTION(BlueprintCallable)
+	EGrappleThrustPhase GetGrappleThrustPhase();
+
+	
 protected:
 	virtual void BeginPlay() override;\
 
+	
 private:
-	// Common variables
+	// === Common variables ===
 	ACharacter* Character = nullptr;
 	UCharacterMovementComponent* CharacterMovement = nullptr;
 
@@ -121,31 +170,32 @@ private:
 	AGrapplingHook* GrapplingHook = nullptr;
 	TArray<AGrapplePoint*> AvailableGrapplePoints;
 	
-	TEnumAsByte<EGrappleState> CurrentGrappleType = EGrappleState::GS_None;
+	TEnumAsByte<EGrappleState> CurrentGrappleState = EGrappleState::GS_None;
 	AGrapplePoint* BestValidGrapplePoint = nullptr;
 	AGrapplePoint* CurrentGrapplePoint = nullptr;
-
 	bool bCanGrapple = true;
-
-	// Swinging variables
-	UBoxComponent* GroundDetectionVolume = nullptr;
-
-	EGrappleSwingPhase GrappleSwingState = EGrappleSwingPhase::GSP_Idle;
-	bool bHoldingInput = false;
-	float InitSwingDist = 0;
-	bool bCanSwingWhileOnGround = false;
+	
 	FVector LastFrameVelocity = FVector::ZeroVector;
 
-	// Thrusting variables
-	EGrappleThrustPhase GrappleThrustState = EGrappleThrustPhase::GTP_Idle;
+	
+	// === Swinging variables ===
+	UBoxComponent* GroundDetectionVolume = nullptr;
 
+	EGrappleSwingPhase GrappleSwingPhase = EGrappleSwingPhase::GSP_Idle;
+	bool bHoldingSwingInput = false;
+	float InitSwingDist = 0;
+	bool bCanSwingWhileOnGround = false;
 
+	
+	// === Thrusting variables ===
+	EGrappleThrustPhase GrappleThrustPhase = EGrappleThrustPhase::GTP_Idle;
 
-	// Common methods
+	
+	// === Private Common grappling methods ===
+	void BindInput(UInputComponent* PlayerInputComponent);
 	void InitDetectionVolume();
 	void GetOverlappedGrapplePoints();
 	void CreateGrapplingHookActor();
-	
 	
 	UFUNCTION()
 	void OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -154,4 +204,23 @@ private:
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	void FindBestValidGrapplePoint();
+
+
+	// === Private Swinging methods ===
+	void TryGrappleSwing();
+	void BeginSwingSequence();
+	void SwingPhaseTick(float DeltaTime);
+	void ReleaseGrappleSwingInput();
+
+	UFUNCTION()
+	void OnGroundOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void InitGroundDetectorVolume();
+	void SetSwingEndActorRotation();
+	bool CanDoAnimatedDismount();
+
+
+	// === Private Thrusting Methods ===
+	void TryGrappleThrust();
+	void StartGrappleSequence();
 };
