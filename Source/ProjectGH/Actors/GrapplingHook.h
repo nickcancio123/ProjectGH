@@ -9,9 +9,11 @@
 
 
 class UCableComponent;
-class UCommonGrappleComponent;
 
-class UGrappleThrustComponent;
+//class UCommonGrappleComponent;
+//class UGrappleThrustComponent;
+
+class UGrapplingComponent;
 
 
 UENUM()
@@ -51,7 +53,8 @@ public:
 
 
 	void SetupGrapplingHook(USkeletalMeshComponent* _CharacterMesh);
-	void SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp);
+	//void SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp);
+	void SetGrapplingCompRef(UGrapplingComponent* _GrapplingComp);
 	
 	void SetHookRotationToCableDir();
 	void SetGrapplingHookState(EGrapplingHookState State);
@@ -61,8 +64,10 @@ protected:
 
 
 private:
-	UCommonGrappleComponent* CommonGrappleComp = nullptr;
-	UGrappleThrustComponent* GrappleThrustComp = nullptr;
+	//UCommonGrappleComponent* CommonGrappleComp = nullptr;
+	//UGrappleThrustComponent* GrappleThrustComp = nullptr;
+	UGrapplingComponent* GrapplingComp = nullptr;
+	
 	USkeletalMeshComponent* CharacterMesh = nullptr;
 
 	EGrapplingHookState GrapplingHookState = EGrapplingHookState::GHS_In;

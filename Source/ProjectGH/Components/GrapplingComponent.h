@@ -117,12 +117,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ResetGrappleIconAngle();
 
-	
-	// Setters
-	void SetCanGrapple(bool _bCanGrapple);
-	void SetCurrentGrapplePoint(AGrapplePoint* _CurrentGrapplePoint);
-	void SetCurrentGrappleType(EGrappleState _GrappleType);
+	void ReleaseGrapple();
 
+	
 	// Getters
 	UFUNCTION(BlueprintCallable)
 	AGrapplePoint* GetBestValidGrapplePoint();
@@ -134,14 +131,13 @@ public:
 	AGrapplePoint* GetCurrentGrapplePoint();
 	
 	TArray<AGrapplePoint*>* GetAvailableGrapplePoints();
-	EGrappleState GetCurrentGrappleType();
+	EGrappleState GetCurrentGrappleState();
 	bool CanGrapple();
 
 	
 	// === Public Swinging Methods ===
-	void SetGrappleSwingState(EGrappleSwingPhase _GrappleSwingPhase);
+	void SetGrappleSwingPhase(EGrappleSwingPhase _GrappleSwingPhase);
 	void StartSwingPhase();
-	void ReleaseGrappleFromSwing();
 	
 	UFUNCTION(BlueprintCallable)
 	EGrappleSwingPhase GetGrappleSwingState();
@@ -149,9 +145,7 @@ public:
 
 	// === Public Thrusting Methods ===
 	void StartGrappleThrust();
-	void ReleaseGrappleFromThrust();
-	
-	void SetGrappleThrustState(EGrappleThrustPhase _GrappleThrustPhase);
+	void SetGrappleThrustPhase(EGrappleThrustPhase _GrappleThrustPhase);
 
 	UFUNCTION(BlueprintCallable)
 	EGrappleThrustPhase GetGrappleThrustPhase();
@@ -211,6 +205,9 @@ private:
 	void BeginSwingSequence();
 	void SwingPhaseTick(float DeltaTime);
 	void ReleaseGrappleSwingInput();
+	void ReleaseGrappleFromSwing();
+	
+
 
 	UFUNCTION()
 	void OnGroundOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -223,4 +220,5 @@ private:
 	// === Private Thrusting Methods ===
 	void TryGrappleThrust();
 	void StartGrappleSequence();
+	void ReleaseGrappleFromThrust();
 };

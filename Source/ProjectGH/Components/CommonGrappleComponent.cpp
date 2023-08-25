@@ -76,7 +76,8 @@ void UCommonGrappleComponent::CreateGrapplingHookActor()
 	if (!GrapplingHook)
 		return;
 
-	GrapplingHook->SetCommonGrappleComp(this);
+	//GrapplingHook->SetCommonGrappleComp(this);
+	
 	GrapplingHook->SetupGrapplingHook(Character->GetMesh());
 	GrapplingHook->SetGrapplingHookState(EGrapplingHookState::GHS_In);
 }

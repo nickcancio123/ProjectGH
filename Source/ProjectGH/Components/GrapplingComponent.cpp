@@ -186,6 +186,18 @@ void UGrapplingComponent::FindBestValidGrapplePoint()
 }
 
 
+void UGrapplingComponent::ReleaseGrapple()
+{
+	bCanGrapple = true;
+	CurrentGrappleState = EGrappleState::GS_None;
+
+	if (CurrentGrappleState == GS_Swing)
+		ReleaseGrappleFromSwing();
+	else if (CurrentGrappleState == GS_Thrust)
+		ReleaseGrappleFromThrust();
+}
+
+
 // === Getters ===
 bool UGrapplingComponent::CanGrapple()
 {
@@ -212,7 +224,7 @@ AGrapplePoint* UGrapplingComponent::GetCurrentGrapplePoint()
 	return CurrentGrapplePoint;
 }
 
-EGrappleState UGrapplingComponent::GetCurrentGrappleType()
+EGrappleState UGrapplingComponent::GetCurrentGrappleState()
 {
 	return CurrentGrappleState;
 }
@@ -360,8 +372,6 @@ void UGrapplingComponent::ReleaseGrappleSwingInput()
 
 void UGrapplingComponent::ReleaseGrappleFromSwing()
 {
-	bCanGrapple = true;
-	CurrentGrappleState = GS_None;
 	GrapplingHook->SetGrapplingHookState(EGrapplingHookState::GHS_Pull);
 	
 	GrappleSwingPhase = EGrappleSwingPhase::GSP_Idle;
@@ -405,7 +415,7 @@ EGrappleSwingPhase UGrapplingComponent::GetGrappleSwingState()
 	return GrappleSwingPhase;
 }
 
-void UGrapplingComponent::SetGrappleSwingState(EGrappleSwingPhase _GrappleSwingPhase)
+void UGrapplingComponent::SetGrappleSwingPhase(EGrappleSwingPhase _GrappleSwingPhase)
 {
 	GrappleSwingPhase = _GrappleSwingPhase;
 }
@@ -452,8 +462,6 @@ void UGrapplingComponent::StartGrappleThrust()
 
 void UGrapplingComponent::ReleaseGrappleFromThrust()
 {
-	bCanGrapple = true;
-	CurrentGrappleState = EGrappleState::GS_None;
 	GrappleThrustPhase = EGrappleThrustPhase::GTP_Idle;
 	  	
 	// Set rotation 
@@ -466,6 +474,11 @@ void UGrapplingComponent::ReleaseGrappleFromThrust()
 EGrappleThrustPhase UGrapplingComponent::GetGrappleThrustPhase()
 {
 	return GrappleThrustPhase;
+}
+
+void UGrapplingComponent::SetGrappleThrustPhase(EGrappleThrustPhase _GrappleThrustPhase)
+{
+	GrappleThrustPhase = _GrappleThrustPhase;
 }
 #pragma endregion 
 

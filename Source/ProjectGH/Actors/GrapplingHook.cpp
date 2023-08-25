@@ -3,8 +3,10 @@
 
 #include "ProjectGH/Actors/GrapplingHook.h"
 
-#include "ProjectGH//Components/CommonGrappleComponent.h"
-#include "ProjectGH/Components/GrappleThrustComponent.h"
+//#include "ProjectGH//Components/CommonGrappleComponent.h"
+//#include "ProjectGH/Components/GrappleThrustComponent.h"
+#include "ProjectGH/Components/GrapplingComponent.h"
+
 #include "ProjectGH/Actors/GrapplePoint.h"
 #include "CableComponent.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
@@ -85,16 +87,22 @@ void AGrapplingHook::SetupGrapplingHook(USkeletalMeshComponent* _CharacterMesh)
 	SplineMeshComp->SetForwardAxis(ESplineMeshAxis::X);
 }
 
-void AGrapplingHook::SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp)
+void AGrapplingHook::SetGrapplingCompRef(UGrapplingComponent* _GrapplingComp)
 {
-	CommonGrappleComp = _CommonGrappleComp;
+	GrapplingComp = _GrapplingComp;
 }
+
+// void AGrapplingHook::SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp)
+// {
+// 	CommonGrappleComp = _CommonGrappleComp;
+// }
 
 
 
 void AGrapplingHook::OutStateTick()
 {
-	FVector GrapplePointPos = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
+	//FVector GrapplePointPos = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
+	FVector GrapplePointPos = GrapplingComp->GetCurrentGrapplePoint()->GetActorLocation();
 	
 	// Set hook location
 	HookMeshComp->SetWorldLocation(GrapplePointPos);
@@ -110,19 +118,22 @@ void AGrapplingHook::PullStateTick(float DeltaTime)
 {
 	StateTimer += DeltaTime;
 	float Alpha = StateTimer / PullInDuration;
-
-
+	
 	// State end condition
 	if (Alpha >= 1)
 	{
 		SetGrapplingHookState(GHS_In);
 	}
 	
-	
-	if (!CommonGrappleComp)
+	// if (!CommonGrappleComp)
+	// 	return;
+
+	if (!GrapplingComp)
 		return;
 
-	AGrapplePoint* CurrentGrapplePoint = CommonGrappleComp->GetCurrentGrapplePoint();
+	//AGrapplePoint* CurrentGrapplePoint = CommonGrappleComp->GetCurrentGrapplePoint();
+	AGrapplePoint* CurrentGrapplePoint = GrapplingComp->GetCurrentGrapplePoint();
+	
 	if (!CurrentGrapplePoint)
 		return;
 	
