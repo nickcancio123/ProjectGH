@@ -3,8 +3,8 @@
 
 #include "ProjectGH/AnimNotifies/GrappleHookPull_Notify.h"
 
-#include "ProjectGH/Components/CommonGrappleComponent.h"
 #include "ProjectGH/Components/GrapplingComponent.h"
+#include "ProjectGH/Actors/GrapplingHook.h"
 
 #include "GameFramework/Character.h"
 

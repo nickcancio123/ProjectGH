@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "ProjectGH/Components/CommonGrappleComponent.h"
 #include "GrappleHookThrow_NotifyState.generated.h"
 
 
