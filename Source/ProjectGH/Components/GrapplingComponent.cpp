@@ -29,6 +29,11 @@ void UGrapplingComponent::BeginPlay()
 
 	if (GetOwner())
 		Character = Cast<ACharacter>(GetOwner());
+
+	if (!Character)
+		return;
+
+	CharacterMovement = Character->GetCharacterMovement();
 	
 	GetOverlappedGrapplePoints();
 	CreateGrapplingHookActor();
@@ -97,10 +102,10 @@ void UGrapplingComponent::CreateGrapplingHookActor()
 	if (!GrapplingHook)
 		return;
 
+	GrapplingHook->SetGrapplingCompRef(this);
 	GrapplingHook->SetupGrapplingHook(Character->GetMesh());
 	GrapplingHook->SetGrapplingHookState(EGrapplingHookState::GHS_In);
 }
-
 
 
 void UGrapplingComponent::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -186,21 +191,18 @@ void UGrapplingComponent::FindBestValidGrapplePoint()
 }
 
 
-void UGrapplingComponent::ReleaseGrapple()
-{
-	bCanGrapple = true;
-	CurrentGrappleState = EGrappleState::GS_None;
-
-	if (CurrentGrappleState == GS_Swing)
-		ReleaseGrappleFromSwing();
-	else if (CurrentGrappleState == GS_Thrust)
-		ReleaseGrappleFromThrust();
-}
-
-
 // === Getters ===
 bool UGrapplingComponent::CanGrapple()
 {
+	if (!IsActive())
+		UE_LOG(LogTemp, Warning, TEXT("Not active"));
+
+	if (!bCanGrapple)
+		UE_LOG(LogTemp, Warning, TEXT("Can't grapple"));
+
+	if (!BestValidGrapplePoint)
+		UE_LOG(LogTemp, Warning, TEXT("No best valid GP"));
+
 	return IsActive() && bCanGrapple && BestValidGrapplePoint;
 }
 
@@ -363,7 +365,7 @@ void UGrapplingComponent::SwingPhaseTick(float DeltaTime)
 		else
 			SetSwingEndActorRotation();
 	}
-}
+}	
 
 void UGrapplingComponent::ReleaseGrappleSwingInput()
 {
@@ -372,11 +374,11 @@ void UGrapplingComponent::ReleaseGrappleSwingInput()
 
 void UGrapplingComponent::ReleaseGrappleFromSwing()
 {
-	GrapplingHook->SetGrapplingHookState(EGrapplingHookState::GHS_Pull);
-	
+	bCanGrapple = true;
+	CurrentGrappleState = EGrappleState::GS_None;
 	GrappleSwingPhase = EGrappleSwingPhase::GSP_Idle;
-	  	
-	// Set rotation 
+	
+	GrapplingHook->SetGrapplingHookState(EGrapplingHookState::GHS_Pull);
 	SetSwingEndActorRotation();
 }
 
@@ -410,7 +412,7 @@ bool UGrapplingComponent::CanDoAnimatedDismount()
 
 
 // === Getters & Setters===
-EGrappleSwingPhase UGrapplingComponent::GetGrappleSwingState()
+EGrappleSwingPhase UGrapplingComponent::GetGrappleSwingPhase()
 {
 	return GrappleSwingPhase;
 }
@@ -462,13 +464,7 @@ void UGrapplingComponent::StartGrappleThrust()
 
 void UGrapplingComponent::ReleaseGrappleFromThrust()
 {
-	GrappleThrustPhase = EGrappleThrustPhase::GTP_Idle;
-	  	
-	// Set rotation 
-	FVector HorizVel = CharacterMovement->Velocity;
-	HorizVel.Z = 0;
-	Character->SetActorRotation(HorizVel.Rotation());
-	CharacterMovement->bOrientRotationToMovement = true;
+
 }
 
 EGrappleThrustPhase UGrapplingComponent::GetGrappleThrustPhase()
@@ -479,6 +475,19 @@ EGrappleThrustPhase UGrapplingComponent::GetGrappleThrustPhase()
 void UGrapplingComponent::SetGrappleThrustPhase(EGrappleThrustPhase _GrappleThrustPhase)
 {
 	GrappleThrustPhase = _GrappleThrustPhase;
+}
+
+void UGrapplingComponent::FinishGrappleThrust()
+{
+	bCanGrapple = true;
+	CurrentGrappleState = GS_None;
+	GrappleThrustPhase = EGrappleThrustPhase::GTP_Idle;
+	  	
+	// Set rotation 
+	FVector HorizVel = CharacterMovement->Velocity;
+	HorizVel.Z = 0;
+	Character->SetActorRotation(HorizVel.Rotation());
+	CharacterMovement->bOrientRotationToMovement = true;
 }
 #pragma endregion 
 

@@ -22,5 +22,5 @@ void UGrappleRelease_Notify::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	//GrappleSwingComp->ReleaseGrapple();
 
 	GrapplingComp = Cast<UGrapplingComponent>(Character->GetComponentByClass(UGrapplingComponent::StaticClass()));
-	GrapplingComp->ReleaseGrapple();
+	GrapplingComp->ReleaseGrappleFromSwing();
 }

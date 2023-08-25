@@ -111,16 +111,15 @@ public:
 
 
 	// === Public Common Grappling Methods ===
+	void BindInput(UInputComponent* PlayerInputComponent);
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void SpinGrappleIcon(float DeltaTime);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ResetGrappleIconAngle();
-
-	void ReleaseGrapple();
-
 	
-	// Getters
+	
 	UFUNCTION(BlueprintCallable)
 	AGrapplePoint* GetBestValidGrapplePoint();
 
@@ -138,14 +137,16 @@ public:
 	// === Public Swinging Methods ===
 	void SetGrappleSwingPhase(EGrappleSwingPhase _GrappleSwingPhase);
 	void StartSwingPhase();
+	void ReleaseGrappleFromSwing();
 	
 	UFUNCTION(BlueprintCallable)
-	EGrappleSwingPhase GetGrappleSwingState();
+	EGrappleSwingPhase GetGrappleSwingPhase();
 
 
 	// === Public Thrusting Methods ===
 	void StartGrappleThrust();
 	void SetGrappleThrustPhase(EGrappleThrustPhase _GrappleThrustPhase);
+	void FinishGrappleThrust();
 
 	UFUNCTION(BlueprintCallable)
 	EGrappleThrustPhase GetGrappleThrustPhase();
@@ -186,7 +187,6 @@ private:
 
 	
 	// === Private Common grappling methods ===
-	void BindInput(UInputComponent* PlayerInputComponent);
 	void InitDetectionVolume();
 	void GetOverlappedGrapplePoints();
 	void CreateGrapplingHookActor();
@@ -205,7 +205,6 @@ private:
 	void BeginSwingSequence();
 	void SwingPhaseTick(float DeltaTime);
 	void ReleaseGrappleSwingInput();
-	void ReleaseGrappleFromSwing();
 	
 
 

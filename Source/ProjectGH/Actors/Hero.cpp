@@ -56,8 +56,9 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AHero::TryJump);
 	
 	// Grappling
-	GrappleThrustComp->BindInput(PlayerInputComponent);
-	GrappleSwingComp->BindInput(PlayerInputComponent);
+	//GrappleThrustComp->BindInput(PlayerInputComponent);
+	//GrappleSwingComp->BindInput(PlayerInputComponent);
+	GrapplingComp->BindInput(PlayerInputComponent);
 
 	// Obstacle traversal
 	ObstacleTraversalComp->BindInput(PlayerInputComponent);
@@ -65,9 +66,9 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AHero::SetComponentRefs()
 {
-	CommonGrappleComp = Cast<UCommonGrappleComponent>(GetComponentByClass(UCommonGrappleComponent::StaticClass()));
-	GrappleThrustComp = Cast<UGrappleThrustComponent>(GetComponentByClass(UGrappleThrustComponent::StaticClass()));
-	GrappleSwingComp = Cast<UGrappleSwingComponent>(GetComponentByClass(UGrappleSwingComponent::StaticClass()));
+	//CommonGrappleComp = Cast<UCommonGrappleComponent>(GetComponentByClass(UCommonGrappleComponent::StaticClass()));
+	//GrappleThrustComp = Cast<UGrappleThrustComponent>(GetComponentByClass(UGrappleThrustComponent::StaticClass()));
+	//GrappleSwingComp = Cast<UGrappleSwingComponent>(GetComponentByClass(UGrappleSwingComponent::StaticClass()));
 
 	GrapplingComp = Cast<UGrapplingComponent>(GetComponentByClass(UGrapplingComponent::StaticClass()));
 	
@@ -128,9 +129,11 @@ void AHero::SetupAdvancedMovementComponentSystem()
 {
 	// Setup list of components
 	AdvancedMovementComponents.Add(ObstacleTraversalComp);
-	AdvancedMovementComponents.Add(CommonGrappleComp);
-	AdvancedMovementComponents.Add(GrappleThrustComp);
-	AdvancedMovementComponents.Add(GrappleSwingComp);
+	AdvancedMovementComponents.Add(GrapplingComp);
+	
+	//AdvancedMovementComponents.Add(CommonGrappleComp);
+	//AdvancedMovementComponents.Add(GrappleThrustComp);
+	//AdvancedMovementComponents.Add(GrappleSwingComp);
 
 	// Bind events
 	ObstacleTraversalComp->ObstacleTraversalStartEventDelegate.AddDynamic(this, &AHero::OnObstacleTraversalStartEvent);

@@ -131,6 +131,6 @@ void UGrappleThrust_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 	// Finish grapple thrust
 	GrapplingHook->SetGrapplingHookState(GHS_In);
 	//GrappleThrustComp->ReleaseGrapple();
-	GrapplingComp->ReleaseGrapple();
+	GrapplingComp->FinishGrappleThrust();
 
 }

@@ -102,7 +102,11 @@ void AGrapplingHook::SetGrapplingCompRef(UGrapplingComponent* _GrapplingComp)
 void AGrapplingHook::OutStateTick()
 {
 	//FVector GrapplePointPos = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
-	FVector GrapplePointPos = GrapplingComp->GetCurrentGrapplePoint()->GetActorLocation();
+	AGrapplePoint* GrapplePoint = GrapplingComp->GetCurrentGrapplePoint();
+	if (!GrapplePoint)
+		return;
+	FVector GrapplePointPos = GrapplePoint->GetActorLocation();
+
 	
 	// Set hook location
 	HookMeshComp->SetWorldLocation(GrapplePointPos);
