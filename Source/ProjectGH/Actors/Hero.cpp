@@ -7,6 +7,8 @@
 #include "ProjectGH/Components/GrappleSwingComponent.h"
 #include "ProjectGH/Components/CommonGrappleComponent.h"
 
+#include "ObstacleTraversalComponent.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
 
@@ -20,7 +22,7 @@ AHero::AHero()
 void AHero::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	CharacterMovement = GetCharacterMovement();
 	MaxRunSpeed = CharacterMovement->MaxWalkSpeed;
 }
@@ -51,16 +53,22 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	// Jump
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AHero::TryJump);
 	
-	//Grappling
+	// Grappling
 	GrappleThrustComp->BindInput(PlayerInputComponent);
 	GrappleSwingComp->BindInput(PlayerInputComponent);
+
+	// Obstacle traversal
+	ObstacleTraversalComp->BindInput(PlayerInputComponent);
 }
 
 void AHero::SetComponentRefs()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Set component refs"))
+	
 	CommonGrappleComp = Cast<UCommonGrappleComponent>(GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 	GrappleThrustComp = Cast<UGrappleThrustComponent>(GetComponentByClass(UGrappleThrustComponent::StaticClass()));
 	GrappleSwingComp = Cast<UGrappleSwingComponent>(GetComponentByClass(UGrappleSwingComponent::StaticClass()));
+	ObstacleTraversalComp = Cast<UObstacleTraversalComponent>(GetComponentByClass(UObstacleTraversalComponent::StaticClass()));
 }
 #pragma endregion
 
@@ -112,6 +120,55 @@ void AHero::TryJump()
 
 
 
+#pragma region Advanced Movement Component Handling
+void AHero::SetupAdvancedMovementComponentSystem()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Setup advanced movement component system"))
+
+	// Setup list of components
+	AdvancedMovementComponents.Add(ObstacleTraversalComp);
+	AdvancedMovementComponents.Add(CommonGrappleComp);
+	AdvancedMovementComponents.Add(GrappleThrustComp);
+	AdvancedMovementComponents.Add(GrappleSwingComp);
+
+	// Bind events
+	ObstacleTraversalComp->ObstacleTraversalStartEventDelegate.AddDynamic(this, &AHero::OnObstacleTraversalStartEvent);
+	ObstacleTraversalComp->ObstacleTraversalCompleteEventDelegate.AddDynamic(this, &AHero::EnableAllAdvancedMovementComponents);
+}
+
+void AHero::EnableAllAdvancedMovementComponents()
+{
+	for (int i = 0; i < AdvancedMovementComponents.Num(); i++)
+	{
+		UActorComponent* Comp = AdvancedMovementComponents[i];
+		if (Comp)
+			AdvancedMovementComponents[i]->Activate();
+	}
+}
+
+void AHero::DisableAllAdvancedMovementComponents(UActorComponent* ExceptThisComponent)
+{
+	if (AdvancedMovementComponents.Num() < 1)
+		return;
+
+	for (int i = 0; i < AdvancedMovementComponents.Num(); i++)
+	{
+		UActorComponent* Comp = AdvancedMovementComponents[i];
+		
+		if (Comp && Comp != ExceptThisComponent)
+			Comp->Deactivate();
+	}
+}
+
+void AHero::OnObstacleTraversalStartEvent()
+{
+	DisableAllAdvancedMovementComponents(ObstacleTraversalComp);
+}
+#pragma endregion
+
+
+
+
 #pragma region === Helper ===
 // Returns the horizontal/flat/XY forward vector of the control rotation
 FVector AHero::GetControlForwardVector()
@@ -139,5 +196,4 @@ void AHero::ResetJumpTrigger()
 {
 	bJumpTrigger = false;
 }
-
 #pragma endregion

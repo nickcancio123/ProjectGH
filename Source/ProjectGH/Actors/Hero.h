@@ -10,6 +10,8 @@ class UGrappleThrustComponent;
 class UGrappleSwingComponent;
 class UCommonGrappleComponent;
 
+class UObstacleTraversalComponent;
+
 UCLASS()
 class PROJECTGH_API AHero : public ACharacter
 {
@@ -25,8 +27,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		UGrappleSwingComponent* GrappleSwingComp = nullptr;
 
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
+		UObstacleTraversalComponent* ObstacleTraversalComp = nullptr;
 	
+ 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		float CameraTurnSensitivity = 1;
 
@@ -46,6 +50,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Hero")
 		void SetComponentRefs();
+
+	UFUNCTION(BlueprintCallable, Category = "Hero")
+		void SetupAdvancedMovementComponentSystem();
 	
 	
 	UFUNCTION(BlueprintCallable, Category = "Hero")
@@ -81,4 +88,17 @@ private:
 	void StopSprint();
 
 	void TryJump();
+
+
+	// Advanced movement component handling
+	// A list of actor components who affect character movement and should be mutually exclusive
+	TArray<UActorComponent*> AdvancedMovementComponents; 
+	
+	UFUNCTION()
+	void EnableAllAdvancedMovementComponents();
+
+	void DisableAllAdvancedMovementComponents(UActorComponent* ExceptThisComponent);
+
+	UFUNCTION()
+	void OnObstacleTraversalStartEvent();
 };
