@@ -4,15 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "ProjectGH/Components/CommonGrappleComponent.h"
 #include "GrappleHookThrow_NotifyState.generated.h"
 
 
-
-class UCommonGrappleComponent;
-class UGrappleThrustComponent;
-class UGrappleSwingComponent;
-
+class UGrapplingComponent;
 class AGrapplingHook;
 class AGrapplePoint;
 
@@ -30,11 +25,7 @@ public:
 
 private:
 	ACharacter* Character = nullptr;
-	
-	UCommonGrappleComponent* CommonGrappleComp = nullptr;
-	UGrappleThrustComponent* GrappleThrustComp = nullptr;
-	UGrappleSwingComponent* GrappleSwingComp = nullptr;
-	
+	UGrapplingComponent* GrapplingComp = nullptr;
 	AGrapplingHook* GrapplingHook = nullptr;
 	AGrapplePoint* GrapplePoint = nullptr;
 	

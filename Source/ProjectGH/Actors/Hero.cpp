@@ -3,14 +3,10 @@
 
 #include "ProjectGH/Actors/Hero.h"
 
-#include "ProjectGH/Components/GrappleThrustComponent.h"
-#include "ProjectGH/Components/GrappleSwingComponent.h"
-#include "ProjectGH/Components/CommonGrappleComponent.h"
-
+#include "ProjectGH/Components/GrapplingComponent.h"
 #include "ObstacleTraversalComponent.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
-#include "DrawDebugHelpers.h"
 
 
 #pragma region === Default Actor ===
@@ -54,8 +50,7 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AHero::TryJump);
 	
 	// Grappling
-	GrappleThrustComp->BindInput(PlayerInputComponent);
-	GrappleSwingComp->BindInput(PlayerInputComponent);
+	GrapplingComp->BindInput(PlayerInputComponent);
 
 	// Obstacle traversal
 	ObstacleTraversalComp->BindInput(PlayerInputComponent);
@@ -63,9 +58,7 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AHero::SetComponentRefs()
 {
-	CommonGrappleComp = Cast<UCommonGrappleComponent>(GetComponentByClass(UCommonGrappleComponent::StaticClass()));
-	GrappleThrustComp = Cast<UGrappleThrustComponent>(GetComponentByClass(UGrappleThrustComponent::StaticClass()));
-	GrappleSwingComp = Cast<UGrappleSwingComponent>(GetComponentByClass(UGrappleSwingComponent::StaticClass()));
+	GrapplingComp = Cast<UGrapplingComponent>(GetComponentByClass(UGrapplingComponent::StaticClass()));
 	ObstacleTraversalComp = Cast<UObstacleTraversalComponent>(GetComponentByClass(UObstacleTraversalComponent::StaticClass()));
 }
 #pragma endregion
@@ -123,10 +116,8 @@ void AHero::SetupAdvancedMovementComponentSystem()
 {
 	// Setup list of components
 	AdvancedMovementComponents.Add(ObstacleTraversalComp);
-	AdvancedMovementComponents.Add(CommonGrappleComp);
-	AdvancedMovementComponents.Add(GrappleThrustComp);
-	AdvancedMovementComponents.Add(GrappleSwingComp);
-
+	AdvancedMovementComponents.Add(GrapplingComp);
+	
 	// Bind events
 	ObstacleTraversalComp->ObstacleTraversalStartEventDelegate.AddDynamic(this, &AHero::OnObstacleTraversalStartEvent);
 	ObstacleTraversalComp->ObstacleTraversalCompleteEventDelegate.AddDynamic(this, &AHero::EnableAllAdvancedMovementComponents);

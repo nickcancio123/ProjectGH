@@ -3,8 +3,7 @@
 
 #include "ProjectGH/AnimNotifies/GrappleThrust_NotifyState.h"
 
-#include "ProjectGH/Components/CommonGrappleComponent.h"
-#include "ProjectGH/Components/GrappleThrustComponent.h"
+#include "ProjectGH/Components/GrapplingComponent.h"
 #include "ProjectGH/Actors/GrapplingHook.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
 
@@ -21,18 +20,16 @@ void UGrappleThrust_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, U
 	Character = Cast<ACharacter>(MeshComp->GetOwner());
 	if (!Character)
 		return;
+	
+	GrapplingComp = Cast<UGrapplingComponent>(Character->GetComponentByClass(UGrapplingComponent::StaticClass()));
+	GrapplingComp->SetGrappleThrustPhase(GTP_Thrust);
+	
+	GrapplingHook = GrapplingComp->GetGrapplingHook();
+	GrapplingHook->SetGrapplingHookState(GHS_Out);
 
+	GrapplePoint = GrapplingComp->GetCurrentGrapplePoint();
 	
-	CommonGrappleComp = Cast<UCommonGrappleComponent>(Character->GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 	
-	GrapplingHook = CommonGrappleComp->GetGrapplingHook();
-	GrapplingHook->SetGrapplingHookState(EGrapplingHookState::GHS_Out);
-	
-	GrapplePoint = CommonGrappleComp->GetCurrentGrapplePoint();
-	
-	GrappleThrustComp = Cast<UGrappleThrustComponent>(Character->GetComponentByClass(UGrappleThrustComponent::StaticClass()));
-	GrappleThrustComp->SetGrappleThrustState(EGrappleThrustState::GTS_Thrust);
-
 	SpringArm = Cast<USpringArmComponent>(Character->GetComponentByClass(USpringArmComponent::StaticClass()));
 	OriginalSpringArmLength = SpringArm->TargetArmLength;
 
@@ -67,23 +64,20 @@ void UGrappleThrust_NotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UA
 	
 	// Compute new spring arm distance
 	SpringArm->TargetArmLength = OriginalSpringArmLength + SpringArmLengthCurve.GetRichCurve()->Eval(Alpha) * 1000;
-
-
+	
 	// Animate grapple icon
-	CommonGrappleComp->SpinGrappleIcon(FrameDeltaTime);
+	GrapplingComp->SpinGrappleIcon(FrameDeltaTime);
 }
 
 
 void UGrappleThrust_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::NotifyEnd(MeshComp, Animation);
-
-	if (!Character || !GrappleThrustComp || !CommonGrappleComp)
+	
+	if (!Character && !GrapplingComp)
 		return;
 
-
-	CommonGrappleComp->ResetGrappleIconAngle();
-	
+	GrapplingComp->ResetGrappleIconAngle();
 
 	// Set post grapple velocity
 	float PathTotalDist = FVector::Dist(PathStart, PathEnd);
@@ -116,5 +110,6 @@ void UGrappleThrust_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 	
 	// Finish grapple thrust
 	GrapplingHook->SetGrapplingHookState(GHS_In);
-	GrappleThrustComp->ReleaseGrapple();
+	GrapplingComp->FinishGrappleThrust();
+
 }

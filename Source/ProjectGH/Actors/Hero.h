@@ -6,11 +6,10 @@
 #include "GameFramework/Character.h"
 #include "Hero.generated.h"
 
-class UGrappleThrustComponent;
-class UGrappleSwingComponent;
-class UCommonGrappleComponent;
 
+class UGrapplingComponent;
 class UObstacleTraversalComponent;
+
 
 UCLASS()
 class PROJECTGH_API AHero : public ACharacter
@@ -19,13 +18,7 @@ class PROJECTGH_API AHero : public ACharacter
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
-		UCommonGrappleComponent* CommonGrappleComp = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
-		UGrappleThrustComponent* GrappleThrustComp = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
-		UGrappleSwingComponent* GrappleSwingComp = nullptr;
+		UGrapplingComponent* GrapplingComp = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		UObstacleTraversalComponent* ObstacleTraversalComp = nullptr;
@@ -90,7 +83,7 @@ private:
 	void TryJump();
 
 
-	// Advanced movement component handling
+	// === Advanced movement component system ===
 	// A list of actor components who affect character movement and should be mutually exclusive
 	TArray<UActorComponent*> AdvancedMovementComponents; 
 	

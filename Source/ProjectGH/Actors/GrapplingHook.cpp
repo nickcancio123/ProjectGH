@@ -3,12 +3,11 @@
 
 #include "ProjectGH/Actors/GrapplingHook.h"
 
-#include "ProjectGH//Components/CommonGrappleComponent.h"
-#include "ProjectGH/Components/GrappleThrustComponent.h"
+#include "ProjectGH/Components/GrapplingComponent.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
-#include "CableComponent.h"
+
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
-#include "DrawDebugHelpers.h"
+#include "CableComponent.h"
 
 
 
@@ -85,16 +84,20 @@ void AGrapplingHook::SetupGrapplingHook(USkeletalMeshComponent* _CharacterMesh)
 	SplineMeshComp->SetForwardAxis(ESplineMeshAxis::X);
 }
 
-void AGrapplingHook::SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp)
+void AGrapplingHook::SetGrapplingCompRef(UGrapplingComponent* _GrapplingComp)
 {
-	CommonGrappleComp = _CommonGrappleComp;
+	GrapplingComp = _GrapplingComp;
 }
 
 
 
 void AGrapplingHook::OutStateTick()
 {
-	FVector GrapplePointPos = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
+	AGrapplePoint* GrapplePoint = GrapplingComp->GetCurrentGrapplePoint();
+	if (!GrapplePoint)
+		return;
+	FVector GrapplePointPos = GrapplePoint->GetActorLocation();
+
 	
 	// Set hook location
 	HookMeshComp->SetWorldLocation(GrapplePointPos);
@@ -110,19 +113,18 @@ void AGrapplingHook::PullStateTick(float DeltaTime)
 {
 	StateTimer += DeltaTime;
 	float Alpha = StateTimer / PullInDuration;
-
-
+	
 	// State end condition
 	if (Alpha >= 1)
 	{
 		SetGrapplingHookState(GHS_In);
 	}
 	
-	
-	if (!CommonGrappleComp)
+	if (!GrapplingComp)
 		return;
 
-	AGrapplePoint* CurrentGrapplePoint = CommonGrappleComp->GetCurrentGrapplePoint();
+	AGrapplePoint* CurrentGrapplePoint = GrapplingComp->GetCurrentGrapplePoint();
+	
 	if (!CurrentGrapplePoint)
 		return;
 	
