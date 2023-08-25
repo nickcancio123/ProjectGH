@@ -7,7 +7,6 @@
 #include "GrappleRelease_Notify.generated.h"
 
 
-//class UGrappleSwingComponent;
 class UGrapplingComponent;
 
 UCLASS()
@@ -20,7 +19,5 @@ public:
 
 private:
 	ACharacter* Character = nullptr;
-	//UGrappleSwingComponent* GrappleSwingComp = nullptr;
-
 	UGrapplingComponent* GrapplingComp = nullptr;
 };

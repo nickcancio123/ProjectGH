@@ -9,10 +9,6 @@
 
 
 class UCableComponent;
-
-//class UCommonGrappleComponent;
-//class UGrappleThrustComponent;
-
 class UGrapplingComponent;
 
 
@@ -53,7 +49,6 @@ public:
 
 
 	void SetupGrapplingHook(USkeletalMeshComponent* _CharacterMesh);
-	//void SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp);
 	void SetGrapplingCompRef(UGrapplingComponent* _GrapplingComp);
 	
 	void SetHookRotationToCableDir();
@@ -64,10 +59,7 @@ protected:
 
 
 private:
-	//UCommonGrappleComponent* CommonGrappleComp = nullptr;
-	//UGrappleThrustComponent* GrappleThrustComp = nullptr;
 	UGrapplingComponent* GrapplingComp = nullptr;
-	
 	USkeletalMeshComponent* CharacterMesh = nullptr;
 
 	EGrapplingHookState GrapplingHookState = EGrapplingHookState::GHS_In;

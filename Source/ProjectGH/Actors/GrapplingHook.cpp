@@ -3,14 +3,11 @@
 
 #include "ProjectGH/Actors/GrapplingHook.h"
 
-//#include "ProjectGH//Components/CommonGrappleComponent.h"
-//#include "ProjectGH/Components/GrappleThrustComponent.h"
 #include "ProjectGH/Components/GrapplingComponent.h"
-
 #include "ProjectGH/Actors/GrapplePoint.h"
-#include "CableComponent.h"
+
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
-#include "DrawDebugHelpers.h"
+#include "CableComponent.h"
 
 
 
@@ -92,16 +89,10 @@ void AGrapplingHook::SetGrapplingCompRef(UGrapplingComponent* _GrapplingComp)
 	GrapplingComp = _GrapplingComp;
 }
 
-// void AGrapplingHook::SetCommonGrappleComp(UCommonGrappleComponent* _CommonGrappleComp)
-// {
-// 	CommonGrappleComp = _CommonGrappleComp;
-// }
-
 
 
 void AGrapplingHook::OutStateTick()
 {
-	//FVector GrapplePointPos = CommonGrappleComp->GetCurrentGrapplePoint()->GetActorLocation();
 	AGrapplePoint* GrapplePoint = GrapplingComp->GetCurrentGrapplePoint();
 	if (!GrapplePoint)
 		return;
@@ -129,13 +120,9 @@ void AGrapplingHook::PullStateTick(float DeltaTime)
 		SetGrapplingHookState(GHS_In);
 	}
 	
-	// if (!CommonGrappleComp)
-	// 	return;
-
 	if (!GrapplingComp)
 		return;
 
-	//AGrapplePoint* CurrentGrapplePoint = CommonGrappleComp->GetCurrentGrapplePoint();
 	AGrapplePoint* CurrentGrapplePoint = GrapplingComp->GetCurrentGrapplePoint();
 	
 	if (!CurrentGrapplePoint)

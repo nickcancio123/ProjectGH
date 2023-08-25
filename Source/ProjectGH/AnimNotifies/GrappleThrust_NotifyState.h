@@ -8,10 +8,7 @@
 #include "GrappleThrust_NotifyState.generated.h"
 
 
-//class UCommonGrappleComponent;
-//class UGrappleThrustComponent;
 class UGrapplingComponent;
-
 class AGrapplePoint;
 class AGrapplingHook;
 
@@ -48,11 +45,7 @@ public:
 
 private:
 	ACharacter* Character = nullptr;
-	
-	//UCommonGrappleComponent* CommonGrappleComp = nullptr;
-	//UGrappleThrustComponent* GrappleThrustComp = nullptr;
 	UGrapplingComponent* GrapplingComp = nullptr;
-	
 	AGrapplingHook* GrapplingHook = nullptr;
 	AGrapplePoint* GrapplePoint = nullptr;
 	USpringArmComponent* SpringArm = nullptr;
