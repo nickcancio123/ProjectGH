@@ -54,9 +54,6 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
 		float SwingRotationRate = 8;
-		
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
-		float MaxSwingRotationRate = 1;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Swing")
 		bool bReleaseGrappleOnGrounded = true;

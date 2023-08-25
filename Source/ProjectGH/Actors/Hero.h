@@ -10,6 +10,8 @@ class UGrappleThrustComponent;
 class UGrappleSwingComponent;
 class UCommonGrappleComponent;
 
+class UGrapplingComponent;
+
 class UObstacleTraversalComponent;
 
 UCLASS()
@@ -26,6 +28,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		UGrappleSwingComponent* GrappleSwingComp = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
+		UGrapplingComponent* GrapplingComp = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Hero")
 		UObstacleTraversalComponent* ObstacleTraversalComp = nullptr;
