@@ -82,6 +82,9 @@ void UObstacleTraversalComponent::AllowTraversal()
 
 void UObstacleTraversalComponent::TryTraverse()
 {
+	if (!IsActive())
+		return;
+	
 	if (!bCanTraverse)
 		return;
 	

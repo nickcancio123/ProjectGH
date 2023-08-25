@@ -252,6 +252,10 @@ public:
 	
 	void BindInput(UInputComponent* PlayerInputComponent);
 
+
+	// Driver function called upon traverse input
+	void TryTraverse();
+	
 	void AllowTraversal();
 
 	
@@ -294,10 +298,7 @@ private:
 	FVector WorldMoveInput = FVector::ZeroVector;
 
 	FCollisionQueryParams TraceCollisionQueryParams;
-
-
-	// Driver function called upon traverse input
-	void TryTraverse();
+	
 	
 	// Returns if obstacle exists in direction of movement input found 
 	bool FindObstacleTowardInputDirection();

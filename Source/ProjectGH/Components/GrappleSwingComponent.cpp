@@ -73,6 +73,9 @@ void UGrappleSwingComponent::InitGroundDetectorVolume()
 #pragma region Grappling Driver Functions
 void UGrappleSwingComponent::TryGrappleSwing()
 {
+	if (!IsActive())
+		return;
+	
 	bHoldingInput = true;
 	
 	if (!CommonGrappleComp->CanGrapple())

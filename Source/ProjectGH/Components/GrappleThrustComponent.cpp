@@ -44,6 +44,9 @@ void UGrappleThrustComponent::BindInput(UInputComponent* PlayerInputComponent)
 #pragma region Grappling Driver Functions
 void UGrappleThrustComponent::TryGrappleThrust()
 {
+	if (!IsActive())
+		return;
+	
 	if (!CommonGrappleComp->CanGrapple())
 		return;
 
