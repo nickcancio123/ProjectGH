@@ -7,6 +7,14 @@
 #include "GrapplingComponent.generated.h"
 
 
+class UBoxComponent;
+class UCharacterMovementComponent;
+class AGrapplePoint;
+class AGrapplingHook;
+class USphereComponent;
+
+
+
 UENUM()
 enum EGrappleState
 {
@@ -30,6 +38,7 @@ enum EGrappleSwingPhase
 	GSP_Throw = 1,
 	GSP_Swing = 3
 };
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
 class PROJECTGH_API UGrapplingComponent : public UActorComponent
@@ -98,8 +107,51 @@ public:
 	
 	UGrapplingComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	void OnRegister() override;;
 
 protected:
-	virtual void BeginPlay() override;
+	virtual void BeginPlay() override;\
+
+private:
+	// Common variables
+	ACharacter* Character = nullptr;
+	UCharacterMovementComponent* CharacterMovement = nullptr;
+
+	USphereComponent* GrapplePointDetectionVolume = nullptr;
+	AGrapplingHook* GrapplingHook = nullptr;
+	TArray<AGrapplePoint*> AvailableGrapplePoints;
+	
+	TEnumAsByte<EGrappleState> CurrentGrappleType = EGrappleState::GS_None;
+	AGrapplePoint* BestValidGrapplePoint = nullptr;
+	AGrapplePoint* CurrentGrapplePoint = nullptr;
+
+	bool bCanGrapple = true;
+
+	// Swinging variables
+	UBoxComponent* GroundDetectionVolume = nullptr;
+
+	EGrappleSwingPhase GrappleSwingState = EGrappleSwingPhase::GSP_Idle;
+	bool bHoldingInput = false;
+	float InitSwingDist = 0;
+	bool bCanSwingWhileOnGround = false;
+	FVector LastFrameVelocity = FVector::ZeroVector;
+
+	// Thrusting variables
+	EGrappleThrustPhase GrappleThrustState = EGrappleThrustPhase::GTP_Idle;
+
+
+
+	// Common methods
+	void InitDetectionVolume();
+	void GetOverlappedGrapplePoints();
+	void CreateGrapplingHookActor();
+	
+	
+	UFUNCTION()
+	void OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	void FindBestValidGrapplePoint();
 };
