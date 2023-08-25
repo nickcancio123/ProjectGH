@@ -63,8 +63,6 @@ void AHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AHero::SetComponentRefs()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Set component refs"))
-	
 	CommonGrappleComp = Cast<UCommonGrappleComponent>(GetComponentByClass(UCommonGrappleComponent::StaticClass()));
 	GrappleThrustComp = Cast<UGrappleThrustComponent>(GetComponentByClass(UGrappleThrustComponent::StaticClass()));
 	GrappleSwingComp = Cast<UGrappleSwingComponent>(GetComponentByClass(UGrappleSwingComponent::StaticClass()));
@@ -123,8 +121,6 @@ void AHero::TryJump()
 #pragma region Advanced Movement Component Handling
 void AHero::SetupAdvancedMovementComponentSystem()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Setup advanced movement component system"))
-
 	// Setup list of components
 	AdvancedMovementComponents.Add(ObstacleTraversalComp);
 	AdvancedMovementComponents.Add(CommonGrappleComp);
