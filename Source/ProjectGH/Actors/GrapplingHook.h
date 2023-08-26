@@ -12,7 +12,7 @@ class UCableComponent;
 class UGrapplingComponent;
 
 
-UENUM()
+UENUM(BlueprintType)
 enum EGrapplingHookState
 {
 	GHS_In = 0,		// not in use, not visible
@@ -53,6 +53,9 @@ public:
 	
 	void SetHookRotationToCableDir();
 	void SetGrapplingHookState(EGrapplingHookState State);
+
+	UFUNCTION(BlueprintCallable)
+	EGrapplingHookState GetGrapplingHookState();
 	
 protected:
 	virtual void BeginPlay() override;

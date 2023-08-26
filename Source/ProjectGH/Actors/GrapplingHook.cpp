@@ -55,7 +55,6 @@ void AGrapplingHook::Tick(float DeltaTime)
 }
 
 
-
 void AGrapplingHook::SetupGrapplingHook(USkeletalMeshComponent* _CharacterMesh)
 {
 	CharacterMesh = _CharacterMesh;
@@ -83,12 +82,6 @@ void AGrapplingHook::SetupGrapplingHook(USkeletalMeshComponent* _CharacterMesh)
 	SplineMeshComp->SetMobility(EComponentMobility::Movable);
 	SplineMeshComp->SetForwardAxis(ESplineMeshAxis::X);
 }
-
-void AGrapplingHook::SetGrapplingCompRef(UGrapplingComponent* _GrapplingComp)
-{
-	GrapplingComp = _GrapplingComp;
-}
-
 
 
 void AGrapplingHook::OutStateTick()
@@ -138,6 +131,10 @@ void AGrapplingHook::PullStateTick(float DeltaTime)
 }
 
 
+void AGrapplingHook::SetGrapplingCompRef(UGrapplingComponent* _GrapplingComp)
+{
+	GrapplingComp = _GrapplingComp;
+}
 
 void AGrapplingHook::SetHookRotationToCableDir()
 {
@@ -185,5 +182,10 @@ void AGrapplingHook::SetGrapplingHookState(EGrapplingHookState State)
 		SplineMeshComp->SetVisibility(false);
 		break;
 	}
+}
+
+EGrapplingHookState AGrapplingHook::GetGrapplingHookState()
+{
+	return GrapplingHookState;
 }
 

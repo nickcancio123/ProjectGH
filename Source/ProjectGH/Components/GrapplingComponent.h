@@ -15,7 +15,7 @@ class USphereComponent;
 
 
 
-UENUM()
+UENUM(BlueprintType)
 enum EGrappleState
 {
 	GS_None = 0,
