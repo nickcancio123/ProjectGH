@@ -116,11 +116,15 @@ void AHero::SetupAdvancedMovementComponentSystem()
 {
 	// Setup list of components
 	AdvancedMovementComponents.Add(ObstacleTraversalComp);
+
 	AdvancedMovementComponents.Add(GrapplingComp);
 	
 	// Bind events
 	ObstacleTraversalComp->ObstacleTraversalStartEventDelegate.AddDynamic(this, &AHero::OnObstacleTraversalStartEvent);
 	ObstacleTraversalComp->ObstacleTraversalCompleteEventDelegate.AddDynamic(this, &AHero::EnableAllAdvancedMovementComponents);
+
+	GrapplingComp->GrapplingStartEventDelegate.AddDynamic(this, &AHero::OnGrapplingStartEvent);
+	GrapplingComp->GrapplingFinishEventDelegate.AddDynamic(this, &AHero::EnableAllAdvancedMovementComponents);
 }
 
 void AHero::EnableAllAdvancedMovementComponents()
@@ -150,6 +154,11 @@ void AHero::DisableAllAdvancedMovementComponents(UActorComponent* ExceptThisComp
 void AHero::OnObstacleTraversalStartEvent()
 {
 	DisableAllAdvancedMovementComponents(ObstacleTraversalComp);
+}
+
+void AHero::OnGrapplingStartEvent()
+{
+	DisableAllAdvancedMovementComponents(GrapplingComp);
 }
 #pragma endregion
 

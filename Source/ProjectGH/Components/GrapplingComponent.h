@@ -40,6 +40,10 @@ enum EGrappleSwingPhase
 };
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGrapplingStartEventSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGrapplingFinishEventSignature);
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
 class PROJECTGH_API UGrapplingComponent : public UActorComponent
 {
@@ -104,6 +108,9 @@ public:
 	float MinPercentDistanceNeededToDismount = 0.5f;
 
 
+	FGrapplingStartEventSignature GrapplingStartEventDelegate;
+	FGrapplingFinishEventSignature GrapplingFinishEventDelegate;
+	
 	
 	UGrapplingComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -218,6 +225,5 @@ private:
 
 	// === Private Thrusting Methods ===
 	void TryGrappleThrust();
-	void StartGrappleSequence();
-	void ReleaseGrappleFromThrust();
+	void StartGrappleThrustSequence();
 };

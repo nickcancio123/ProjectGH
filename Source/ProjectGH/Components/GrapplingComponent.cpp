@@ -194,15 +194,6 @@ void UGrapplingComponent::FindBestValidGrapplePoint()
 // === Getters ===
 bool UGrapplingComponent::CanGrapple()
 {
-	if (!IsActive())
-		UE_LOG(LogTemp, Warning, TEXT("Not active"));
-
-	if (!bCanGrapple)
-		UE_LOG(LogTemp, Warning, TEXT("Can't grapple"));
-
-	if (!BestValidGrapplePoint)
-		UE_LOG(LogTemp, Warning, TEXT("No best valid GP"));
-
 	return IsActive() && bCanGrapple && BestValidGrapplePoint;
 }
 
@@ -264,6 +255,9 @@ void UGrapplingComponent::BeginSwingSequence()
 	CurrentGrappleState = GS_Swing;
 	GrappleSwingPhase = EGrappleSwingPhase::GSP_Throw;
 
+	if (GrapplingStartEventDelegate.IsBound())
+		GrapplingStartEventDelegate.Broadcast();
+	
 	UAnimMontage* ThrowMontage = CharacterMovement->IsFalling() ? GrappleThrowAirMontage : GrappleThrowMontage;
 	Character->PlayAnimMontage(ThrowMontage);
 }
@@ -377,6 +371,9 @@ void UGrapplingComponent::ReleaseGrappleFromSwing()
 	bCanGrapple = true;
 	CurrentGrappleState = EGrappleState::GS_None;
 	GrappleSwingPhase = EGrappleSwingPhase::GSP_Idle;
+
+	if (GrapplingFinishEventDelegate.IsBound())
+		GrapplingFinishEventDelegate.Broadcast();
 	
 	GrapplingHook->SetGrapplingHookState(EGrapplingHookState::GHS_Pull);
 	SetSwingEndActorRotation();
@@ -410,7 +407,6 @@ bool UGrapplingComponent::CanDoAnimatedDismount()
 }
 
 
-
 // === Getters & Setters===
 EGrappleSwingPhase UGrapplingComponent::GetGrappleSwingPhase()
 {
@@ -441,14 +437,17 @@ void UGrapplingComponent::TryGrappleThrust()
 		return;
 
 	CurrentGrapplePoint = BestValidGrapplePoint;
-	StartGrappleSequence();
+	StartGrappleThrustSequence();
 }
 
-void UGrapplingComponent::StartGrappleSequence()
+void UGrapplingComponent::StartGrappleThrustSequence()
 {
 	bCanGrapple = false;
 	CurrentGrappleState = EGrappleState::GS_Thrust;
 	GrappleThrustPhase = EGrappleThrustPhase::GTP_Throw;
+
+	if (GrapplingStartEventDelegate.IsBound())
+		GrapplingStartEventDelegate.Broadcast();
 	
 	UAnimMontage* ThrowMontage = CharacterMovement->IsFalling() ? GrappleThrowAirMontage : GrappleThrowMontage;
 	Character->PlayAnimMontage(ThrowMontage);
@@ -457,14 +456,11 @@ void UGrapplingComponent::StartGrappleSequence()
 void UGrapplingComponent::StartGrappleThrust()
 {	
 	float GrapplePointZ = CurrentGrapplePoint->GetActorLocation().Z;
+
+	CharacterMovement->bOrientRotationToMovement = false;
 	
 	UAnimMontage* MontageToPlay = GrapplePointZ >= Character->GetActorLocation().Z ? GrappleThrustUpMontage : GrappleThrustDownMontage;
 	Character->PlayAnimMontage(MontageToPlay);
-}
-
-void UGrapplingComponent::ReleaseGrappleFromThrust()
-{
-
 }
 
 EGrappleThrustPhase UGrapplingComponent::GetGrappleThrustPhase()
@@ -482,7 +478,10 @@ void UGrapplingComponent::FinishGrappleThrust()
 	bCanGrapple = true;
 	CurrentGrappleState = GS_None;
 	GrappleThrustPhase = EGrappleThrustPhase::GTP_Idle;
-	  	
+
+	if (GrapplingFinishEventDelegate.IsBound())
+		GrapplingFinishEventDelegate.Broadcast();
+	
 	// Set rotation 
 	FVector HorizVel = CharacterMovement->Velocity;
 	HorizVel.Z = 0;

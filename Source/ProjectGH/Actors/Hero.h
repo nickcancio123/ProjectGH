@@ -94,4 +94,7 @@ private:
 
 	UFUNCTION()
 	void OnObstacleTraversalStartEvent();
+
+	UFUNCTION()
+	void OnGrapplingStartEvent();
 };
