@@ -61,6 +61,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
 	float MaxAimAngleToGrapple = 16;
 
+	// The collision channel used to determine obstruction between character and grapple points
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+	TEnumAsByte<ECollisionChannel> GrapplePointObstructionChannel = ECollisionChannel::ECC_WorldStatic;
+
 	
 	// The montage to play when throwing/starting the grapple on ground
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling|Animation Montages")

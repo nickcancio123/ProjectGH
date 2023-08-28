@@ -3,6 +3,7 @@
 
 #include "ProjectGH/Components/GrapplingComponent.h"
 
+#include "DrawDebugHelpers.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
 #include "ProjectGH/Actors/GrapplingHook.h"
 
@@ -167,17 +168,17 @@ void UGrapplingComponent::FindBestValidGrapplePoint()
 		
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(Character);
-		CollisionParams.AddIgnoredActor(GrapplePoint);
+		//CollisionParams.AddIgnoredActor(GrapplePoint);
 		
-		bool bTraceHit = GetWorld()->LineTraceSingleByProfile(
+		bool bTraceHit = GetWorld()->LineTraceSingleByChannel(
 			HitResult,
 			ViewLocation,
 			GrapplePoint->GetActorLocation(),
-			"BlockAll",
+			GrapplePointObstructionChannel,
 			CollisionParams
 		);
 		
-		if (!bTraceHit)
+		if (!bTraceHit || HitResult.GetActor() == GrapplePoint)
 		{
 			if (Angle < MinGPAngle)
 			{
