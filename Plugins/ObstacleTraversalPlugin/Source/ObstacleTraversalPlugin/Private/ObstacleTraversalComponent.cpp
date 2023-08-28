@@ -32,6 +32,10 @@ void UObstacleTraversalComponent::BeginPlay()
 	
 	TraceCollisionQueryParams.AddIgnoredActor(Character);
 
+	// Create collision shape
+	CollisionShape.ShapeType = ECollisionShape::Sphere;
+	CollisionShape.SetSphere(TraceSphereRadius);
+
 	ComputeMaxObstacleHeight();
 }
 #pragma endregion 
@@ -82,9 +86,6 @@ void UObstacleTraversalComponent::AllowTraversal()
 
 void UObstacleTraversalComponent::TryTraverse()
 {
-	if (!IsActive())
-		return;
-	
 	if (!bCanTraverse)
 		return;
 	
@@ -144,20 +145,24 @@ bool UObstacleTraversalComponent::FindObstacleTowardInputDirection()
 
 		FHitResult HitInfo;
 
-		bool bHit = World->LineTraceSingleByChannel(HitInfo, TraceStart, TraceEnd, ObstacleCollisionChannel, TraceCollisionQueryParams);
-		if (HitInfo.bStartPenetrating)
-			bHit = false;
+		bool bHit =
+			World->SweepSingleByChannel(HitInfo, TraceStart, TraceEnd, FQuat::Identity, ObstacleCollisionChannel, CollisionShape, TraceCollisionQueryParams);
 
 		if (bShowDebug)
 		{
-			DrawDebugLine(World, TraceStart, bHit ? HitInfo.Location : TraceEnd, FColor::Blue, false, DebugSymbolsLifeTime, 0, 2);
+			DrawDebugLine(World, TraceStart, bHit ? HitInfo.ImpactPoint : TraceEnd, FColor::Blue, false, DebugSymbolsLifeTime, 0, 2);
 
 			if (bHit)
-				DrawDebugSphere(World, HitInfo.Location, 5, 16, FColor::Blue, false, DebugSymbolsLifeTime);
+				DrawDebugSphere(World, HitInfo.Location, TraceSphereRadius, 16, FColor::Blue, false, DebugSymbolsLifeTime);
 		}
 
 		if (bHit)
 		{
+			// The angle of the impact normal from the up vector, representing the incline angle. A nearly flat surface/ramp would be near 0. A sheer wall would be nearly 90.
+			float HorizontalAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(FVector::UpVector, HitInfo.ImpactNormal)));
+			if (HorizontalAngle < CharacterMovementComp->GetWalkableFloorAngle())
+				continue;
+			
 			CurrentObstacleInfo.ObstacleQueryInfo = HitInfo;
 			return true;
 		}
@@ -168,8 +173,8 @@ bool UObstacleTraversalComponent::FindObstacleTowardInputDirection()
 
 bool UObstacleTraversalComponent::GetObstacleInfo()
 {
-	// Get obstacle distance
-	CurrentObstacleInfo.DistanceFromCharacter = CurrentObstacleInfo.ObstacleQueryInfo.Distance;
+	// Get obstacle face distance to character
+	CurrentObstacleInfo.DistanceFromCharacter = CurrentObstacleInfo.ObstacleQueryInfo.Distance + TraceSphereRadius;
 	
 	// Get obstacle direction
 	bool bValidObstacleDirection = GetObstacleDepthDirection();
@@ -203,10 +208,10 @@ bool UObstacleTraversalComponent::GetObstacleInfo()
 
 bool UObstacleTraversalComponent::GetObstacleDepthDirection()
 {
-	CurrentObstacleInfo.FaceNormal = CurrentObstacleInfo.ObstacleQueryInfo.Normal;
+	CurrentObstacleInfo.FaceNormal = CurrentObstacleInfo.ObstacleQueryInfo.ImpactNormal;
 
 	// Compute angle between negative obstacle face and world move input
-	float AngleRadians = FMath::Acos(FVector::DotProduct(-CurrentObstacleInfo.ObstacleQueryInfo.Normal, WorldMoveInput));
+	float AngleRadians = FMath::Acos(FVector::DotProduct(-CurrentObstacleInfo.ObstacleQueryInfo.ImpactNormal, WorldMoveInput));
 	float AngleDegrees = FMath::RadiansToDegrees(AngleRadians);
 
 	if (AngleDegrees > MaxAngleToObstacleFaceNormal)
@@ -216,7 +221,7 @@ bool UObstacleTraversalComponent::GetObstacleDepthDirection()
 
 	if (bShowDebug)
 	{
-		FVector Start = CurrentObstacleInfo.ObstacleQueryInfo.Location + 100 * FVector::UpVector;
+		FVector Start = CurrentObstacleInfo.ObstacleQueryInfo.ImpactPoint + 100 * FVector::UpVector;
 		FVector End = Start + 100 * CurrentObstacleInfo.DepthDirection;
 		DrawDebugLine(World, Start, End, FColor::Purple, false, DebugSymbolsLifeTime, 0, 2);
 	}
@@ -228,25 +233,23 @@ bool UObstacleTraversalComponent::GetObstacleHeight()
 {
 	float HeightTraceStartHeight = 5 + MaxObstacleHeight + CurrentCharFeetPos.Z;
 	
-	FVector HeightTraceEnd = CurrentObstacleInfo.ObstacleQueryInfo.Location + 20 * CurrentObstacleInfo.DepthDirection;
+	FVector HeightTraceEnd = CurrentObstacleInfo.ObstacleQueryInfo.ImpactPoint + 20 * CurrentObstacleInfo.DepthDirection;
 	FVector HeightTraceStart = FVector(HeightTraceEnd.X, HeightTraceEnd.Y, HeightTraceStartHeight);
 	
-	bool bHit = World->LineTraceSingleByChannel(CurrentObstacleInfo.HeightTraceInfo, HeightTraceStart, HeightTraceEnd, ObstacleCollisionChannel, TraceCollisionQueryParams);
-
-	if (CurrentObstacleInfo.HeightTraceInfo.bStartPenetrating)
-		bHit = false;	
+	bool bHit =
+		World->SweepSingleByChannel(CurrentObstacleInfo.HeightTraceInfo, HeightTraceStart, HeightTraceEnd, FQuat::Identity, ObstacleCollisionChannel, CollisionShape, TraceCollisionQueryParams);
 	
 	if (bShowDebug)
 	{
 		DrawDebugLine(World, HeightTraceStart, HeightTraceEnd, FColor::Yellow, false, DebugSymbolsLifeTime, 0, 2);
 		if (bHit)
-			DrawDebugSphere(World, CurrentObstacleInfo.HeightTraceInfo.Location, 5, 16, FColor::Yellow, false, DebugSymbolsLifeTime);
+			DrawDebugSphere(World, CurrentObstacleInfo.HeightTraceInfo.Location, TraceSphereRadius, 16, FColor::Yellow, false, DebugSymbolsLifeTime);
 	}
 
 	if (!bHit)
 		return false;
 	
-	CurrentObstacleInfo.Height = CurrentObstacleInfo.HeightTraceInfo.Location.Z - CurrentCharFeetPos.Z;
+	CurrentObstacleInfo.Height = CurrentObstacleInfo.HeightTraceInfo.ImpactPoint.Z - CurrentCharFeetPos.Z;
 	//UE_LOG(LogTemp, Warning, TEXT("Obstacle Height: %f"), CurrentObstacleInfo.Height);	
 	
 	return true;
@@ -254,21 +257,25 @@ bool UObstacleTraversalComponent::GetObstacleHeight()
 
 bool UObstacleTraversalComponent::GetObstacleDepth()
 {
-	FVector DepthTraceStart = CurrentObstacleInfo.ObstacleQueryInfo.Location + (MaxObstacleDepthToVault + 20) * CurrentObstacleInfo.DepthDirection;
-	FVector DepthTraceEnd = CurrentObstacleInfo.ObstacleQueryInfo.Location;
-	bool bHit = World->LineTraceSingleByChannel(CurrentObstacleInfo.DepthTraceInfo, DepthTraceStart, DepthTraceEnd, ObstacleCollisionChannel, TraceCollisionQueryParams);
+	FVector DepthTraceStart = CurrentObstacleInfo.ObstacleQueryInfo.ImpactPoint + (MaxObstacleDepthToVault + 20) * CurrentObstacleInfo.DepthDirection;
+	FVector DepthTraceEnd = CurrentObstacleInfo.ObstacleQueryInfo.ImpactPoint;
+	
+	bool bHit =
+		World->SweepSingleByChannel(CurrentObstacleInfo.DepthTraceInfo, DepthTraceStart, DepthTraceEnd, FQuat::Identity, ObstacleCollisionChannel, CollisionShape, TraceCollisionQueryParams);
 
+	
 	if (bShowDebug)
 	{
-		DrawDebugLine(World, DepthTraceStart, DepthTraceEnd, FColor::Cyan, false, DebugSymbolsLifeTime, 0, 3);
+		DrawDebugLine(World, DepthTraceStart, bHit ? CurrentObstacleInfo.DepthTraceInfo.ImpactPoint : DepthTraceEnd, FColor::Cyan, false, DebugSymbolsLifeTime, 0, 3);
 		if (bHit)
-			DrawDebugSphere(World, CurrentObstacleInfo.DepthTraceInfo.Location, 5, 16, FColor::Cyan, false, DebugSymbolsLifeTime);
+			DrawDebugSphere(World, CurrentObstacleInfo.DepthTraceInfo.Location, TraceSphereRadius, 16, FColor::Cyan, false, DebugSymbolsLifeTime);
 	}
 		
 	if (!bHit)
 		return false;	
 		
-	float Depth = CurrentObstacleInfo.DepthTraceInfo.bStartPenetrating ? MaxObstacleDepthToVault + 5 : FVector::Dist(CurrentObstacleInfo.DepthTraceInfo.Location, DepthTraceEnd);
+	float Depth = CurrentObstacleInfo.DepthTraceInfo.bStartPenetrating ? MaxObstacleDepthToVault + 5 : FVector::Dist(CurrentObstacleInfo.DepthTraceInfo.ImpactPoint + TraceSphereRadius, DepthTraceEnd);
+	
 	CurrentObstacleInfo.Depth = Depth;
 	
 	//UE_LOG(LogTemp, Warning, TEXT("Obstacle Depth: %f"), CurrentObstacleInfo.Depth);
@@ -279,8 +286,8 @@ bool UObstacleTraversalComponent::GetObstacleDepth()
 bool UObstacleTraversalComponent::ComputeObstacleLedges()
 {
 	// Compute front ledge
-	FVector TmpFrontLedge = CurrentObstacleInfo.ObstacleQueryInfo.Location;
-	TmpFrontLedge.Z = CurrentObstacleInfo.HeightTraceInfo.Location.Z;
+	FVector TmpFrontLedge = CurrentObstacleInfo.ObstacleQueryInfo.ImpactPoint;
+	TmpFrontLedge.Z = CurrentObstacleInfo.HeightTraceInfo.ImpactPoint.Z;
 	CurrentObstacleInfo.FrontLedgePos = TmpFrontLedge;
 
 	
@@ -316,19 +323,20 @@ bool UObstacleTraversalComponent::TryVault()
 
 	// Compute land pos
 	FHitResult LandTraceInfo;
-	FVector LandTraceEnd = CurrentObstacleInfo.ObstacleQueryInfo.Location + (CurrentObstacleInfo.Depth + VaultLandDistance) * CurrentObstacleInfo.DepthDirection;
+	FVector LandTraceEnd = CurrentObstacleInfo.ObstacleQueryInfo.ImpactPoint + (CurrentObstacleInfo.Depth + VaultLandDistance) * CurrentObstacleInfo.DepthDirection;
 	LandTraceEnd.Z = CurrentCharFeetPos.Z + VaultLandHeightRange.X;
 	
 	float LandTraceStartHeight = 5 + MaxObstacleHeight + VaultLandHeightRange.Y + CurrentCharFeetPos.Z;
 	FVector LandTraceStart = FVector(LandTraceEnd.X, LandTraceEnd.Y, LandTraceStartHeight);
 	
 	bool bHitLand =
-		World->LineTraceSingleByChannel(LandTraceInfo, LandTraceStart, LandTraceEnd, ObstacleCollisionChannel, TraceCollisionQueryParams);
+		World->SweepSingleByChannel(LandTraceInfo, LandTraceStart, LandTraceEnd, FQuat::Identity, ObstacleCollisionChannel, CollisionShape, TraceCollisionQueryParams);
+
 
 	if (!bHitLand)
 		return false;
 	
-	CurrentVaultInfo.LandPos = LandTraceInfo.Location;
+	CurrentVaultInfo.LandPos = LandTraceInfo.ImpactPoint;
 
 
 	// Select vault variation
@@ -398,13 +406,14 @@ void UObstacleTraversalComponent::StartVault()
 		FVector RecoverTraceStart = RecoverTraceEnd + 100 * FVector::UpVector;
 
 		FHitResult RecoverTraceInfo;
-	
-		bool bHit = World->LineTraceSingleByChannel(RecoverTraceInfo, RecoverTraceStart, RecoverTraceEnd, ECC_Visibility, TraceCollisionQueryParams);
-
+		
+		bool bHit =
+			World->SweepSingleByChannel(RecoverTraceInfo, RecoverTraceStart, RecoverTraceEnd, FQuat::Identity, ObstacleCollisionChannel, CollisionShape, TraceCollisionQueryParams);
+		
 		if (!bHit)
 			return;
 	
-		CurrentVaultInfo.RecoverPos = RecoverTraceInfo.Location;
+		CurrentVaultInfo.RecoverPos = RecoverTraceInfo.ImpactPoint;
 	}
 
 	
