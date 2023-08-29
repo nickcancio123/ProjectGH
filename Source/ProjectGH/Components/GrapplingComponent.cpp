@@ -372,6 +372,8 @@ void UGrapplingComponent::ReleaseGrappleFromSwing()
 	bCanGrapple = true;
 	CurrentGrappleState = EGrappleState::GS_None;
 	GrappleSwingPhase = EGrappleSwingPhase::GSP_Idle;
+	
+	CharacterMovement->Velocity *= 1.25f;
 
 	if (GrapplingFinishEventDelegate.IsBound())
 		GrapplingFinishEventDelegate.Broadcast();

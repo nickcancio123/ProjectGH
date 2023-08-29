@@ -12,7 +12,10 @@ class PROJECTGH_API AGrapplePoint : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Grapple Point")
+	USceneComponent* Root = nullptr;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grapple Point")
 		UStaticMeshComponent* MeshComp = nullptr;
 	

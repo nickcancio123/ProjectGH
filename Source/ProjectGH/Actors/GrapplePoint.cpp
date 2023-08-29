@@ -8,8 +8,8 @@ AGrapplePoint::AGrapplePoint()
 	PrimaryActorTick.bCanEverTick = true;
 
 
-	USceneComponent* NewRoot = CreateDefaultSubobject<USceneComponent>("Root");
-	SetRootComponent(NewRoot);
+	Root = CreateDefaultSubobject<USceneComponent>("Root");
+	SetRootComponent(Root);
 
 
 	// Create and init mesh
