@@ -9,7 +9,7 @@
 
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/Character.h"
-
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 void UGrappleThrust_NotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
@@ -82,6 +82,7 @@ void UGrappleThrust_NotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAn
 	// Set post grapple velocity
 	float PathTotalDist = FVector::Dist(PathStart, PathEnd);
 	FVector PathDir = (PathEnd - PathStart).GetSafeNormal();
+	//FVector PathDir = Character->GetCharacterMovement()->Velocity.GetSafeNormal();
 	
 	float GrappleSpeed = PathTotalDist / TotalNotifyDuration;
 	FVector PostGrappleVelocity = GrappleSpeed * PostThrustSpeedRetained * PathDir;

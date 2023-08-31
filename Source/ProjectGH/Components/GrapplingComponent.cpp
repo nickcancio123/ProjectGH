@@ -270,6 +270,10 @@ void UGrapplingComponent::StartSwingPhase()
 	
 	GrappleSwingPhase = EGrappleSwingPhase::GSP_Swing;
 
+	// Record and set falling lateral friction
+	InitFallingLateralFriction = CharacterMovement->FallingLateralFriction;
+	CharacterMovement->FallingLateralFriction = SwingingLateralFriction;	
+
 	// Set init swing dist
 	FVector CharacterPos = Character->GetActorLocation();
 	FVector GP_Pos = CurrentGrapplePoint->GetActorLocation();
@@ -373,7 +377,9 @@ void UGrapplingComponent::ReleaseGrappleFromSwing()
 	CurrentGrappleState = EGrappleState::GS_None;
 	GrappleSwingPhase = EGrappleSwingPhase::GSP_Idle;
 	
-	CharacterMovement->Velocity *= 1.25f;
+	CharacterMovement->Velocity *= 1.5f;
+
+	CharacterMovement->FallingLateralFriction = InitFallingLateralFriction;	
 
 	if (GrapplingFinishEventDelegate.IsBound())
 		GrapplingFinishEventDelegate.Broadcast();
