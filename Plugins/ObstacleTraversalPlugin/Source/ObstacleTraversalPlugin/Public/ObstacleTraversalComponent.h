@@ -9,7 +9,7 @@
 #include "ObstacleTraversalComponent.generated.h"
 
 	
-UENUM()
+UENUM(BlueprintType)
 enum ETraversalType
 {
 	TT_NONE = 0,
@@ -258,7 +258,7 @@ public:
 
 	void AllowTraversal();
 
-	
+	UFUNCTION(BlueprintCallable)
 	ETraversalType GetCurrentTraversalType();
 
 	void OnClimbComplete();
