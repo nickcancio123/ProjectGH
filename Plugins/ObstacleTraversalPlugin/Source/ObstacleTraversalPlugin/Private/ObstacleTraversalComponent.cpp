@@ -136,11 +136,15 @@ bool UObstacleTraversalComponent::FindObstacleTowardInputDirection()
 {
 	if (ObstacleQueryCastHeights.Num() < 1)
 		return false;
+
+	float MinDistanceToObst = ObstacleQueryRange + 5;
+	bool bFoundObstacle = false;
 	
 	for (int i = 0; i < ObstacleQueryCastHeights.Num(); i++)
 	{
 		float TraceHeight = ObstacleQueryCastHeights[i];
-		FVector TraceStart = CurrentCharFeetPos + TraceHeight * FVector::UpVector;
+		FVector ForwardOffset = ObstacleQueryForwardStartDistance * WorldMoveInput;
+		FVector TraceStart = CurrentCharFeetPos + ForwardOffset + TraceHeight * FVector::UpVector;
 		FVector TraceEnd = TraceStart + ObstacleQueryRange * WorldMoveInput;
 
 		FHitResult HitInfo;
@@ -162,13 +166,17 @@ bool UObstacleTraversalComponent::FindObstacleTowardInputDirection()
 			float HorizontalAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(FVector::UpVector, HitInfo.ImpactNormal)));
 			if (HorizontalAngle < CharacterMovementComp->GetWalkableFloorAngle())
 				continue;
-			
-			CurrentObstacleInfo.ObstacleQueryInfo = HitInfo;
-			return true;
+
+			// Choose trace that is closest to character
+			if (HitInfo.Distance < MinDistanceToObst)
+			{
+				CurrentObstacleInfo.ObstacleQueryInfo = HitInfo;
+				bFoundObstacle = true;	
+			}
 		}
 	}
 
-	return false;
+	return bFoundObstacle;
 }
 
 bool UObstacleTraversalComponent::GetObstacleInfo()
@@ -231,7 +239,7 @@ bool UObstacleTraversalComponent::GetObstacleDepthDirection()
 
 bool UObstacleTraversalComponent::GetObstacleHeight()
 {
-	float HeightTraceStartHeight = 5 + MaxObstacleHeight + CurrentCharFeetPos.Z;
+	float HeightTraceStartHeight = 30 + MaxObstacleHeight + CurrentCharFeetPos.Z;
 	
 	FVector HeightTraceEnd = CurrentObstacleInfo.ObstacleQueryInfo.ImpactPoint + 20 * CurrentObstacleInfo.DepthDirection;
 	FVector HeightTraceStart = FVector(HeightTraceEnd.X, HeightTraceEnd.Y, HeightTraceStartHeight);

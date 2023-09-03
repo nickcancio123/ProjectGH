@@ -187,6 +187,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Obstacle Traversal")
 		float ObstacleQueryRange = 200;
 
+	// The distance at which forward traces start from the character
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Obstacle Traversal")
+		float ObstacleQueryForwardStartDistance = 0;
+	
 	// The radius of the sphere used to sphere-cast information about the obstacle
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Obstacle Traversal")
 		float TraceSphereRadius = 20;
