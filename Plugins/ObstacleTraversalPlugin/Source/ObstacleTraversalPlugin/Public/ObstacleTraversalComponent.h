@@ -9,7 +9,7 @@
 #include "ObstacleTraversalComponent.generated.h"
 
 	
-UENUM()
+UENUM(BlueprintType)
 enum ETraversalType
 {
 	TT_NONE = 0,
@@ -187,6 +187,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Obstacle Traversal")
 		float ObstacleQueryRange = 200;
 
+	// The distance at which forward traces start from the character
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Obstacle Traversal")
+		float ObstacleQueryForwardStartDistance = 0;
+	
+	// The radius of the sphere used to sphere-cast information about the obstacle
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Obstacle Traversal")
+		float TraceSphereRadius = 20;
+	
 	// The collision channel used to find obstacles to traverse.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Obstacle Traversal")
 		TEnumAsByte<ECollisionChannel> ObstacleCollisionChannel = ECC_Visibility;
@@ -252,13 +260,9 @@ public:
 	
 	void BindInput(UInputComponent* PlayerInputComponent);
 
-
-	// Driver function called upon traverse input
-	void TryTraverse();
-	
 	void AllowTraversal();
 
-	
+	UFUNCTION(BlueprintCallable)
 	ETraversalType GetCurrentTraversalType();
 
 	void OnClimbComplete();
@@ -298,7 +302,11 @@ private:
 	FVector WorldMoveInput = FVector::ZeroVector;
 
 	FCollisionQueryParams TraceCollisionQueryParams;
-	
+	FCollisionShape CollisionShape;
+
+
+	// Driver function called upon traverse input
+	void TryTraverse();
 	
 	// Returns if obstacle exists in direction of movement input found 
 	bool FindObstacleTowardInputDirection();

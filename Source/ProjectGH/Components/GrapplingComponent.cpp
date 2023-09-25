@@ -3,6 +3,7 @@
 
 #include "ProjectGH/Components/GrapplingComponent.h"
 
+#include "DrawDebugHelpers.h"
 #include "ProjectGH/Actors/GrapplePoint.h"
 #include "ProjectGH/Actors/GrapplingHook.h"
 
@@ -167,17 +168,17 @@ void UGrapplingComponent::FindBestValidGrapplePoint()
 		
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(Character);
-		CollisionParams.AddIgnoredActor(GrapplePoint);
+		//CollisionParams.AddIgnoredActor(GrapplePoint);
 		
-		bool bTraceHit = GetWorld()->LineTraceSingleByProfile(
+		bool bTraceHit = GetWorld()->LineTraceSingleByChannel(
 			HitResult,
 			ViewLocation,
 			GrapplePoint->GetActorLocation(),
-			"BlockAll",
+			GrapplePointObstructionChannel,
 			CollisionParams
 		);
 		
-		if (!bTraceHit)
+		if (!bTraceHit || HitResult.GetActor() == GrapplePoint)
 		{
 			if (Angle < MinGPAngle)
 			{
@@ -268,6 +269,10 @@ void UGrapplingComponent::StartSwingPhase()
 		return;
 	
 	GrappleSwingPhase = EGrappleSwingPhase::GSP_Swing;
+
+	// Record and set falling lateral friction
+	InitFallingLateralFriction = CharacterMovement->FallingLateralFriction;
+	CharacterMovement->FallingLateralFriction = SwingingLateralFriction;	
 
 	// Set init swing dist
 	FVector CharacterPos = Character->GetActorLocation();
@@ -371,6 +376,10 @@ void UGrapplingComponent::ReleaseGrappleFromSwing()
 	bCanGrapple = true;
 	CurrentGrappleState = EGrappleState::GS_None;
 	GrappleSwingPhase = EGrappleSwingPhase::GSP_Idle;
+	
+	CharacterMovement->Velocity *= 1.5f;
+
+	CharacterMovement->FallingLateralFriction = InitFallingLateralFriction;	
 
 	if (GrapplingFinishEventDelegate.IsBound())
 		GrapplingFinishEventDelegate.Broadcast();

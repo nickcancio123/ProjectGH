@@ -7,6 +7,7 @@
 #include "ProjectGH/Actors/GrapplePoint.h"
 
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "CableComponent.h"
 
 
@@ -180,6 +181,7 @@ void AGrapplingHook::SetGrapplingHookState(EGrapplingHookState State)
 		CableComp->SetVisibility(true);
 		HookMeshComp->SetVisibility(true);
 		SplineMeshComp->SetVisibility(false);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), RopePullSound, GetActorLocation());
 		break;
 	}
 }

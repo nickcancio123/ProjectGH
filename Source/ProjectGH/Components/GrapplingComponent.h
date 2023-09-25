@@ -61,6 +61,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
 	float MaxAimAngleToGrapple = 16;
 
+	// The collision channel used to determine obstruction between character and grapple points
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+	TEnumAsByte<ECollisionChannel> GrapplePointObstructionChannel = ECollisionChannel::ECC_WorldStatic;
+	
 	
 	// The montage to play when throwing/starting the grapple on ground
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling|Animation Montages")
@@ -98,6 +102,10 @@ public:
 	// Determines the rate character rotates towards velocity while swinging
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling|Swinging")
 	float SwingRotationRate = 8;
+
+	// The "falling lateral friction" to set while swinging
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling")
+	float SwingingLateralFriction = 0.05f;
 		
 	// Whether should release grapple when feet hit the ground
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling|Swinging")
@@ -178,6 +186,7 @@ private:
 	bool bCanGrapple = true;
 	
 	FVector LastFrameVelocity = FVector::ZeroVector;
+	float InitFallingLateralFriction = 0.5f;
 
 	
 	// === Swinging variables ===

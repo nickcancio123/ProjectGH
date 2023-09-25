@@ -8,6 +8,7 @@
 #include "GrapplingHook.generated.h"
 
 
+class USoundCue;
 class UCableComponent;
 class UGrapplingComponent;
 
@@ -35,7 +36,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling Hook")
 		USplineMeshComponent* SplineMeshComp = nullptr;
-	
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling Hook")
+		USoundBase* RopePullSound = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Grappling Hook")
 		float CableWidth = 5;
